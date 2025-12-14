@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Text.Json.Serialization; // Pour le JSON (dans la nouvelle implémentation)
 
 namespace CabinetMedicalWeb.Areas.Medical.Controllers
 {
@@ -20,17 +19,6 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
         {
             _context = context;
         }
-
-        // RECORD C# pour structurer les données envoyées à la vue/API
-        // Ce record MUST correspond aux propriétés utilisées dans la vue JS/Razor
-        private record PatientListItem(
-            [property: JsonPropertyName("id")] int Id,
-            [property: JsonPropertyName("fullName")] string FullName,
-            [property: JsonPropertyName("telephone")] string Telephone,
-            [property: JsonPropertyName("email")] string Email,
-            [property: JsonPropertyName("dateNaissance")] string DateNaissance
-        );
-
 
         // Helper pour construire la requête filtrée
         private IQueryable<Patient> BuildPatientsQuery(string? searchTerm = null)
