@@ -10,7 +10,7 @@
 }
 
 @{
-    var initialPatients = ViewData["PatientsList"] as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var initialPatients = ViewData["InitialPatients"] as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
 }
 
 <div class="container-fluid py-4" style="background-color: @bgPage; min-height: 100vh;">
