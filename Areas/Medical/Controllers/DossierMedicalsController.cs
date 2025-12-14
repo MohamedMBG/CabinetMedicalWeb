@@ -19,18 +19,58 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
             _context = context;
         }
 
+        private record PatientListItem(int Id, string FullName, string Telephone, string Email, string DateNaissance);
+
+        private IQueryable<Patient> BuildPatientsQuery(string? searchTerm = null)
+        {
+            var query = _context.Patients.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                searchTerm = searchTerm.Trim();
+                query = query.Where(p =>
+                    EF.Functions.Like(p.Nom, $"%{searchTerm}%") ||
+                    EF.Functions.Like(p.Prenom, $"%{searchTerm}%") ||
+                    (!string.IsNullOrEmpty(p.Telephone) && EF.Functions.Like(p.Telephone, $"%{searchTerm}%")));
+            }
+
+            return query;
+        }
+
+        private async Task<List<PatientListItem>> GetPatientsForSelectionAsync(string? searchTerm = null)
+        {
+            return await BuildPatientsQuery(searchTerm)
+                .OrderBy(p => p.Nom)
+                .ThenBy(p => p.Prenom)
+                .Select(p => new PatientListItem(
+                    p.Id,
+                    (p.Nom + " " + p.Prenom).Trim(),
+                    p.Telephone ?? string.Empty,
+                    p.Email ?? string.Empty,
+                    p.DateNaissance.ToString("yyyy-MM-dd")
+                ))
+                .ToListAsync();
+        }
+
         private async Task PopulatePatientsDropDownAsync(int? selectedPatientId = null)
         {
-            var patientsList = await _context.Patients
-                .AsNoTracking()
-                .Select(p => new
-                {
-                    p.Id,
-                    FullName = p.FullName
-                })
-                .ToListAsync();
-
+            var patientsList = await GetPatientsForSelectionAsync();
             ViewData["PatientId"] = new SelectList(patientsList, "Id", "FullName", selectedPatientId);
+            ViewData["PatientsList"] = patientsList;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PatientsList(string? searchTerm)
+        {
+            var patients = await GetPatientsForSelectionAsync(searchTerm);
+            return Json(patients.Select(p => new
+            {
+                id = p.Id,
+                fullName = p.FullName,
+                telephone = p.Telephone,
+                email = p.Email,
+                dateNaissance = p.DateNaissance
+            }));
         }
 
         // GET: Medical/DossierMedicals
