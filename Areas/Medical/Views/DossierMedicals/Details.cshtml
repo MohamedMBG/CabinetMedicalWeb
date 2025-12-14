@@ -1,36 +1,152 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿@model CabinetMedicalWeb.Areas.Medical.Models.DossierCompletViewModel
 
-namespace CabinetMedicalWeb.Models
-{
-    public class Consultation
-    {
-        [Key]
-        public int Id { get; set; }
+@{
+    ViewData["Title"] = "Tableau de Bord Médical";
+    // Palette de couleurs (Charte Graphique)
+    var bgPage = "#E9EFF7";
+    var bgHeader = "#A7CBED";
+    var btnPrimary = "#91B3D9";
+    var textMain = "#666B72";
+    var border = "#989DA5";
+}
 
-        [Required]
-        public DateTime Date { get; set; } = DateTime.Now;
+<div class="container-fluid py-4" style="background-color: @bgPage; min-height: 100vh;">
 
-        [Required]
-        public string Motif { get; set; } // Ex: "Douleur au ventre"
+    <!-- 1. EN-TÊTE PATIENT (FICHE SIGNALÉTIQUE) -->
+    <div class="card mb-4 shadow-sm" style="border: 1px solid @border;">
+        <div class="card-header" style="background-color: @bgHeader;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="mb-0" style="color: @textMain;">
+                    <i class="fas fa-file-medical-alt"></i> Dossier : @Model.PatientInfo.Nom @Model.PatientInfo.Prenom
+                </h3>
+                <span class="badge bg-light text-dark">ID Dossier: #@Model.DossierId</span>
+            </div>
+        </div>
+        <div class="card-body bg-white">
+            <div class="row" style="color: @textMain;">
+                <div class="col-md-4 border-end">
+                    <p class="mb-1"><strong><i class="fas fa-birthday-cake"></i> Né(e) le :</strong> @Model.PatientInfo.DateNaissance.ToShortDateString()</p>
+                    <p class="mb-1"><strong><i class="fas fa-phone"></i> Tél :</strong> @Model.PatientInfo.Telephone</p>
+                </div>
+                <div class="col-md-4 border-end">
+                    <p class="mb-1"><strong><i class="fas fa-envelope"></i> Email :</strong> @Model.PatientInfo.Email</p>
+                    <p class="mb-1"><strong><i class="fas fa-map-marker-alt"></i> Adresse :</strong> @Model.PatientInfo.Adresse</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="alert alert-warning mb-0 py-2">
+                        <strong>⚠️ Antécédents / Allergies :</strong><br />
+                        @(string.IsNullOrEmpty(Model.PatientInfo.AntecedentsMedicaux) ? "RAS" : Model.PatientInfo.AntecedentsMedicaux)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        public string Notes { get; set; } // Diagnostic du médecin
+    <!-- 2. BARRE D'ACTIONS RAPIDES (CONTENANT TOUS LES BOUTONS) -->
+    <div class="d-flex gap-2 mb-4">
+        <!-- BOUTON 1: CONSULTATION (Tâche B2) -->
+        <a asp-area="Medical" asp-controller="Consultation" asp-action="Create" asp-route-dossierId="@Model.DossierId"
+           class="btn text-white fw-bold shadow-sm" style="background-color: @btnPrimary;">
+            <i class="fas fa-stethoscope"></i> + Nouvelle Consultation
+        </a>
 
-        // Lien vers le Dossier Médical (EXISTANT)
-        public int DossierMedicalId { get; set; }
+        <!-- BOUTON 2: ORDONNANCE (Tâche B3) -->
+        <a asp-area="Medical" asp-controller="Prescription" asp-action="Create" asp-route-dossierId="@Model.DossierId"
+           class="btn btn-outline-secondary fw-bold" style="border-color: @btnPrimary; color: @textMain;">
+            <i class="fas fa-prescription"></i> + Ordonnance
+        </a>
 
-        [ForeignKey("DossierMedicalId")]
-        public virtual DossierMedical DossierMedical { get; set; }
+        <!-- BOUTON 3: LABO (Tâche B4) -->
+        <a asp-area="Medical" asp-controller="Labo" asp-action="Create" asp-route-dossierId="@Model.DossierId"
+           class="btn btn-outline-info fw-bold" style="border-color: @btnPrimary; color: @textMain;">
+            <i class="fas fa-flask"></i> + Résultat Labo
+        </a>
 
-        // --- PARTIE AJOUTÉE POUR CORRIGER L'ERREUR ---
-        // Lien vers le Médecin qui a fait la consultation
-        public string? DoctorId { get; set; }
+        <!-- BOUTON RETOUR -->
+        <a asp-action="Index" class="btn btn-link" style="color: @textMain;">&larr; Retour à la liste</a>
+    </div>
 
-        [ForeignKey("DoctorId")]
-        public virtual ApplicationUser? Doctor { get; set; }
-    }
-}-muted py-3">Aucun résultat d'examen.</li>
+    <!-- 3. HISTORIQUE DES SOINS (GRID) -->
+    <div class="row">
+
+        <!-- COLONNE GAUCHE : CONSULTATIONS -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm mb-4" style="border: 1px solid @border;">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0" style="color: @btnPrimary;">📅 Historique des Consultations</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    @if (Model.Consultations.Any())
+                    {
+                        @foreach (var consult in Model.Consultations)
+                        {
+                            <div class="list-group-item p-3">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1 text-primary">@consult.Date.ToLongDateString() <small class="text-muted">(@consult.Date.ToShortTimeString())</small></h6>
+                                    <small class="text-muted">Dr. @consult.DoctorId</small>
+                                </div>
+                                <p class="mb-1 fw-bold" style="color: @textMain;">Motif : @consult.Motif</p>
+                                <p class="mb-0 text-muted" style="font-style: italic;">"@consult.Notes"</p>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="p-4 text-center text-muted">
+                            <i class="fas fa-notes-medical fa-2x mb-2"></i><br />
+                            Aucune consultation enregistrée.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- COLONNE DROITE : ORDONNANCES & RESULTATS -->
+        <div class="col-lg-5">
+
+            <!-- Carte Ordonnances -->
+            <div class="card shadow-sm mb-4" style="border: 1px solid @border;">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0" style="color: @btnPrimary;">💊 Dernières Prescriptions</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    @if (Model.Prescriptions.Any())
+                    {
+                        @foreach (var presc in Model.Prescriptions)
+                        {
+                            <li class="list-group-item">
+                                <strong>@presc.DatePrescription.ToShortDateString() :</strong><br />
+                                @presc.Medicaments
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="list-group-item text-center text-muted py-3">Aucune prescription.</li>
+                    }
+                </ul>
+            </div>
+
+            <!-- Carte Labo -->
+            <div class="card shadow-sm" style="border: 1px solid @border;">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0" style="color: @btnPrimary;">🧪 Résultats Labo</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    @if (Model.Examens.Any())
+                    {
+                        @foreach (var exam in Model.Examens)
+                        {
+                            <li class="list-group-item">
+                                <span class="badge bg-info">@exam.TypeExamen</span>
+                                <span class="float-end">@exam.DateExamen.ToShortDateString()</span>
+                                <p class="mt-2 mb-0 small">@exam.Resultat</p>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="list-group-item text-center text-muted py-3">Aucun résultat d'examen.</li>
                     }
                 </ul>
             </div>

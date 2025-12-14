@@ -1,4 +1,5 @@
-﻿@model CabinetMedicalWeb.Models.DossierMedical
+﻿@using System.Linq
+@model CabinetMedicalWeb.Models.DossierMedical
 
 @{
     ViewData["Title"] = "Créer un Dossier Médical";
@@ -6,6 +7,10 @@
     var bgHeader = "#A7CBED";
     var bgPage = "#E9EFF7";
     var textMain = "#666B72";
+}
+
+@{
+    var initialPatients = ViewData["PatientsList"] as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
 }
 
 <div class="container-fluid py-4" style="background-color: @bgPage; min-height: 100vh;">
@@ -39,8 +44,12 @@
                             <input type="search" id="patientSearch" class="form-control" placeholder="Rechercher par nom, prénom ou téléphone" aria-label="Rechercher un patient" />
                         </div>
 
-                        <select asp-for="PatientId" asp-items="ViewBag.PatientId" class="form-select form-select-lg shadow-sm" id="PatientId">
+                        <select asp-for="PatientId" class="form-select form-select-lg shadow-sm" id="PatientId">
                             <option value="">-- Choisir un Patient --</option>
+                            @foreach (var patient in initialPatients)
+                            {
+                                <option value="@patient.Id" data-telephone="@patient.Telephone" data-email="@patient.Email" data-birth="@patient.DateNaissance">@patient.FullName</option>
+                            }
                         </select>
 
                         <div id="noPatientsAlert" class="alert alert-warning mt-2 small d-none">
@@ -120,6 +129,12 @@
                 });
             };
 
+            const updateCountsFromSelect = () => {
+                const count = Math.max(patientSelect.options.length - 1, 0);
+                patientsCount.textContent = count ? `${count} patient(s) disponible(s)` : 'Aucun patient disponible';
+                noPatientsAlert.classList.toggle('d-none', count > 0);
+            };
+
             const buildOption = patient => {
                 const option = document.createElement('option');
                 option.value = patient.id;
@@ -142,26 +157,28 @@
                     }
 
                     const patients = await response.json();
-                    patientSelect.innerHTML = '<option value="">-- Choisir un Patient --</option>';
+                    const fragment = document.createDocumentFragment();
+                    const placeholder = document.createElement('option');
+                    placeholder.value = '';
+                    placeholder.textContent = '-- Choisir un Patient --';
+                    fragment.appendChild(placeholder);
 
                     patients.forEach(patient => {
                         const option = buildOption(patient);
                         if (previouslySelected && previouslySelected === option.value) {
                             option.selected = true;
                         }
-                        patientSelect.appendChild(option);
+                        fragment.appendChild(option);
                     });
 
-                    const hasPatients = patients.length > 0;
-                    noPatientsAlert.classList.toggle('d-none', hasPatients);
-                    patientsCount.textContent = hasPatients ? `${patients.length} patient(s) disponible(s)` : 'Aucun patient disponible';
-
+                    patientSelect.replaceChildren(fragment);
+                    updateCountsFromSelect();
                     displayDetails();
                 }
                 catch (error) {
                     console.error(error);
-                    noPatientsAlert.classList.remove('d-none');
                     patientsCount.textContent = 'Erreur lors du chargement des patients';
+                    updateCountsFromSelect();
                 }
             };
 
@@ -173,9 +190,14 @@
                 };
             };
 
-            patientSelect.addEventListener('change', displayDetails);
+            patientSelect.addEventListener('change', () => {
+                displayDetails();
+                updateCountsFromSelect();
+            });
             patientSearch.addEventListener('input', debounce(e => populatePatients(e.target.value), 250));
 
+            updateCountsFromSelect();
+            displayDetails();
             populatePatients();
         })();
     </script>
