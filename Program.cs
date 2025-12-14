@@ -2,6 +2,7 @@ using CabinetMedicalWeb.Data;
 using CabinetMedicalWeb.Models; // <--- AJOUTER CE NAMESPACE pour ApplicationUser
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace CabinetMedicalWeb
 {
@@ -13,12 +14,32 @@ namespace CabinetMedicalWeb
 
             // Add services to the container.
             // Prefer environment override to simplify deployment and local setup
-            var connectionString = builder.Configuration["SQLSERVER_CONNECTION"]
-                ?? builder.Configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            var useSqlite = builder.Configuration.GetValue("UseSqlite", builder.Environment.IsDevelopment());
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString));
+            {
+                if (useSqlite)
+                {
+                    var sqliteConnection = builder.Configuration.GetConnectionString("SqliteConnection")
+                        ?? $"Data Source={Path.Combine(builder.Environment.ContentRootPath, "Data", "cabinetmedical.db")}";
+
+                    var sqliteDataDirectory = Path.GetDirectoryName(sqliteConnection.Replace("Data Source=", string.Empty));
+                    if (!string.IsNullOrEmpty(sqliteDataDirectory) && !Directory.Exists(sqliteDataDirectory))
+                    {
+                        Directory.CreateDirectory(sqliteDataDirectory);
+                    }
+
+                    options.UseSqlite(sqliteConnection);
+                }
+                else
+                {
+                    var connectionString = builder.Configuration["SQLSERVER_CONNECTION"]
+                        ?? builder.Configuration.GetConnectionString("DefaultConnection")
+                        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+                    options.UseSqlServer(connectionString);
+                }
+            });
 
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
