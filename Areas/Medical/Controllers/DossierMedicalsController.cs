@@ -19,6 +19,20 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
             _context = context;
         }
 
+        private async Task PopulatePatientsDropDownAsync(int? selectedPatientId = null)
+        {
+            var patientsList = await _context.Patients
+                .AsNoTracking()
+                .Select(p => new
+                {
+                    p.Id,
+                    FullName = p.FullName
+                })
+                .ToListAsync();
+
+            ViewData["PatientId"] = new SelectList(patientsList, "Id", "FullName", selectedPatientId);
+        }
+
         // GET: Medical/DossierMedicals
         public async Task<IActionResult> Index()
         {
@@ -60,17 +74,9 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
 
         // GET: Medical/DossierMedicals/Create
         // Dans DossierMedicalsController.cs
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            // C'est ce bloc qui est essentiel pour afficher Nom ET Prenom
-            var patientsList = _context.Patients
-                .Select(p => new {
-                    Id = p.Id,
-                    FullName = p.Nom + " " + p.Prenom // <--- DOIT CONTENIR CE SELECT
-                })
-                .ToList();
-
-            ViewData["PatientId"] = new SelectList(patientsList, "Id", "FullName");
+            await PopulatePatientsDropDownAsync();
             return View();
         }
 
@@ -93,13 +99,7 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
             }
 
             // Si la validation échoue, on recharge la liste (avec le nom complet)
-            var patientsList = _context.Patients
-                .Select(p => new {
-                    Id = p.Id,
-                    FullName = p.Nom + " " + p.Prenom
-                })
-                .ToList();
-            ViewData["PatientId"] = new SelectList(patientsList, "Id", "FullName", dossierMedical.PatientId);
+            await PopulatePatientsDropDownAsync(dossierMedical.PatientId);
             return View(dossierMedical);
         }
 
@@ -118,13 +118,7 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
             }
 
             // Rechargement correct de la liste pour l'édition
-            var patientsList = _context.Patients
-                .Select(p => new {
-                    Id = p.Id,
-                    FullName = p.Nom + " " + p.Prenom
-                })
-                .ToList();
-            ViewData["PatientId"] = new SelectList(patientsList, "Id", "FullName", dossierMedical.PatientId);
+            await PopulatePatientsDropDownAsync(dossierMedical.PatientId);
             return View(dossierMedical);
         }
 
@@ -160,13 +154,7 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
             }
 
             // Rechargement correct de la liste si erreur de POST
-            var patientsList = _context.Patients
-                .Select(p => new {
-                    Id = p.Id,
-                    FullName = p.Nom + " " + p.Prenom
-                })
-                .ToList();
-            ViewData["PatientId"] = new SelectList(patientsList, "Id", "FullName", dossierMedical.PatientId);
+            await PopulatePatientsDropDownAsync(dossierMedical.PatientId);
             return View(dossierMedical);
         }
 

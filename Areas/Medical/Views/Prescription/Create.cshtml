@@ -1,0 +1,56 @@
+﻿@model CabinetMedicalWeb.Models.Prescription
+
+@{
+    ViewData["Title"] = "Nouvelle Ordonnance";
+    var btnPrimary = "#91B3D9";
+    var bgColor = "#E9EFF7";
+    var textMain = "#666B72";
+}
+
+<div class="container mt-4" style="max-width: 800px;">
+
+    <div class="card shadow-lg" style="border: 1px solid @textMain;">
+        <div class="card-header text-white" style="background-color: #A7CBED;">
+            <h4 class="mb-0" style="color: @textMain;"><i class="fas fa-prescription"></i> Nouvelle Ordonnance</h4>
+        </div>
+
+        <div class="card-body" style="background-color: @bgColor;">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <!-- Champ caché pour lier au bon dossier (CRITIQUE) -->
+                <input type="hidden" asp-for="DossierMedicalId" />
+
+                <!-- Date -->
+                <div class="form-group mb-3">
+                    <label asp-for="DatePrescription" class="control-label fw-bold" style="color: @textMain;"></label>
+                    <input asp-for="DatePrescription" class="form-control" type="datetime-local" />
+                    <span asp-validation-for="DatePrescription" class="text-danger"></span>
+                </div>
+
+                <!-- Contenu de l'ordonnance -->
+                <div class="form-group mb-4">
+                    <label asp-for="Medicaments" class="control-label fw-bold" style="color: @textMain;">Détails de la Prescription (Médicaments, Posologie)</label>
+                    <textarea asp-for="Medicaments" class="form-control" rows="8" placeholder="Ex: Paracétamol 1g, 1 comprimé 3x/jour, 5 jours."></textarea>
+                    <span asp-validation-for="Medicaments" class="text-danger"></span>
+                </div>
+
+                <!-- Boutons -->
+                <div class="d-flex justify-content-between">
+                    <a asp-controller="DossierMedicals" asp-action="Details" asp-route-id="@Model.DossierMedicalId" class="btn btn-secondary">
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn text-white fw-bold" style="background-color: @btnPrimary;">
+                        ✍️ Rédiger et Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

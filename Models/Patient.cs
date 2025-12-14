@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CabinetMedicalWeb.Models
 {
@@ -16,5 +17,8 @@ namespace CabinetMedicalWeb.Models
 
         // Liens
         public virtual DossierMedical? Dossier { get; set; }
+
+        [NotMapped]
+        public string FullName => $"{Nom} {Prenom}".Trim();
     }
 }
