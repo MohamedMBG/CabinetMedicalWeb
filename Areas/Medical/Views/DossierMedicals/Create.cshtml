@@ -1,0 +1,61 @@
+﻿@model CabinetMedicalWeb.Models.DossierMedical
+
+@{
+    ViewData["Title"] = "Créer un Dossier Médical";
+    var btnPrimary = "#91B3D9";
+    var bgHeader = "#A7CBED";
+    var bgPage = "#E9EFF7";
+    var textMain = "#666B72";
+}
+
+<div class="container-fluid py-4" style="background-color: @bgPage; min-height: 100vh;">
+
+    <div class="card shadow-sm mx-auto" style="max-width: 600px; border: 1px solid #989DA5;">
+        <div class="card-header text-white" style="background-color: @bgHeader;">
+            <h4 class="mb-0" style="color: @textMain;">👤 Créer un Nouveau Dossier</h4>
+        </div>
+
+        <div class="card-body bg-white">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="alert alert-info">
+                    <strong>Attention :</strong> Le Patient doit avoir été enregistré par le Secrétariat (FrontDesk) au préalable.
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="PatientId" class="control-label fw-bold" style="color: @textMain;">Sélectionner le Patient</label>
+
+                    <!-- Le Dropdown doit utiliser l'objet SelectList créé par le contrôleur -->
+                    <select id="PatientId" name="PatientId" class="form-control form-control-lg" asp-items="ViewBag.PatientId">
+                        <option value="">-- Choisir un Patient --</option>
+                    </select>
+
+                    @if (ViewBag.PatientId == null || !((SelectList)ViewBag.PatientId).Any())
+                    {
+                        <div class="alert alert-warning mt-2 small">
+                            ⚠️ Aucun patient trouvé. Veuillez en ajouter via l'espace FrontDesk ou SQL.
+                        </div>
+                    }
+
+                    <span asp-validation-for="PatientId" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn text-white fw-bold px-4" style="background-color: @btnPrimary;">
+                        Créer le Dossier
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

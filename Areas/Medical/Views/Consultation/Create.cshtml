@@ -1,0 +1,56 @@
+﻿@model CabinetMedicalWeb.Models.Consultation
+
+@{
+    ViewData["Title"] = "Nouvelle Consultation";
+    // Couleurs du thème
+    var btnColor = "#91B3D9";
+    var bgColor = "#E9EFF7";
+}
+
+<div class="container mt-4" style="max-width: 800px;">
+
+    <div class="card shadow-sm">
+        <div class="card-header text-white" style="background-color: #A7CBED;">
+            <h4 class="mb-0" style="color: #666B72;">📝 Nouvelle Consultation</h4>
+        </div>
+
+        <div class="card-body" style="background-color: @bgColor;">
+            <form asp-action="Create">
+                <input type="hidden" asp-for="DossierMedicalId" />
+
+                <div class="form-group mb-3">
+                    <label asp-for="Date" class="control-label fw-bold" style="color: #666B72;"></label>
+                    <input asp-for="Date" class="form-control" type="datetime-local" />
+                    <span asp-validation-for="Date" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Motif" class="control-label fw-bold" style="color: #666B72;">Motif de la visite</label>
+                    <input asp-for="Motif" class="form-control" placeholder="Ex: Fièvre, Douleur abdominale..." />
+                    <span asp-validation-for="Motif" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label asp-for="Notes" class="control-label fw-bold" style="color: #666B72;">Notes & Diagnostic</label>
+                    <textarea asp-for="Notes" class="form-control" rows="5" placeholder="Détails de l'examen clinique..."></textarea>
+                    <span asp-validation-for="Notes" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-controller="Dossier" asp-action="Details" asp-route-id="@Model.DossierMedicalId" class="btn btn-secondary">
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn text-white fw-bold" style="background-color: @btnColor;">
+                        💾 Enregistrer la Consultation
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

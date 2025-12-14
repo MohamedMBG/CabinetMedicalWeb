@@ -6,18 +6,29 @@ namespace CabinetMedicalWeb.Models
 {
     public class DossierMedical
     {
-        [Key, ForeignKey("Patient")]
-        public int PatientId { get; set; }
-        public virtual Patient Patient { get; set; }
-        public virtual ICollection<Consultation> Consultations { get; set; }
-    }
-
-    public class Consultation
-    {
+        [Key]
         public int Id { get; set; }
-        public DateTime Date { get; set; }
-        public string Notes { get; set; }
-        public int DossierMedicalId { get; set; }
-        public virtual DossierMedical DossierMedical { get; set; }
+
+        // Lien vers le Patient (Un dossier appartient à un patient)
+        [Required]
+        public int PatientId { get; set; }
+
+        [ForeignKey("PatientId")]
+        public virtual Patient Patient { get; set; }
+
+        // --- PARTIE MEDICALE (DEV B) ---
+        // Ces listes permettent de dire : "Ce dossier contient tout ça..."
+
+        public virtual ICollection<Consultation> Consultations { get; set; }
+        public virtual ICollection<Prescription> Prescriptions { get; set; }
+        public virtual ICollection<ResultatExamen> ResultatExamens { get; set; }
+
+        // Constructeur pour éviter les erreurs "NullReference" sur les listes
+        public DossierMedical()
+        {
+            Consultations = new List<Consultation>();
+            Prescriptions = new List<Prescription>();
+            ResultatExamens = new List<ResultatExamen>();
+        }
     }
 }

@@ -4,6 +4,7 @@ using CabinetMedicalWeb.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CabinetMedicalWeb.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251213202501_AddDoctorToConsultation")]
+    partial class AddDoctorToConsultation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,9 +112,6 @@ namespace CabinetMedicalWeb.Data.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("DoctorId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("DossierMedicalId")
                         .HasColumnType("int");
 
@@ -124,8 +124,6 @@ namespace CabinetMedicalWeb.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DoctorId");
 
                     b.HasIndex("DossierMedicalId");
 
@@ -451,17 +449,11 @@ namespace CabinetMedicalWeb.Data.Migrations
 
             modelBuilder.Entity("CabinetMedicalWeb.Models.Consultation", b =>
                 {
-                    b.HasOne("CabinetMedicalWeb.Models.ApplicationUser", "Doctor")
-                        .WithMany()
-                        .HasForeignKey("DoctorId");
-
                     b.HasOne("CabinetMedicalWeb.Models.DossierMedical", "DossierMedical")
                         .WithMany("Consultations")
                         .HasForeignKey("DossierMedicalId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Doctor");
 
                     b.Navigation("DossierMedical");
                 });

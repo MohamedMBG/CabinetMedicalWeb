@@ -1,0 +1,80 @@
+﻿@model IEnumerable<CabinetMedicalWeb.Models.DossierMedical>
+
+@{
+    ViewData["Title"] = "Liste des Dossiers";
+    // Palette de couleurs
+    var btnPrimary = "#91B3D9";
+    var bgHeader = "#A7CBED";
+    var bgPage = "#E9EFF7";
+    var textMain = "#666B72";
+}
+
+<div class="container-fluid py-4" style="background-color: @bgPage; min-height: 100vh;">
+
+    <!-- En-tête avec le bouton d'action -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="color: @textMain;">📂 Dossiers Médicaux</h2>
+
+        <!-- FIX: Utilisation de Url.Action pour forcer la création du lien -->
+        <a href='@Url.Action("Create", "DossierMedicals", new { area = "Medical" })' class="btn text-white shadow-sm px-4 py-2" style="background-color: @btnPrimary; font-weight: bold; border-radius: 50px; text-decoration: none;">
+            <i class="fas fa-plus-circle"></i> Créer un Nouveau Dossier
+        </a>
+    </div>
+
+    <!-- Carte Tableau -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header" style="background-color: @bgHeader;">
+            <h5 class="mb-0" style="color: @textMain;">Patients enregistrés</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="color: @textMain;">Patient</th>
+                        <th class="text-center" style="width: 250px; color: @textMain;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="align-middle">
+                                <div class="fw-bold" style="color: @textMain;">
+                                    <i class="fas fa-user-circle fa-lg me-2" style="color: @btnPrimary;"></i>
+                                    <!-- Affiche Nom et Prénom si disponibles -->
+                                    @(item.Patient != null ? $"{item.Patient.Nom} {item.Patient.Prenom}" : "Patient Inconnu")
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group" role="group">
+                                    <!-- FIX: Utilisation de Url.Action pour les boutons d'action -->
+                                    <a href='@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = item.Id })' class="btn btn-sm btn-outline-primary fw-bold">
+                                        <i class="fas fa-folder-open"></i> Ouvrir Dashboard
+                                    </a>
+
+                                    <a href='@Url.Action("Delete", "DossierMedicals", new { area = "Medical", id = item.Id })' class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Message si la liste est vide -->
+        @if (!Model.Any())
+        {
+            <div class="p-5 text-center text-muted">
+                <i class="fas fa-folder-open fa-3x mb-3" style="color: #ccc;"></i>
+                <p>Aucun dossier médical trouvé pour le moment.</p>
+                <p class="small">Cliquez sur le bouton en haut à droite pour commencer.</p>
+            </div>
+        }
+    </div>
+</div>commencer.</p>
+            </div>
+        }
+    </div>
+</div>
