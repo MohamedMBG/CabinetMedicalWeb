@@ -1,47 +1,88 @@
 ﻿@model CabinetMedicalWeb.Models.Consultation
 
 @{
-    ViewData["Title"] = "Nouvelle Consultation";
-    // Couleurs du thème
+    ViewData["Title"] = "New Consultation";
+    // Dental Clinic Theme Colors
     var btnColor = "#91B3D9";
     var bgColor = "#E9EFF7";
+    var textColor = "#666B72";
+    var patientName = ViewBag.PatientName as string ?? "Patient";
+    var dossierId = ViewBag.DossierId as int? ?? Model?.DossierMedicalId ?? 0;
 }
 
-<div class="container mt-4" style="max-width: 800px;">
+<div class="container py-5" style="max-width: 900px;">
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 12px;">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-    <div class="card shadow-sm">
-        <div class="card-header text-white" style="background-color: #A7CBED;">
-            <h4 class="mb-0" style="color: #666B72;">📝 Nouvelle Consultation</h4>
+    <div class="card shadow-sm" style="border-radius: 16px; overflow: hidden;">
+        <div class="card-header text-white" style="background: linear-gradient(135deg, #91B3D9 0%, #7AA3D1 100%); padding: 1.5rem;">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h4 class="mb-0" style="color: white;">
+                        <i class="fas fa-stethoscope me-2"></i>New Consultation
+                    </h4>
+                    @if (!string.IsNullOrEmpty(patientName))
+                    {
+                        <small class="text-white-50 mt-1 d-block">
+                            <i class="fas fa-user me-1"></i>Patient: @patientName
+                        </small>
+                    }
+                </div>
+            </div>
         </div>
 
-        <div class="card-body" style="background-color: @bgColor;">
-            <form asp-action="Create">
+        <div class="card-body" style="background-color: @bgColor; padding: 2rem;">
+            <form asp-action="Create" method="post" asp-area="Medical">
+                <div asp-validation-summary="All" class="alert alert-danger rounded-3 mb-4">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Please correct the errors below.
+                </div>
+
                 <input type="hidden" asp-for="DossierMedicalId" />
 
-                <div class="form-group mb-3">
-                    <label asp-for="Date" class="control-label fw-bold" style="color: #666B72;"></label>
-                    <input asp-for="Date" class="form-control" type="datetime-local" />
-                    <span asp-validation-for="Date" class="text-danger"></span>
+                <div class="mb-4">
+                    <label asp-for="Date" class="form-label fw-bold mb-2" style="color: @textColor;">
+                        <i class="fas fa-calendar-alt me-2"></i>Date & Time <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="Date" class="form-control" type="datetime-local" 
+                           value="@(Model?.Date.ToString("yyyy-MM-ddTHH:mm") ?? DateTime.Now.ToString("yyyy-MM-ddTHH:mm"))"
+                           style="border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); padding: 0.75rem;" />
+                    <span asp-validation-for="Date" class="text-danger small mt-1 d-block"></span>
                 </div>
 
-                <div class="form-group mb-3">
-                    <label asp-for="Motif" class="control-label fw-bold" style="color: #666B72;">Motif de la visite</label>
-                    <input asp-for="Motif" class="form-control" placeholder="Ex: Fièvre, Douleur abdominale..." />
-                    <span asp-validation-for="Motif" class="text-danger"></span>
+                <div class="mb-4">
+                    <label asp-for="Motif" class="form-label fw-bold mb-2" style="color: @textColor;">
+                        <i class="fas fa-clipboard-list me-2"></i>Visit Reason <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="Motif" class="form-control" 
+                           placeholder="e.g., Fever, Abdominal pain, Routine check-up..." 
+                           value="@Model?.Motif"
+                           style="border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); padding: 0.75rem;" />
+                    <span asp-validation-for="Motif" class="text-danger small mt-1 d-block"></span>
                 </div>
 
-                <div class="form-group mb-4">
-                    <label asp-for="Notes" class="control-label fw-bold" style="color: #666B72;">Notes & Diagnostic</label>
-                    <textarea asp-for="Notes" class="form-control" rows="5" placeholder="Détails de l'examen clinique..."></textarea>
-                    <span asp-validation-for="Notes" class="text-danger"></span>
+                <div class="mb-4">
+                    <label asp-for="Notes" class="form-label fw-bold mb-2" style="color: @textColor;">
+                        <i class="fas fa-file-medical me-2"></i>Notes & Diagnosis
+                    </label>
+                    <textarea asp-for="Notes" class="form-control" rows="6" 
+                              placeholder="Enter clinical examination details, observations, diagnosis, treatment plan, etc..."
+                              style="border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); padding: 0.75rem; resize: vertical;">@Model?.Notes</textarea>
+                    <span asp-validation-for="Notes" class="text-danger small mt-1 d-block"></span>
                 </div>
 
-                <div class="d-flex justify-content-between">
-                    <a asp-controller="Dossier" asp-action="Details" asp-route-id="@Model.DossierMedicalId" class="btn btn-secondary">
-                        Annuler
+                <div class="d-flex justify-content-between gap-3 mt-4 pt-3 border-top">
+                    <a asp-controller="DossierMedicals" asp-action="Details" asp-route-id="@dossierId" 
+                       class="btn btn-secondary" style="border-radius: 12px; min-width: 150px;">
+                        <i class="fas fa-times me-2"></i>Cancel
                     </a>
-                    <button type="submit" class="btn text-white fw-bold" style="background-color: @btnColor;">
-                        💾 Enregistrer la Consultation
+                    <button type="submit" class="btn text-white fw-bold" 
+                            style="background-color: @btnColor; border-radius: 12px; min-width: 200px; box-shadow: 0 4px 6px rgba(145, 179, 217, 0.3);">
+                        <i class="fas fa-save me-2"></i>Save Consultation
                     </button>
                 </div>
             </form>
@@ -53,4 +94,20 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        // Set default date/time to now if not set
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.querySelector('input[type="datetime-local"]');
+            if (dateInput && !dateInput.value) {
+                const now = new Date();
+                // Format: YYYY-MM-DDTHH:mm
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                dateInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            }
+        });
+    </script>
 }

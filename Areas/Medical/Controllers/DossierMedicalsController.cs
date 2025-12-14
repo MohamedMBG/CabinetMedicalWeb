@@ -1,9 +1,11 @@
 ﻿using CabinetMedicalWeb.Areas.Medical.Models;
 using CabinetMedicalWeb.Data;
 using CabinetMedicalWeb.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -11,74 +13,40 @@ using System.Collections.Generic;
 namespace CabinetMedicalWeb.Areas.Medical.Controllers
 {
     [Area("Medical")]
+    [Authorize(Roles = "Medecin,Admin")]
     public class DossierMedicalsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<DossierMedicalsController> _logger;
 
-        public DossierMedicalsController(ApplicationDbContext context)
+        public DossierMedicalsController(ApplicationDbContext context, ILogger<DossierMedicalsController> logger)
         {
             _context = context;
-        }
-
-        // Helper pour construire la requête filtrée
-        private IQueryable<Patient> BuildPatientsQuery(string? searchTerm = null)
-        {
-            var query = _context.Patients.AsNoTracking();
-
-            if (!string.IsNullOrWhiteSpace(searchTerm))
-            {
-                searchTerm = searchTerm.Trim();
-                query = query.Where(p =>
-                    EF.Functions.Like(p.Nom, $"%{searchTerm}%") ||
-                    EF.Functions.Like(p.Prenom, $"%{searchTerm}%") ||
-                    (!string.IsNullOrEmpty(p.Telephone) && EF.Functions.Like(p.Telephone, $"%{searchTerm}%")));
-            }
-
-            return query;
-        }
-
-        // Helper pour formater les données de sélection
-        private async Task<List<PatientListItem>> GetPatientsForSelectionAsync(string? searchTerm = null)
-        {
-            return await BuildPatientsQuery(searchTerm)
-                .OrderBy(p => p.Nom)
-                .ThenBy(p => p.Prenom)
-                .Select(p => new PatientListItem(
-                    p.Id,
-                    (p.Nom + " " + p.Prenom + " (" + p.DateNaissance.Year + ")").Trim(),
-                    p.Telephone ?? string.Empty,
-                    p.Email ?? string.Empty,
-                    p.DateNaissance.ToString("yyyy-MM-dd") // Format ISO pour le JS
-                ))
-                .ToListAsync();
-        }
-
-        // Helper pour remplir le ViewData pour la Vue Create.cshtml
-        private async Task PopulatePatientsDataAsync(int? selectedPatientId = null)
-        {
-            var patientsList = await GetPatientsForSelectionAsync();
-
-            // 1. Pour la liste déroulante simple (fallback et POST)
-            ViewData["PatientId"] = new SelectList(patientsList, "Id", "FullName", selectedPatientId);
-
-            // 2. Pour le rendu initial de la vue (utilisé par @foreach dans Create.cshtml)
-            // C'est ce ViewData qui contient toutes les métadonnées nécessaires pour les data-attributes HTML
-            ViewData["InitialPatients"] = patientsList;
-        }
-
-        // Endpoint pour la recherche AJAX (utilisé par le script JS de Create.cshtml)
-        [HttpGet]
-        public async Task<IActionResult> PatientsList(string? searchTerm)
-        {
-            var patients = await GetPatientsForSelectionAsync(searchTerm);
-            return Json(patients); // Retourne la liste des records PatientListItem directement
+            _logger = logger;
         }
 
         // GET: Medical/DossierMedicals
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchTerm = null)
         {
-            var applicationDbContext = _context.Dossiers.Include(d => d.Patient);
-            return View(await applicationDbContext.ToListAsync());
+            IQueryable<DossierMedical> query = _context.Dossiers
+                .Include(d => d.Patient)
+                .Include(d => d.Consultations)
+                .OrderByDescending(d => d.Id);
+
+            // Search functionality
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                searchTerm = searchTerm.Trim();
+                query = query.Where(d =>
+                    d.Patient.Nom.Contains(searchTerm) ||
+                    d.Patient.Prenom.Contains(searchTerm) ||
+                    (d.Patient.Telephone != null && d.Patient.Telephone.Contains(searchTerm)) ||
+                    (d.Patient.Email != null && d.Patient.Email.Contains(searchTerm))
+                );
+            }
+
+            ViewBag.SearchTerm = searchTerm;
+            return View(await query.ToListAsync());
         }
 
         // GET: Medical/DossierMedicals/Details/5
@@ -114,33 +82,103 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
         }
 
         // GET: Medical/DossierMedicals/Create
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(string searchTerm = null)
         {
-            // Remplit ViewData["PatientId"] et ViewData["InitialPatients"]
-            await PopulatePatientsDataAsync();
+            // Get all patients who don't have a medical record yet
+            var patientsWithRecords = await _context.Dossiers
+                .Select(d => d.PatientId)
+                .ToListAsync();
+
+            // Start with base query - patients without medical records
+            IQueryable<Patient> availablePatientsQuery = _context.Patients
+                .Where(p => !patientsWithRecords.Contains(p.Id));
+
+            // Apply search filter if provided
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                searchTerm = searchTerm.Trim();
+                availablePatientsQuery = availablePatientsQuery.Where(p =>
+                    p.Nom.Contains(searchTerm) ||
+                    p.Prenom.Contains(searchTerm) ||
+                    (p.Telephone != null && p.Telephone.Contains(searchTerm)) ||
+                    (p.Email != null && p.Email.Contains(searchTerm))
+                );
+            }
+
+            // Apply ordering after filtering
+            availablePatientsQuery = availablePatientsQuery
+                .OrderBy(p => p.Nom)
+                .ThenBy(p => p.Prenom);
+
+            var availablePatients = await availablePatientsQuery
+                .Select(p => new PatientListItem(
+                    p.Id,
+                    $"{p.Nom} {p.Prenom} (Born: {p.DateNaissance.Year})",
+                    p.Telephone ?? string.Empty,
+                    p.Email ?? string.Empty,
+                    p.DateNaissance.ToString("yyyy-MM-dd")
+                ))
+                .ToListAsync();
+
+            ViewBag.AvailablePatients = availablePatients;
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.PatientCount = availablePatients.Count;
+
             return View();
         }
 
         // POST: Medical/DossierMedicals/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,PatientId")] DossierMedical dossierMedical)
+        public async Task<IActionResult> Create(int patientId)
         {
-            if (_context.Dossiers.Any(d => d.PatientId == dossierMedical.PatientId))
+            // Validate patientId
+            if (patientId <= 0)
             {
-                ModelState.AddModelError("PatientId", "Ce patient a déjà un dossier médical.");
+                TempData["ErrorMessage"] = "Please select a patient.";
+                return RedirectToAction(nameof(Create));
             }
 
-            if (ModelState.IsValid)
+            // Check if patient exists
+            var patient = await _context.Patients.FindAsync(patientId);
+            if (patient == null)
             {
+                TempData["ErrorMessage"] = "Selected patient does not exist.";
+                return RedirectToAction(nameof(Create));
+            }
+
+            // Check if patient already has a medical record
+            var existingDossier = await _context.Dossiers
+                .Include(d => d.Patient)
+                .FirstOrDefaultAsync(d => d.PatientId == patientId);
+
+            if (existingDossier != null)
+            {
+                TempData["ErrorMessage"] = $"Patient {patient.Nom} {patient.Prenom} already has a medical record.";
+                TempData["ExistingRecordId"] = existingDossier.Id;
+                return RedirectToAction(nameof(Create));
+            }
+
+            // Create new medical record
+            try
+            {
+                var dossierMedical = new DossierMedical
+                {
+                    PatientId = patientId
+                };
+
                 _context.Add(dossierMedical);
                 await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = $"Medical record created successfully for {patient.Nom} {patient.Prenom}!";
                 return RedirectToAction(nameof(Details), new { id = dossierMedical.Id });
             }
-
-            // En cas d'erreur, recharger les listes complètes
-            await PopulatePatientsDataAsync(dossierMedical.PatientId);
-            return View(dossierMedical);
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Error creating medical record for patient {PatientId}", patientId);
+                TempData["ErrorMessage"] = "An error occurred while creating the medical record. Please try again.";
+                return RedirectToAction(nameof(Create));
+            }
         }
 
         // GET: Medical/DossierMedicals/Edit/5
@@ -157,8 +195,7 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
                 return NotFound();
             }
 
-            // Rechargement correct de la liste pour l'édition
-            await PopulatePatientsDataAsync(dossierMedical.PatientId);
+            ViewData["PatientId"] = new SelectList(_context.Patients, "Id", "Nom", dossierMedical.PatientId);
             return View(dossierMedical);
         }
 
@@ -193,8 +230,7 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Rechargement correct de la liste si erreur de POST
-            await PopulatePatientsDataAsync(dossierMedical.PatientId);
+            ViewData["PatientId"] = new SelectList(_context.Patients, "Id", "Nom", dossierMedical.PatientId);
             return View(dossierMedical);
         }
 

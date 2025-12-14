@@ -1,296 +1,575 @@
 ﻿@model CabinetMedicalWeb.Areas.Medical.Models.DossierCompletViewModel
 
 @{
-    ViewData["Title"] = "Dossier " + Model.PatientInfo.Nom;
-
+    ViewData["Title"] = "Medical Record - " + Model.PatientInfo.Nom;
     var age = (int)Math.Floor((DateTime.Now - Model.PatientInfo.DateNaissance).TotalDays / 365.25);
     var consultationsCount = Model.Consultations.Count();
     var prescriptionsCount = Model.Prescriptions.Count();
     var examensCount = Model.Examens.Count();
 }
 
-<style>
-    .dossier-hero {
-        background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(14, 165, 233, 0.12));
-        border: 1px solid rgba(255, 255, 255, 0.6);
-        box-shadow: var(--shadow-md);
-        border-radius: var(--radius-lg);
-        padding: 1.75rem;
-    }
-
-    .patient-avatar {
-        width: 60px;
-        height: 60px;
-        border-radius: 16px;
-        background: linear-gradient(135deg, #4F46E5, #818CF8);
-        color: white;
-        font-weight: 700;
-        font-size: 1.4rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
-    }
-
-    .chip {
-        padding: 0.45rem 0.9rem;
-        border-radius: var(--radius-full);
-        font-weight: 600;
-        font-size: 0.85rem;
-        color: var(--text-main);
-        background: rgba(79, 70, 229, 0.08);
-        border: 1px solid rgba(79, 70, 229, 0.15);
-    }
-
-    .action-btn {
-        padding: 0.65rem 1rem;
-        border-radius: var(--radius-md);
-        border: 1px solid #E5E7EB;
-        background: white;
-        box-shadow: var(--shadow-sm);
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.55rem;
-        color: var(--text-main);
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-            color: var(--color-primary);
-        }
-
-    .mini-card {
-        background: var(--bg-surface);
-        border-radius: var(--radius-md);
-        padding: 1rem 1.25rem;
-        border: 1px solid rgba(0, 0, 0, 0.04);
-        box-shadow: var(--shadow-sm);
-        height: 100%;
-    }
-
-    .mini-card .icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 12px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(79, 70, 229, 0.08);
-        color: #4F46E5;
-    }
-
-    .section-title {
-        font-size: 0.95rem;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        font-weight: 700;
-        border-bottom: 1px solid #E5E7EB;
-        padding-bottom: 0.65rem;
-        margin-bottom: 1.1rem;
-    }
-
-    .timeline {
-        border-left: 2px solid #E5E7EB;
-        padding-left: 1rem;
-        margin-left: 0.35rem;
-    }
-
-    .timeline-item {
-        position: relative;
-        padding-bottom: 1.4rem;
-    }
-
-        .timeline-item:last-child {
-            padding-bottom: 0.25rem;
-        }
-
-    .timeline-dot {
-        position: absolute;
-        left: -1.25rem;
-        top: 0.2rem;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #4F46E5;
-        border: 2px solid white;
-        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
-    }
-
-    .list-tile {
-        padding: 0.9rem 1rem;
-        border-radius: var(--radius-md);
-        border: 1px solid #E5E7EB;
-        background: white;
-        box-shadow: var(--shadow-sm);
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-
-        .list-tile:hover {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-
-    .empty-state {
-        color: var(--text-muted);
-        font-size: 0.95rem;
-    }
-</style>
-
-<div class="dossier-hero mb-4">
-    <div class="d-flex flex-wrap align-items-start gap-3 justify-content-between">
-        <div class="d-flex gap-3 align-items-center">
-            <div class="patient-avatar">
-                @Model.PatientInfo.Nom.Substring(0, 1)@Model.PatientInfo.Prenom.Substring(0, 1)
-            </div>
-            <div>
-                <div class="d-flex align-items-center gap-2 mb-1">
-                    <h1 class="h4 fw-bold mb-0">@Model.PatientInfo.Nom @Model.PatientInfo.Prenom</h1>
-                    <span class="badge bg-white text-primary border">@age ans</span>
-                </div>
-                <div class="text-muted small">Dossier #@Model.DossierId</div>
-                <div class="d-flex flex-wrap gap-2 mt-2">
-                    <span class="chip"><i class="fas fa-birthday-cake me-2"></i>@Model.PatientInfo.DateNaissance.ToShortDateString()</span>
-                    <span class="chip"><i class="fas fa-phone me-2"></i>@Model.PatientInfo.Telephone</span>
-                    <span class="chip"><i class="fas fa-envelope me-2"></i>@Model.PatientInfo.Email</span>
-                </div>
-            </div>
-        </div>
-        <div class="d-flex flex-wrap gap-2">
-            <a href="@Url.Action("Create", "Consultation", new { area = "Medical", dossierId = Model.DossierId })" class="action-btn">
-                <i class="fas fa-stethoscope text-primary"></i> Nouvelle consultation
-            </a>
-            <a href="@Url.Action("Create", "Prescription", new { area = "Medical", dossierId = Model.DossierId })" class="action-btn">
-                <i class="fas fa-file-prescription text-primary"></i> Ordonnance
-            </a>
-            <a href="@Url.Action("Create", "Labo", new { area = "Medical", dossierId = Model.DossierId })" class="action-btn">
-                <i class="fas fa-microscope text-primary"></i> Résultat labo
-            </a>
-        </div>
-    </div>
-</div>
-
-@if (!string.IsNullOrEmpty(Model.PatientInfo.AntecedentsMedicaux))
-{
-    <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center gap-2 py-2 px-3 mb-4">
-        <i class="fas fa-exclamation-triangle text-warning"></i>
-        <div><strong>Alertes médicales :</strong> @Model.PatientInfo.AntecedentsMedicaux</div>
-    </div>
-}
-
-<div class="row g-3 mb-3">
-    <div class="col-md-4">
-        <div class="mini-card d-flex gap-3 align-items-center">
-            <div class="icon"><i class="fas fa-notes-medical"></i></div>
-            <div>
-                <div class="text-muted small">Consultations</div>
-                <div class="h5 fw-bold mb-0">@consultationsCount</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="mini-card d-flex gap-3 align-items-center">
-            <div class="icon"><i class="fas fa-prescription-bottle-alt"></i></div>
-            <div>
-                <div class="text-muted small">Ordonnances</div>
-                <div class="h5 fw-bold mb-0">@prescriptionsCount</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="mini-card d-flex gap-3 align-items-center">
-            <div class="icon"><i class="fas fa-flask"></i></div>
-            <div>
-                <div class="text-muted small">Examens labo</div>
-                <div class="h5 fw-bold mb-0">@examensCount</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row g-4">
-    <div class="col-lg-7">
-        <div class="glass-card p-3">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div class="section-title mb-0"><i class="fas fa-history me-2"></i>Historique des consultations</div>
-            </div>
-
-            @if (Model.Consultations.Any())
-            {
-                <div class="timeline">
-                    @foreach (var consult in Model.Consultations)
-                    {
-                        <div class="timeline-item">
-                            <div class="timeline-dot"></div>
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="fw-bold">@consult.Motif</span>
-                                <span class="badge bg-light text-muted border">@consult.Date.ToShortDateString()</span>
+<div class="container-fluid px-4 py-5" style="max-width: 1400px; margin: 0 auto;">
+    
+    <!-- Patient Header Card -->
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px; overflow: hidden;">
+        <div class="card-body p-4" style="background: linear-gradient(135deg, rgba(145, 179, 217, 0.1) 0%, rgba(122, 163, 209, 0.1) 100%);">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="patient-avatar-large">
+                            @Model.PatientInfo.Nom.Substring(0, 1)@Model.PatientInfo.Prenom.Substring(0, 1)
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <h1 class="h3 fw-bold mb-0" style="color: var(--text-main);">
+                                    @Model.PatientInfo.Nom @Model.PatientInfo.Prenom
+                                </h1>
+                                <span class="badge rounded-pill px-3 py-2" style="background: rgba(145, 179, 217, 0.2); color: var(--btn-accent); font-weight: 600;">
+                                    @age years old
+                                </span>
                             </div>
-                            <p class="text-muted small mb-2">@consult.Notes</p>
-                            <span class="badge bg-primary-subtle text-primary">Dr. @(consult.Doctor?.Nom ?? consult.DoctorId)</span>
+                            <div class="text-muted small mb-3">Medical Record #@Model.DossierId</div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <div class="info-badge">
+                                    <i class="fas fa-birthday-cake me-2"></i>
+                                    <span>@Model.PatientInfo.DateNaissance.ToString("MMM dd, yyyy")</span>
+                                </div>
+                                <div class="info-badge">
+                                    <i class="fas fa-phone me-2"></i>
+                                    <span>@Model.PatientInfo.Telephone</span>
+                                </div>
+                                @if (!string.IsNullOrEmpty(Model.PatientInfo.Email))
+                                {
+                                    <div class="info-badge">
+                                        <i class="fas fa-envelope me-2"></i>
+                                        <span>@Model.PatientInfo.Email</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-3 mt-md-0">
+                    <div class="d-flex flex-column gap-2">
+                        <a href="@Url.Action("Create", "Consultation", new { area = "Medical", dossierId = Model.DossierId })" 
+                           class="btn btn-primary-modern w-100">
+                            <i class="fas fa-stethoscope me-2"></i>New Consultation
+                        </a>
+                        <div class="btn-group w-100">
+                            <a href="@Url.Action("Create", "Prescription", new { area = "Medical", dossierId = Model.DossierId })" 
+                               class="btn btn-outline-modern">
+                                <i class="fas fa-file-prescription me-2"></i>Prescription
+                            </a>
+                            <a href="@Url.Action("Create", "Labo", new { area = "Medical", dossierId = Model.DossierId })" 
+                               class="btn btn-outline-modern">
+                                <i class="fas fa-microscope me-2"></i>Lab Result
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medical Alert -->
+    @if (!string.IsNullOrEmpty(Model.PatientInfo.AntecedentsMedicaux))
+    {
+        <div class="alert alert-warning-modern mb-4" style="border-radius: 16px; border: none;">
+            <div class="d-flex align-items-start gap-3">
+                <div class="alert-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <strong class="d-block mb-1">Medical Alerts</strong>
+                    <div class="small">@Model.PatientInfo.AntecedentsMedicaux</div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Statistics Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(145, 179, 217, 0.15); color: var(--btn-primary);">
+                    <i class="fas fa-notes-medical"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Consultations</div>
+                    <div class="stat-value">@consultationsCount</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(145, 179, 217, 0.15); color: var(--btn-primary);">
+                    <i class="fas fa-prescription-bottle-alt"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Prescriptions</div>
+                    <div class="stat-value">@prescriptionsCount</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(145, 179, 217, 0.15); color: var(--btn-primary);">
+                    <i class="fas fa-flask"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Lab Tests</div>
+                    <div class="stat-value">@examensCount</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="row g-4">
+        <!-- Consultations Timeline -->
+        <div class="col-lg-8">
+            <div class="card-modern">
+                <div class="card-header-modern">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fas fa-history me-2" style="color: var(--btn-primary);"></i>Consultation History
+                        </h5>
+                        <span class="badge rounded-pill px-3" style="background: rgba(145, 179, 217, 0.15); color: var(--btn-accent);">
+                            @consultationsCount
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body-modern">
+                    @if (Model.Consultations.Any())
+                    {
+                        <div class="timeline-modern">
+                            @foreach (var consult in Model.Consultations)
+                            {
+                                <div class="timeline-item-modern">
+                                    <div class="timeline-marker"></div>
+                                    <div class="timeline-content">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="fw-bold mb-0" style="color: var(--text-main);">@consult.Motif</h6>
+                                            <span class="badge-date">@consult.Date.ToString("MMM dd, yyyy")</span>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(consult.Notes))
+                                        {
+                                            <p class="text-muted small mb-2">@consult.Notes</p>
+                                        }
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="doctor-badge">
+                                                <i class="fas fa-user-md me-1"></i>
+                                                Dr. @(consult.Doctor?.Nom ?? consult.Doctor?.Prenom ?? "Unknown")
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state-modern">
+                            <i class="fas fa-clipboard-list"></i>
+                            <p class="mb-0">No consultations recorded yet</p>
                         </div>
                     }
                 </div>
-            }
-            else
-            {
-                <div class="text-center py-4 empty-state">Aucune consultation enregistrée.</div>
-            }
-        </div>
-    </div>
-
-    <div class="col-lg-5">
-        <div class="d-flex flex-column gap-3 h-100">
-            <div class="glass-card p-3">
-                <div class="section-title mb-0"><i class="fas fa-pills me-2"></i>Ordonnances récentes</div>
-                @if (Model.Prescriptions.Any())
-                {
-                    <div class="d-flex flex-column gap-2 mt-2">
-                        @foreach (var presc in Model.Prescriptions)
-                        {
-                            <div class="list-tile d-flex justify-content-between align-items-start gap-3">
-                                <div class="small">
-                                    <div class="fw-bold">@presc.DatePrescription.ToShortDateString()</div>
-                                    <div class="text-muted text-truncate" style="max-width: 240px;">@presc.Medicaments</div>
-                                </div>
-                                <a href="@Url.Action("Print", "Prescription", new { area = "Medical", id = presc.IdPrescription })" target="_blank" class="text-success" title="Imprimer">
-                                    <i class="fas fa-print"></i>
-                                </a>
-                            </div>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <div class="text-center py-3 empty-state">Aucune ordonnance disponible.</div>
-                }
             </div>
+        </div>
 
-            <div class="glass-card p-3">
-                <div class="section-title mb-0"><i class="fas fa-flask me-2"></i>Résultats labo</div>
-                @if (Model.Examens.Any())
-                {
-                    <div class="d-flex flex-column gap-2 mt-2">
-                        @foreach (var exam in Model.Examens)
+        <!-- Sidebar: Prescriptions & Lab Results -->
+        <div class="col-lg-4">
+            <div class="d-flex flex-column gap-4">
+                <!-- Prescriptions -->
+                <div class="card-modern">
+                    <div class="card-header-modern">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h5 class="mb-0 fw-bold">
+                                <i class="fas fa-pills me-2" style="color: var(--btn-primary);"></i>Prescriptions
+                            </h5>
+                            <span class="badge rounded-pill px-3" style="background: rgba(145, 179, 217, 0.15); color: var(--btn-accent);">
+                                @prescriptionsCount
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body-modern">
+                        @if (Model.Prescriptions.Any())
                         {
-                            <div class="list-tile">
-                                <div class="d-flex justify-content-between small mb-1">
-                                    <span class="fw-bold text-primary">@exam.TypeExamen</span>
-                                    <span class="text-muted">@exam.DateExamen.ToShortDateString()</span>
-                                </div>
-                                <div class="small text-muted">@exam.Resultat</div>
+                            <div class="list-modern">
+                                @foreach (var presc in Model.Prescriptions)
+                                {
+                                    <div class="list-item-modern">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <div class="fw-semibold small mb-1">@presc.DatePrescription.ToString("MMM dd, yyyy")</div>
+                                                <div class="text-muted small text-truncate">@presc.Medicaments</div>
+                                            </div>
+                                            <a href="@Url.Action("Print", "Prescription", new { area = "Medical", id = presc.IdPrescription })" 
+                                               target="_blank" 
+                                               class="btn-icon-modern" 
+                                               title="Print">
+                                                <i class="fas fa-print"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="empty-state-modern">
+                                <i class="fas fa-prescription-bottle-alt"></i>
+                                <p class="mb-0">No prescriptions</p>
                             </div>
                         }
                     </div>
-                }
-                else
-                {
-                    <div class="text-center py-3 empty-state">Aucun résultat de laboratoire.</div>
-                }
+                </div>
+
+                <!-- Lab Results -->
+                <div class="card-modern">
+                    <div class="card-header-modern">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h5 class="mb-0 fw-bold">
+                                <i class="fas fa-flask me-2" style="color: var(--btn-primary);"></i>Lab Results
+                            </h5>
+                            <span class="badge rounded-pill px-3" style="background: rgba(145, 179, 217, 0.15); color: var(--btn-accent);">
+                                @examensCount
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body-modern">
+                        @if (Model.Examens.Any())
+                        {
+                            <div class="list-modern">
+                                @foreach (var exam in Model.Examens)
+                                {
+                                    <div class="list-item-modern">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <span class="fw-semibold small" style="color: var(--btn-primary);">@exam.TypeExamen</span>
+                                            <span class="text-muted small">@exam.DateExamen.ToString("MMM dd, yyyy")</span>
+                                        </div>
+                                        <div class="text-muted small">@exam.Resultat</div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="empty-state-modern">
+                                <i class="fas fa-flask"></i>
+                                <p class="mb-0">No lab results</p>
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Patient Avatar */
+    .patient-avatar-large {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, var(--btn-primary) 0%, var(--btn-accent) 100%);
+        color: white;
+        font-weight: 700;
+        font-size: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 20px rgba(145, 179, 217, 0.3);
+        flex-shrink: 0;
+    }
+
+    /* Info Badges */
+    .info-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        background: white;
+        border-radius: 12px;
+        font-size: 0.875rem;
+        color: var(--text-main);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .info-badge i {
+        color: var(--btn-primary);
+    }
+
+    /* Buttons */
+    .btn-primary-modern {
+        background: linear-gradient(135deg, var(--btn-primary) 0%, var(--btn-accent) 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(145, 179, 217, 0.3);
+    }
+
+    .btn-primary-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(145, 179, 217, 0.4);
+        color: white;
+    }
+
+    .btn-outline-modern {
+        border: 1.5px solid var(--btn-primary);
+        color: var(--btn-primary);
+        background: white;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        flex: 1;
+    }
+
+    .btn-outline-modern:hover {
+        background: var(--btn-primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Stat Cards */
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .stat-content {
+        flex-grow: 1;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-main);
+        line-height: 1;
+    }
+
+    /* Modern Cards */
+    .card-modern {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .card-modern:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-header-modern {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, rgba(145, 179, 217, 0.05) 0%, rgba(122, 163, 209, 0.05) 100%);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .card-body-modern {
+        padding: 1.5rem;
+    }
+
+    /* Timeline */
+    .timeline-modern {
+        position: relative;
+        padding-left: 2rem;
+    }
+
+    .timeline-item-modern {
+        position: relative;
+        padding-bottom: 2rem;
+        padding-left: 1.5rem;
+    }
+
+    .timeline-item-modern:last-child {
+        padding-bottom: 0;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        left: -0.5rem;
+        top: 0.25rem;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--btn-primary);
+        border: 3px solid white;
+        box-shadow: 0 0 0 3px rgba(145, 179, 217, 0.2);
+    }
+
+    .timeline-modern::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(180deg, var(--btn-primary) 0%, rgba(145, 179, 217, 0.3) 100%);
+    }
+
+    .timeline-content {
+        background: rgba(145, 179, 217, 0.03);
+        padding: 1.25rem;
+        border-radius: 12px;
+        border-left: 3px solid var(--btn-primary);
+    }
+
+    .badge-date {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .doctor-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.35rem 0.75rem;
+        background: rgba(145, 179, 217, 0.1);
+        color: var(--btn-accent);
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    /* List Items */
+    .list-modern {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .list-item-modern {
+        padding: 1rem;
+        background: rgba(145, 179, 217, 0.03);
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+    }
+
+    .list-item-modern:hover {
+        background: rgba(145, 179, 217, 0.08);
+        transform: translateX(4px);
+    }
+
+    .btn-icon-modern {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        color: var(--btn-primary);
+        background: rgba(145, 179, 217, 0.1);
+        text-decoration: none;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .btn-icon-modern:hover {
+        background: var(--btn-primary);
+        color: white;
+        transform: scale(1.1);
+    }
+
+    /* Empty States */
+    .empty-state-modern {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--text-muted);
+    }
+
+    .empty-state-modern i {
+        font-size: 3rem;
+        opacity: 0.3;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .empty-state-modern p {
+        font-size: 0.875rem;
+    }
+
+    /* Alert */
+    .alert-warning-modern {
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%);
+        border-left: 4px solid #ffc107;
+        border-radius: 16px;
+    }
+
+    .alert-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .patient-avatar-large {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+
+        .stat-card {
+            padding: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 1.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+        }
+
+        .card-header-modern,
+        .card-body-modern {
+            padding: 1rem;
+        }
+    }
+</style>

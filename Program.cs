@@ -22,8 +22,16 @@ namespace CabinetMedicalWeb
 
             // --- CHANGEMENT 1 : UTILISER ApplicationUser ET ACTIVER LES ROLES ---
             // On remplace <IdentityUser> par <ApplicationUser>
-            // On ajoute .AddRoles<IdentityRole>() sinon on ne pourra pas créer le rôle "Medecin"
-            builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            // On ajoute .AddRoles<IdentityRole>() sinon on ne pourra pas crï¿½er le rï¿½le "Medecin"
+            builder.Services.AddDefaultIdentity<ApplicationUser>(options => 
+            {
+                options.SignIn.RequireConfirmedAccount = false; // Disable email confirmation for easier development
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequiredLength = 6;
+            })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -65,7 +73,7 @@ namespace CabinetMedicalWeb
                .WithStaticAssets();
 
             // --- CHANGEMENT 3 : LE SEEDER AUTOMATIQUE ---
-            // C'est ce bloc qui va remplir la base au démarrage
+            // C'est ce bloc qui va remplir la base au dï¿½marrage
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
