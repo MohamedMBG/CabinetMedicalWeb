@@ -19,10 +19,27 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
             _context = context;
         }
 
+        private IQueryable<Patient> BuildPatientsQuery(string? searchTerm = null)
+        {
+            var query = _context.Patients.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                searchTerm = searchTerm.Trim();
+                query = query.Where(p =>
+                    EF.Functions.Like(p.Nom, $"%{searchTerm}%") ||
+                    EF.Functions.Like(p.Prenom, $"%{searchTerm}%") ||
+                    (!string.IsNullOrEmpty(p.Telephone) && EF.Functions.Like(p.Telephone, $"%{searchTerm}%")));
+            }
+
+            return query;
+        }
+
         private async Task PopulatePatientsDropDownAsync(int? selectedPatientId = null)
         {
-            var patientsList = await _context.Patients
-                .AsNoTracking()
+            var patientsList = await BuildPatientsQuery()
+                .OrderBy(p => p.Nom)
+                .ThenBy(p => p.Prenom)
                 .Select(p => new
                 {
                     p.Id,
@@ -31,6 +48,25 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
                 .ToListAsync();
 
             ViewData["PatientId"] = new SelectList(patientsList, "Id", "FullName", selectedPatientId);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PatientsList(string? searchTerm)
+        {
+            var patients = await BuildPatientsQuery(searchTerm)
+                .OrderBy(p => p.Nom)
+                .ThenBy(p => p.Prenom)
+                .Select(p => new
+                {
+                    id = p.Id,
+                    fullName = p.FullName,
+                    telephone = p.Telephone ?? string.Empty,
+                    email = p.Email ?? string.Empty,
+                    dateNaissance = p.DateNaissance.ToString("yyyy-MM-dd")
+                })
+                .ToListAsync();
+
+            return Json(patients);
         }
 
         // GET: Medical/DossierMedicals
