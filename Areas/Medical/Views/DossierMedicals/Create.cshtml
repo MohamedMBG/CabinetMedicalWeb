@@ -4,100 +4,316 @@
 
 @{
     ViewData["Title"] = "Créer un Dossier Médical";
-    var btnPrimary = "#91B3D9";
-    var bgHeader = "#A7CBED";
-    var bgPage = "#E9EFF7";
-    var textMain = "#666B72";
+
+    // Modern Palette
+    var colorPrimary = "#4F46E5";
+    var colorSecondary = "#818CF8";
+    var bgPage = "#F3F4F6";
+    var textDark = "#1F2937";
+    var textMuted = "#6B7280";
 }
 
 @{
+    // Safe casting: If type mismatch occurs (private vs public class), it falls back to empty list
+    // The JavaScript will handle the data loading in that case.
     var initialPatients = ViewData["InitialPatients"] as IEnumerable<PatientListItem> ?? Enumerable.Empty<PatientListItem>();
 }
 
-<div class="container-fluid py-4" style="background-color: @bgPage; min-height: 100vh;">
+<style>
+    body {
+        background-color: @bgPage;
+        font-family: 'Inter', system-ui, sans-serif;
+    }
 
-    <div class="card shadow-sm mx-auto" style="max-width: 860px; border: 1px solid #d9dfe6;">
-        <div class="card-header text-white d-flex align-items-center" style="background-color: @bgHeader;">
-            <div class="rounded-circle bg-white d-flex align-items-center justify-content-center me-3" style="width: 44px; height: 44px;">
-                <i class="fas fa-folder-plus" style="color: @btnPrimary;"></i>
+    /* Modern Card Container */
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    /* Left Sidebar Style */
+    .action-panel {
+        padding: 3rem;
+        background-color: #FFFFFF;
+    }
+
+    /* Right Preview Style */
+    .preview-panel {
+        background: linear-gradient(145deg, #F8FAFC 0%, #EFF6FF 100%);
+        padding: 3rem;
+        position: relative;
+    }
+
+    /* Custom Search Input */
+    .search-group {
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+        .search-group:focus-within {
+            transform: translateY(-2px);
+        }
+
+    .form-control-modern {
+        border: 2px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 1rem 1rem 1rem 3rem;
+        font-size: 1rem;
+        background-color: #F9FAFB;
+        transition: all 0.2s;
+    }
+
+        .form-control-modern:focus {
+            border-color: @colorPrimary;
+            background-color: #FFF;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+            outline: none;
+        }
+
+    .search-icon {
+        position: absolute;
+        left: 1.2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: @textMuted;
+        font-size: 1.1rem;
+    }
+
+    /* Patient ID Card Visual */
+    .patient-id-card {
+        background: white;
+        border-radius: 20px;
+        padding: 0;
+        box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.1), 0 8px 15px -5px rgba(0,0,0,0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translateY(0);
+        opacity: 1;
+        border: 1px solid rgba(0,0,0,0.03);
+        overflow: hidden;
+    }
+
+    .id-card-header {
+        background: linear-gradient(135deg, @colorPrimary 0%, @colorSecondary 100%);
+        padding: 1.5rem;
+        color: white;
+        position: relative;
+    }
+
+    .id-card-body {
+        padding: 2rem;
+    }
+
+    .id-avatar {
+        width: 80px;
+        height: 80px;
+        background: white;
+        border-radius: 50%;
+        border: 4px solid rgba(255,255,255,0.3);
+        position: absolute;
+        bottom: -40px;
+        left: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 800;
+        color: @colorPrimary;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .info-row {
+        display: flex;
+        margin-bottom: 1.2rem;
+        align-items: center;
+    }
+
+    .info-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background-color: #EEF2FF;
+        color: @colorPrimary;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+
+    .info-content small {
+        display: block;
+        color: @textMuted;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+
+    .info-content span {
+        font-weight: 500;
+        color: @textDark;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        color: @textMuted;
+        padding: 3rem 1rem;
+        border: 2px dashed #E5E7EB;
+        border-radius: 20px;
+    }
+
+    .step-indicator {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background-color: @colorPrimary;
+        color: white;
+        border-radius: 50%;
+        font-size: 0.85rem;
+        font-weight: bold;
+        margin-right: 0.75rem;
+    }
+</style>
+
+<div class="container py-5" style="min-height: 100vh;">
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center"
+         style="background: rgba(255,255,255,0.95); z-index: 9999; display: none; backdrop-filter: blur(5px);">
+        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+        <h6 class="text-muted fw-bold">Chargement des patients...</h6>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+
+            <!-- Page Header -->
+            <div class="mb-5 text-center">
+                <h1 class="fw-bold mb-2" style="color: @textDark;">Nouveau Dossier Médical</h1>
+                <p class="text-muted">Créez un dossier numérique sécurisé pour suivre l'historique du patient.</p>
             </div>
-            <div>
-                <h4 class="mb-0" style="color: @textMain;">Créer un Nouveau Dossier</h4>
-                <small class="text-muted">Associez le dossier à un patient déjà enregistré</small>
-            </div>
-        </div>
 
-        <div class="card-body bg-white">
-            <form asp-action="Create">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <form asp-action="Create" id="createForm">
+                <div class="glass-panel">
+                    <div class="row g-0">
 
-                <div class="alert alert-info d-flex align-items-center">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <span>Le patient doit être ajouté par le secrétariat (FrontDesk) avant de pouvoir créer son dossier médical.</span>
-                </div>
+                        <!-- LEFT PANEL: SELECTION -->
+                        <div class="col-lg-6 action-panel border-end border-light">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4"></div>
 
-                <div class="row g-4">
-                    <div class="col-lg-7">
-                        <label asp-for="PatientId" class="form-label fw-bold" style="color: @textMain;">Sélectionner le Patient</label>
+                            <div class="mb-5">
+                                <h5 class="fw-bold mb-4" style="color: @textDark;">
+                                    <span class="step-indicator">1</span>Rechercher un Patient
+                                </h5>
 
-                        <div class="input-group input-group-lg mb-3 shadow-sm">
-                            <span class="input-group-text bg-white"><i class="fas fa-search" style="color: @btnPrimary;"></i></span>
-                            <input type="search" id="patientSearch" class="form-control" placeholder="Rechercher par nom, prénom ou téléphone" aria-label="Rechercher un patient" />
-                        </div>
-
-                        <select asp-for="PatientId" class="form-select form-select-lg shadow-sm" id="PatientId">
-                            <option value="">-- Choisir un Patient --</option>
-                            @foreach (var patient in initialPatients)
-                            {
-                                <option value="@patient.Id" data-telephone="@patient.Telephone" data-email="@patient.Email" data-birth="@patient.DateNaissance">@patient.FullName</option>
-                            }
-                        </select>
-
-                        <div id="noPatientsAlert" class="alert alert-warning mt-2 small d-none">
-                            ⚠️ Aucun patient trouvé. Ajoutez-en via l'espace FrontDesk ou vérifiez la connexion à la base de données.
-                        </div>
-
-                        <div id="patientsCount" class="form-text mt-1 text-muted"></div>
-
-                        <span asp-validation-for="PatientId" class="text-danger"></span>
-                    </div>
-
-                    <div class="col-lg-5">
-                        <div class="card border-0 shadow-sm h-100" style="background-color: #f7fbff;">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background-color: @btnPrimary;">
-                                        <i class="fas fa-user text-white"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0" style="color: @textMain;">Patient sélectionné</h6>
-                                        <small class="text-muted">Les informations se mettront à jour automatiquement</small>
+                                <!-- Search Input -->
+                                <div class="search-group mb-4">
+                                    <i class="fas fa-search search-icon"></i>
+                                    <input type="search" id="patientSearch" class="form-control form-control-modern"
+                                           placeholder="Nom, prénom ou téléphone..." autocomplete="off">
+                                    <div class="position-absolute end-0 top-50 translate-middle-y me-3">
+                                        <span id="patientCount" class="badge bg-light text-secondary border">0</span>
                                     </div>
                                 </div>
-                                <dl class="row mb-0 small" id="selectedPatientDetails">
-                                    <dt class="col-5 text-muted">Nom complet</dt>
-                                    <dd class="col-7" data-field="name">—</dd>
-                                    <dt class="col-5 text-muted">Téléphone</dt>
-                                    <dd class="col-7" data-field="phone">—</dd>
-                                    <dt class="col-5 text-muted">Email</dt>
-                                    <dd class="col-7" data-field="email">—</dd>
-                                    <dt class="col-5 text-muted">Date de naissance</dt>
-                                    <dd class="col-7" data-field="dob">—</dd>
-                                </dl>
+
+                                <!-- Select Dropdown -->
+                                <label for="PatientId" class="form-label text-muted small fw-bold text-uppercase">Liste des résultats</label>
+                                <select asp-for="PatientId" id="PatientId" class="form-select form-select-lg border-0 bg-light rounded-3" style="cursor: pointer;" size="5">
+                                    <option value="" disabled selected>-- Commencez la saisie ci-dessus --</option>
+                                    @foreach (var patient in initialPatients)
+                                    {
+                                        <option value="@patient.Id"
+                                                data-telephone="@patient.Telephone"
+                                                data-email="@patient.Email"
+                                                data-birth="@patient.DateNaissance">
+                                            @patient.FullName
+                                        </option>
+                                    }
+                                </select>
+                                <div id="noPatientsAlert" class="mt-2 text-warning small d-none">
+                                    <i class="fas fa-exclamation-circle me-1"></i> Aucun patient trouvé.
+                                </div>
+                                <span asp-validation-for="PatientId" class="text-danger small mt-1 d-block"></span>
                             </div>
+
+                            <div class="mt-auto pt-4 border-top">
+                                <button type="submit" id="submitBtn" class="btn w-100 btn-lg text-white fw-bold shadow-sm"
+                                        style="background-color: @colorPrimary; border-radius: 12px; transition: 0.2s;" disabled>
+                                    <i class="fas fa-plus-circle me-2"></i> Créer le Dossier
+                                </button>
+                                <a asp-action="Index" class="btn w-100 mt-3 text-muted fw-bold btn-light bg-transparent border-0">
+                                    Annuler
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT PANEL: LIVE PREVIEW -->
+                        <div class="col-lg-6 preview-panel d-flex align-items-center justify-content-center">
+
+                            <!-- State 1: Empty -->
+                            <div id="emptyState" class="empty-state w-100">
+                                <div class="mb-3 text-muted opacity-25">
+                                    <i class="fas fa-id-card fa-4x"></i>
+                                </div>
+                                <h6 class="fw-bold">Aucun patient sélectionné</h6>
+                                <p class="small mb-0">Sélectionnez un patient dans la liste pour voir sa fiche signalétique.</p>
+                            </div>
+
+                            <!-- State 2: Selected (Card) -->
+                            <div id="selectedCard" class="patient-id-card w-100 d-none">
+                                <div class="id-card-header">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="badge bg-white bg-opacity-25 text-white">NOUVEAU DOSSIER</span>
+                                        <i class="fas fa-wifi opacity-50"></i>
+                                    </div>
+                                    <div style="height: 40px;"></div> <!-- Space for avatar -->
+                                    <div class="id-avatar" id="avatarInitials">--</div>
+                                </div>
+
+                                <div class="id-card-body pt-5">
+                                    <div class="text-center mb-4">
+                                        <h3 class="fw-bold mb-0 text-dark" id="previewName">Patient</h3>
+                                        <span class="text-success small fw-bold" id="previewStatus">● Dossier Prêt</span>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <div class="info-icon"><i class="fas fa-phone"></i></div>
+                                        <div class="info-content">
+                                            <small>Téléphone</small>
+                                            <span id="previewPhone">—</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <div class="info-icon"><i class="fas fa-envelope"></i></div>
+                                        <div class="info-content">
+                                            <small>Email</small>
+                                            <span id="previewEmail">—</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <div class="info-icon"><i class="fas fa-birthday-cake"></i></div>
+                                        <div class="info-content">
+                                            <small>Date de Naissance</small>
+                                            <span id="previewDob">—</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
-
-                <div class="d-flex justify-content-between align-items-center mt-4">
-                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
-                        <i class="fas fa-chevron-left me-2"></i>Retour
-                    </a>
-                    <button type="submit" class="btn text-white fw-bold px-5" style="background-color: @btnPrimary;">
-                        <i class="fas fa-save me-2"></i>Créer le Dossier
-                    </button>
-                </div>
             </form>
+
         </div>
     </div>
 </div>
@@ -108,98 +324,125 @@
     }
     <script>
         (() => {
-            const patientSelect = document.getElementById('PatientId');
-            const patientSearch = document.getElementById('patientSearch');
-            const noPatientsAlert = document.getElementById('noPatientsAlert');
-            const patientsCount = document.getElementById('patientsCount');
-            const detailsCard = document.getElementById('selectedPatientDetails');
+            'use strict';
+
+            const els = {
+                select: document.getElementById('PatientId'),
+                search: document.getElementById('patientSearch'),
+                btn: document.getElementById('submitBtn'),
+                loader: document.getElementById('loadingOverlay'),
+                emptyState: document.getElementById('emptyState'),
+                card: document.getElementById('selectedCard'),
+                preview: {
+                    name: document.getElementById('previewName'),
+                    phone: document.getElementById('previewPhone'),
+                    email: document.getElementById('previewEmail'),
+                    dob: document.getElementById('previewDob'),
+                    initials: document.getElementById('avatarInitials')
+                },
+                counts: {
+                    patient: document.getElementById('patientCount'),
+                    alert: document.getElementById('noPatientsAlert')
+                }
+            };
+
             const endpoint = '@Url.Action("PatientsList", "DossierMedicals", new { area = "Medical" })';
 
-            const displayDetails = () => {
-                const selected = patientSelect.selectedOptions[0];
-                const mappings = {
-                    name: selected?.textContent?.trim() || '—',
-                    phone: selected?.dataset?.telephone || '—',
-                    email: selected?.dataset?.email || '—',
-                    dob: selected?.dataset?.birth || '—'
-                };
+            function updateUI() {
+                const hasSelection = els.select.value && els.select.value !== "";
+                els.btn.disabled = !hasSelection;
 
-                detailsCard.querySelectorAll('[data-field]').forEach(el => {
-                    const key = el.dataset.field;
-                    el.textContent = mappings[key] || '—';
-                });
-            };
+                if (hasSelection) {
+                    const opt = els.select.selectedOptions[0];
+                    const name = opt.text;
 
-            const updateCountsFromSelect = () => {
-                const count = Math.max(patientSelect.options.length - 1, 0);
-                patientsCount.textContent = count ? `${count} patient(s) disponible(s)` : 'Aucun patient disponible';
-                noPatientsAlert.classList.toggle('d-none', count > 0);
-            };
+                    // Update Content
+                    els.preview.name.textContent = name.replace(/\s*\(\d{4}\)$/, '');
+                    els.preview.phone.textContent = opt.dataset.telephone || '—';
+                    els.preview.email.textContent = opt.dataset.email || '—';
+                    els.preview.dob.textContent = opt.dataset.birth || '—';
 
-            const buildOption = patient => {
-                const option = document.createElement('option');
-                option.value = patient.id;
-                option.textContent = patient.fullName || 'Patient sans nom';
-                option.dataset.telephone = patient.telephone || '';
-                option.dataset.email = patient.email || '';
-                option.dataset.birth = patient.dateNaissance || '';
-                return option;
-            };
+                    // Initials
+                    const parts = name.split(' ');
+                    const initials = (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+                    els.preview.initials.textContent = initials;
 
-            const populatePatients = async (term = '') => {
-                const previouslySelected = patientSelect.value;
-                patientsCount.textContent = 'Chargement des patients...';
+                    // Toggle Views
+                    els.emptyState.classList.add('d-none');
+                    els.card.classList.remove('d-none');
+                    els.card.classList.add('animate__animated', 'animate__fadeInUp');
+                } else {
+                    els.emptyState.classList.remove('d-none');
+                    els.card.classList.add('d-none');
+                }
+            }
+
+            async function search(term) {
+                // Show loader only if explicitly searching, not background refresh
+                if(term) els.loader.style.display = 'flex';
+
                 try {
                     const url = term ? `${endpoint}?searchTerm=${encodeURIComponent(term)}` : endpoint;
-                    const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
 
-                    if (!response.ok) {
-                        throw new Error('Impossible de récupérer les patients.');
+                    if (!res.ok) {
+                        console.warn("API Error or Endpoint not found.");
+                        return;
                     }
 
-                    const patients = await response.json();
-                    const fragment = document.createDocumentFragment();
-                    const placeholder = document.createElement('option');
-                    placeholder.value = '';
-                    placeholder.textContent = '-- Choisir un Patient --';
-                    fragment.appendChild(placeholder);
+                    const data = await res.json();
 
-                    patients.forEach(patient => {
-                        const option = buildOption(patient);
-                        if (previouslySelected && previouslySelected === option.value) {
-                            option.selected = true;
-                        }
-                        fragment.appendChild(option);
+                    // Rebuild Options
+                    els.select.innerHTML = '<option value="" disabled selected>-- Sélectionnez un patient --</option>';
+
+                    data.forEach(p => {
+                        // Handle casing mismatch (Id vs id) depending on JSON serializer
+                        const id = p.id || p.Id;
+                        const fullName = p.fullName || p.FullName;
+                        const phone = p.telephone || p.Telephone || '';
+                        const email = p.email || p.Email || '';
+                        const dob = p.dateNaissance || p.DateNaissance || '';
+
+                        const opt = new Option(fullName, id);
+                        opt.dataset.telephone = phone;
+                        opt.dataset.email = email;
+                        opt.dataset.birth = dob;
+                        els.select.add(opt);
                     });
 
-                    patientSelect.replaceChildren(fragment);
-                    updateCountsFromSelect();
-                    displayDetails();
-                }
-                catch (error) {
-                    console.error(error);
-                    patientsCount.textContent = 'Erreur lors du chargement des patients';
-                    updateCountsFromSelect();
-                }
-            };
+                    // Update Counters
+                    els.counts.patient.textContent = data.length;
+                    els.counts.alert.classList.toggle('d-none', data.length > 0);
 
-            const debounce = (fn, delay = 250) => {
-                let timer;
-                return (...args) => {
-                    clearTimeout(timer);
-                    timer = setTimeout(() => fn.apply(this, args), delay);
-                };
-            };
+                    // Reset UI
+                    els.select.value = "";
+                    updateUI();
 
-            patientSelect.addEventListener('change', () => {
-                displayDetails();
-                updateCountsFromSelect();
+                } catch (e) {
+                    console.error("Search failed:", e);
+                } finally {
+                    els.loader.style.display = 'none';
+                }
+            }
+
+            // Debounce for search input
+            let timeout;
+            els.search.addEventListener('input', e => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => search(e.target.value), 300);
             });
-            patientSearch.addEventListener('input', debounce(e => populatePatients(e.target.value), 250));
 
-            updateCountsFromSelect();
-            displayDetails();
-            populatePatients();
+            els.select.addEventListener('change', updateUI);
+
+            // AUTO-FIX: If list is empty on load (server-side binding failed), force client-side fetch
+            if (els.select.options.length <= 1) {
+                console.log("Empty list detected, forcing client-side fetch...");
+                search('');
+            } else {
+                // Initialize counts if server-side binding worked
+                els.counts.patient.textContent = Math.max(0, els.select.options.length - 1);
+                updateUI();
+            }
         })();
     </script>
 }

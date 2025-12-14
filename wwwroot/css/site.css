@@ -1,193 +1,158 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
+/* --- MODERN MEDICAL THEME VARIABLES --- */
 :root {
-  --gradient-start: #0f9bfa;
-  --gradient-end: #4dd4c6;
-  --glass-bg: rgba(255, 255, 255, 0.75);
-  --border-soft: rgba(255, 255, 255, 0.35);
-  --text-primary: #0b3c61;
-  --shadow-soft: 0 20px 60px rgba(15, 55, 95, 0.15);
+    /* Palette: Indigo & Slate (Professional, Calming, Clean) */
+    --color-primary: #4F46E5; /* Indigo 600 */
+    --color-primary-hover: #4338CA; /* Indigo 700 */
+    --color-secondary: #64748B; /* Slate 500 */
+    --color-success: #10B981; /* Emerald 500 */
+    --color-danger: #EF4444; /* Red 500 */
+    --color-warning: #F59E0B; /* Amber 500 */
+    /* Backgrounds */
+    --bg-app: #F3F4F6; /* Gray 100 - Main Background */
+    --bg-surface: rgba(255, 255, 255, 0.85); /* Glassy White */
+    --bg-surface-solid: #FFFFFF;
+    /* Typography */
+    --text-main: #111827; /* Gray 900 */
+    --text-muted: #6B7280; /* Gray 500 */
+    --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    /* Effects */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --radius-md: 0.75rem; /* 12px */
+    --radius-lg: 1rem; /* 16px */
+    --radius-full: 9999px;
+    --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+    --glass-blur: blur(12px);
 }
 
-* {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
+/* --- RESET & BASE --- */
 body {
-  margin: 0;
-  color: #1d2b3a;
-  background-color: #f5f7fb;
-  min-height: 100vh;
+    background-color: var(--bg-app);
+    color: var(--text-main);
+    font-family: var(--font-stack);
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-.hero-gradient {
-  background: radial-gradient(circle at 20% 20%, rgba(77, 212, 198, 0.18), transparent 35%),
-    radial-gradient(circle at 80% 0%, rgba(15, 155, 250, 0.18), transparent 30%),
-    linear-gradient(135deg, rgba(15, 155, 250, 0.25), rgba(77, 212, 198, 0.25));
-  min-height: 100vh;
-  position: relative;
+a {
+    text-decoration: none;
+    transition: color 0.2s;
 }
 
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(245, 247, 251, 0.95));
+/* --- COMPONENTS --- */
+
+/* 1. Glassmorphism Card (The standard container) */
+.glass-card {
+    background-color: var(--bg-surface);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    transition: transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
 }
 
-.hero-section {
-  position: relative;
-  z-index: 1;
-  padding: 2rem 0 1rem;
+    .glass-card:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+    }
+
+/* 2. Modern Buttons */
+.btn-modern {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.625rem 1.25rem;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    gap: 0.5rem;
 }
 
-.hero-subtitle {
-  max-width: 760px;
+.btn-modern-primary {
+    background-color: var(--color-primary);
+    color: white;
+    box-shadow: 0 4px 6px rgba(79, 70, 229, 0.25);
 }
 
+    .btn-modern-primary:hover {
+        background-color: var(--color-primary-hover);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+.btn-modern-secondary {
+    background-color: white;
+    color: var(--color-text-main);
+    border: 1px solid #E5E7EB;
+}
+
+    .btn-modern-secondary:hover {
+        background-color: #F9FAFB;
+        border-color: #D1D5DB;
+    }
+
+/* 3. Modern Form Inputs */
+.form-group-modern {
+    margin-bottom: 1.5rem;
+}
+
+.form-label-modern {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.form-control-modern {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #E5E7EB;
+    border-radius: var(--radius-md);
+    background-color: #F9FAFB;
+    transition: all 0.2s;
+    font-size: 1rem;
+}
+
+    .form-control-modern:focus {
+        background-color: white;
+        border-color: var(--color-primary);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+/* 4. Badges */
+.badge-modern {
+    padding: 0.35em 0.8em;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.badge-success {
+    background-color: #D1FAE5;
+    color: #065F46;
+}
+
+.badge-warning {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+/* --- UTILITIES --- */
 .text-gradient {
-  background: linear-gradient(120deg, var(--gradient-start), var(--gradient-end));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  display: inline-block;
-}
-
-.badge-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
-  font-weight: 600;
-  color: var(--text-primary);
-  background: rgba(15, 155, 250, 0.08);
-  border: 1px solid rgba(15, 155, 250, 0.15);
-}
-
-.btn-primary {
-  background: linear-gradient(120deg, var(--gradient-start), var(--gradient-end));
-  border: none;
-}
-
-.btn-primary:hover {
-  filter: brightness(0.95);
-}
-
-.btn-outline-light {
-  border-color: rgba(15, 155, 250, 0.25);
-  color: #0b3c61;
-  background: rgba(255, 255, 255, 0.8);
-}
-
-.btn-outline-light:hover {
-  background: #fff;
-  border-color: rgba(15, 155, 250, 0.45);
-}
-
-.feature-card {
-  background: #fff;
-  border-radius: 18px;
-  border: 1px solid #e6edf5;
-  box-shadow: var(--shadow-soft);
-  transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
-}
-
-.feature-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 25px 65px rgba(11, 60, 97, 0.18);
-  border-color: rgba(15, 155, 250, 0.25);
-}
-
-.icon-badge {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 1.2rem;
-  box-shadow: 0 12px 30px rgba(11, 60, 97, 0.18);
-}
-
-.gradient-primary {
-  background: linear-gradient(135deg, #0f9bfa, #4dd4c6);
-}
-
-.gradient-success {
-  background: linear-gradient(135deg, #16c47f, #4dd4c6);
-}
-
-.gradient-info {
-  background: linear-gradient(135deg, #5a6ff1, #8aa5ff);
-}
-
-.glass-nav {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  backdrop-filter: blur(12px);
-  background: var(--glass-bg);
-  border-bottom: 1px solid var(--border-soft);
-  box-shadow: 0 10px 40px rgba(11, 60, 97, 0.08);
-}
-
-.navbar-brand {
-  color: var(--text-primary) !important;
-}
-
-.nav-link {
-  color: #1d2b3a !important;
-  padding: 0.5rem 1rem !important;
-  border-radius: 12px;
-}
-
-.nav-link:hover {
-  background: rgba(15, 155, 250, 0.08);
-}
-
-.brand-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(15, 155, 250, 0.15), rgba(77, 212, 198, 0.18));
-  color: #0b3c61;
-  font-size: 1.1rem;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 6px 18px rgba(11, 60, 97, 0.15);
-}
-
-.brand-icon.small {
-  width: 36px;
-  height: 36px;
-  font-size: 1rem;
-}
-
-.footer-modern {
-  background: #ffffff;
-  border-top: 1px solid #e6edf5;
-  box-shadow: 0 -8px 30px rgba(11, 60, 97, 0.08);
-}
-
-.footer-modern a {
-  color: #1d2b3a;
-}
-
-.footer-modern a:hover {
-  color: var(--gradient-start);
-}
-
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
-}
-
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+    background: linear-gradient(135deg, var(--color-primary), #818CF8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }

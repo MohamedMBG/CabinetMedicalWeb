@@ -2,49 +2,160 @@
 
 @{
     ViewData["Title"] = "Nouvelle Ordonnance";
-    var btnPrimary = "#91B3D9";
-    var bgColor = "#E9EFF7";
-    var textMain = "#666B72";
+
+    // Palette Identique au Dashboard
+    var colorPrimary = "#4F46E5"; // Indigo
+    var colorBg = "#F3F4F6";
+    var colorCard = "#FFFFFF";
+    var colorTextMain = "#111827";
+    var borderSubtle = "rgba(0, 0, 0, 0.05)";
 }
 
-<div class="container mt-4" style="max-width: 800px;">
+<style>
+    body {
+        background-color: @colorBg;
+        font-family: 'Inter', system-ui, sans-serif;
+    }
 
-    <div class="card shadow-lg" style="border: 1px solid @textMain;">
-        <div class="card-header text-white" style="background-color: #A7CBED;">
-            <h4 class="mb-0" style="color: @textMain;"><i class="fas fa-prescription"></i> Nouvelle Ordonnance</h4>
-        </div>
+    .glass-form-card {
+        background-color: @colorCard;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        border: 1px solid @borderSubtle;
+        overflow: hidden;
+    }
 
-        <div class="card-body" style="background-color: @bgColor;">
-            <form asp-action="Create">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    .form-header {
+        background: linear-gradient(135deg, @colorPrimary 0%, #6366F1 100%);
+        padding: 2.5rem;
+        color: white;
+    }
 
-                <!-- Champ caché pour lier au bon dossier (CRITIQUE) -->
-                <input type="hidden" asp-for="DossierMedicalId" />
+    .form-label-modern {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        display: block;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
 
-                <!-- Date -->
-                <div class="form-group mb-3">
-                    <label asp-for="DatePrescription" class="control-label fw-bold" style="color: @textMain;"></label>
-                    <input asp-for="DatePrescription" class="form-control" type="datetime-local" />
-                    <span asp-validation-for="DatePrescription" class="text-danger"></span>
+    .form-control-modern {
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        width: 100%;
+        transition: all 0.2s;
+        background-color: #F9FAFB;
+        resize: vertical; /* Pour le textarea */
+    }
+
+        .form-control-modern:focus {
+            border-color: @colorPrimary;
+            outline: none;
+            background-color: #FFFFFF;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+    .btn-action {
+        padding: 0.85rem 1.75rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.2s;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .btn-save {
+        background-color: @colorPrimary;
+        color: white;
+        box-shadow: 0 4px 6px rgba(79, 70, 229, 0.25);
+    }
+
+        .btn-save:hover {
+            background-color: #4338CA;
+            transform: translateY(-2px);
+            color: white;
+        }
+
+    .btn-cancel {
+        background-color: white;
+        color: #6B7280;
+        border: 1px solid #E5E7EB;
+    }
+
+        .btn-cancel:hover {
+            background-color: #F3F4F6;
+            color: #111827;
+        }
+</style>
+
+<div class="container py-5" style="min-height: 100vh;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="glass-form-card">
+
+                <!-- En-tête Stylisé -->
+                <div class="form-header d-flex align-items-center gap-4">
+                    <div class="bg-white bg-opacity-20 rounded-circle p-3 d-flex justify-content-center align-items-center shadow-sm" style="width: 64px; height: 64px; backdrop-filter: blur(5px);">
+                        <i class="fas fa-file-prescription fa-2x text-white"></i>
+                    </div>
+                    <div>
+                        <h2 class="mb-1 fw-bold">Nouvelle Ordonnance</h2>
+                        <p class="mb-0 opacity-90 font-monospace small">Rédigez les prescriptions pour le dossier #@Model.DossierMedicalId</p>
+                    </div>
                 </div>
 
-                <!-- Contenu de l'ordonnance -->
-                <div class="form-group mb-4">
-                    <label asp-for="Medicaments" class="control-label fw-bold" style="color: @textMain;">Détails de la Prescription (Médicaments, Posologie)</label>
-                    <textarea asp-for="Medicaments" class="form-control" rows="8" placeholder="Ex: Paracétamol 1g, 1 comprimé 3x/jour, 5 jours."></textarea>
-                    <span asp-validation-for="Medicaments" class="text-danger"></span>
-                </div>
+                <div class="p-5">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4 shadow-sm border-0"></div>
+                        <input type="hidden" asp-for="DossierMedicalId" />
 
-                <!-- Boutons -->
-                <div class="d-flex justify-content-between">
-                    <a asp-controller="DossierMedicals" asp-action="Details" asp-route-id="@Model.DossierMedicalId" class="btn btn-secondary">
-                        Annuler
-                    </a>
-                    <button type="submit" class="btn text-white fw-bold" style="background-color: @btnPrimary;">
-                        ✍️ Rédiger et Enregistrer
-                    </button>
+                        <div class="row g-4">
+                            <!-- Date de prescription -->
+                            <div class="col-12">
+                                <label asp-for="DatePrescription" class="form-label-modern">
+                                    <i class="far fa-calendar-alt me-2 text-primary opacity-75"></i>Date
+                                </label>
+                                <input asp-for="DatePrescription" class="form-control-modern" type="datetime-local" />
+                                <span asp-validation-for="DatePrescription" class="text-danger small mt-1 d-block"></span>
+                            </div>
+
+                            <!-- Zone de texte Médicaments -->
+                            <div class="col-12">
+                                <label asp-for="Medicaments" class="form-label-modern">
+                                    <i class="fas fa-pills me-2 text-primary opacity-75"></i>Liste des Médicaments & Posologie
+                                </label>
+                                <textarea asp-for="Medicaments" class="form-control-modern" rows="12"
+                                          placeholder="Exemple :&#10;&#10;1. Doliprane 1000mg&#10;   - 1 comprimé 3 fois par jour si douleurs&#10;   - Pendant 5 jours&#10;&#10;2. Amoxicilline 1g&#10;   - 1 comprimé matin et soir&#10;   - Pendant 6 jours"></textarea>
+                                <span asp-validation-for="Medicaments" class="text-danger small mt-1 d-block"></span>
+                                <div class="mt-2 p-3 bg-light rounded-3 border border-light">
+                                    <small class="text-muted d-flex align-items-center gap-2">
+                                        <i class="fas fa-info-circle text-primary"></i>
+                                        Conseil : Utilisez un saut de ligne entre chaque médicament pour une meilleure lisibilité lors de l'impression PDF.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                            <a asp-controller="DossierMedicals" asp-action="Details" asp-route-id="@Model.DossierMedicalId" class="btn-action btn-cancel">
+                                <i class="fas fa-arrow-left"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn-action btn-save">
+                                <i class="fas fa-save"></i> Enregistrer l'Ordonnance
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>

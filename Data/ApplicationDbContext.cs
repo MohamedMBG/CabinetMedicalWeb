@@ -1,10 +1,9 @@
-﻿using CabinetMedicalWeb.Models;
+﻿using CabinetMedicalWeb.Models; // <--- OBLIGATOIRE POUR QUE LE BUILD FONCTIONNE
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace CabinetMedicalWeb.Data
 {
-    // NOTICE: We use <ApplicationUser> here!
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -15,7 +14,7 @@ namespace CabinetMedicalWeb.Data
         public DbSet<Patient> Patients { get; set; }
         public DbSet<RendezVous> RendezVous { get; set; }
         public DbSet<DossierMedical> Dossiers { get; set; }
-        // Add your other tables here
+        public DbSet<Consultation> Consultation { get; set; }
         public DbSet<Prescription> Prescriptions { get; set; }
         public DbSet<ResultatExamen> ResultatExamens { get; set; }
         public DbSet<Horaire> Horaires { get; set; }

@@ -1,0 +1,134 @@
+﻿@model CabinetMedicalWeb.Models.Prescription
+
+@{
+    // CORRECTION : Id -> IdPrescription
+    ViewData["Title"] = "Ordonnance Médicale #" + Model.IdPrescription;
+    Layout = null;
+
+    var accentColor = "#4A90E2";
+    var textColor = "#34495E";
+}
+
+<!-- Styles pour l'impression A4 -->
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        padding: 0;
+        margin: 0;
+        background-color: #fff;
+        color: @textColor;
+    }
+
+    /* Force le mode d'impression */
+    @@media print {
+        body {
+            width: 210mm;
+            height: 297mm;
+        }
+
+        .no-print {
+            display: none;
+        }
+
+        .prescription-container {
+            box-shadow: none !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+    }
+
+    .prescription-container {
+        max-width: 210mm;
+        margin: 30px auto;
+        padding: 50px;
+        border: 1px solid #E0E0E0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        min-height: 250mm;
+        border-radius: 8px;
+    }
+
+    .header-info {
+        border-bottom: 1px solid #E0E0E0;
+        padding-bottom: 20px;
+        margin-bottom: 25px;
+    }
+
+    .patient-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px 0;
+        margin-top: 10px;
+        font-size: 0.95em;
+    }
+
+        .patient-details strong {
+            color: #333;
+            font-weight: 600;
+        }
+
+    .prescription-title {
+        color: @accentColor;
+        margin-bottom: 25px;
+        text-align: center;
+        font-weight: 700;
+        font-size: 1.5em;
+        padding-top: 15px;
+        border-top: 3px double @accentColor;
+    }
+
+    .medication-details {
+        white-space: pre-wrap;
+        line-height: 1.8;
+        font-size: 1.05em;
+        padding: 20px;
+        border: 1px dashed #ccc;
+        background-color: #f7f9fc;
+        min-height: 200px;
+        border-radius: 6px;
+    }
+
+    .doctor-signature {
+        border-top: 1px solid #ccc;
+        text-align: right;
+        margin-top: 60px;
+        padding-top: 15px;
+        font-size: 0.9em;
+        color: #666;
+    }
+</style>
+
+<div class="prescription-container">
+
+    <h1 style="text-align: center; color: @accentColor; margin-bottom: 5px; font-size: 1.8em;">Cabinet Médical</h1>
+    <p style="text-align: center; margin-top: 0; font-size: 0.85em; color: #999;">
+        Dr. @(Model.Doctor?.Nom ?? "Nom du Médecin Inconnu") | Contact: 01.02.03.04.05
+    </p>
+
+    <div class="header-info">
+        <div class="patient-details">
+            <div><strong>Patient(e) :</strong> @Model.DossierMedical.Patient.Nom @Model.DossierMedical.Patient.Prenom</div>
+            <div><strong>Né(e) le :</strong> @Model.DossierMedical.Patient.DateNaissance.ToShortDateString()</div>
+            <div style="grid-column: 1 / span 2;"><strong>Adresse :</strong> @Model.DossierMedical.Patient.Adresse</div>
+        </div>
+        <div style="text-align: right; margin-top: 15px;">
+            <strong>Date de l'Ordonnance :</strong> @Model.DatePrescription.ToShortDateString()
+        </div>
+    </div>
+
+    <h2 class="prescription-title">ORDONNANCE MÉDICALE</h2>
+
+    <div class="medication-details">@Model.Medicaments</div>
+
+    <div class="doctor-signature">
+        <p style="margin-bottom: 0;">Cachet et Signature du Médecin</p>
+        <p style="margin-top: 5px; font-style: italic;">(Veuillez présenter cette ordonnance à votre pharmacien.)</p>
+    </div>
+
+    <div class="no-print" style="text-align: center; margin-top: 30px;">
+        <button onclick="window.print()" style="padding: 10px 20px; background-color: @accentColor; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            <i class="fas fa-print"></i> Imprimer
+        </button>
+        <a href="@Url.Action("Details", "DossierMedicals", new { id = Model.DossierMedicalId })" style="margin-left: 15px; text-decoration: none; color: #666;">Retour au Dashboard</a>
+    </div>
+</div>

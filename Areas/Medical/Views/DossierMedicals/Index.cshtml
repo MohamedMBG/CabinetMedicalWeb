@@ -2,78 +2,236 @@
 
 @{
     ViewData["Title"] = "Liste des Dossiers";
-    // Palette de couleurs
-    var btnPrimary = "#91B3D9";
-    var bgHeader = "#A7CBED";
-    var bgPage = "#E9EFF7";
-    var textMain = "#666B72";
+
+    // Palette Moderne & Épurée
+    var colorPrimary = "#4F46E5"; // Indigo
+    var colorSecondary = "#6366F1";
+    var colorBg = "#F3F4F6";
+    var colorCard = "#FFFFFF";
+    var textDark = "#111827";
+    var textMuted = "#6B7280";
+    var borderSubtle = "rgba(0, 0, 0, 0.05)";
 }
 
-<div class="container-fluid py-4" style="background-color: @bgPage; min-height: 100vh;">
+<style>
+    body {
+        background-color: @colorBg;
+        font-family: 'Inter', system-ui, sans-serif;
+    }
 
-    <!-- En-tête avec le bouton d'action -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 style="color: @textMain;">📂 Dossiers Médicaux</h2>
+    .glass-card {
+        background-color: @colorCard;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        border: 1px solid @borderSubtle;
+        overflow: hidden;
+    }
 
-        <!-- FIX: Utilisation de Url.Action pour forcer la création du lien -->
-        <a href='@Url.Action("Create", "DossierMedicals", new { area = "Medical" })' class="btn text-white shadow-sm px-4 py-2" style="background-color: @btnPrimary; font-weight: bold; border-radius: 50px; text-decoration: none;">
-            <i class="fas fa-plus-circle"></i> Créer un Nouveau Dossier
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    /* Table Styling */
+    .table-modern {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+        .table-modern thead th {
+            background-color: #F9FAFB;
+            color: @textMuted;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #E5E7EB;
+            text-align: left;
+        }
+
+        .table-modern tbody tr {
+            transition: background-color 0.2s;
+        }
+
+            .table-modern tbody tr:hover {
+                background-color: #F8FAFC;
+            }
+
+        .table-modern td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #F3F4F6;
+            color: @textDark;
+            vertical-align: middle;
+        }
+
+        .table-modern tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+    /* Avatar Initials */
+    .avatar-initials {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #E0E7FF 0%, #C7D2FE 100%);
+        color: @colorPrimary;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        margin-right: 1rem;
+    }
+
+    /* Action Buttons */
+    .btn-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-view {
+        background-color: #EEF2FF;
+        color: @colorPrimary;
+    }
+
+        .btn-view:hover {
+            background-color: @colorPrimary;
+            color: white;
+        }
+
+    .btn-delete {
+        background-color: #FEF2F2;
+        color: #EF4444;
+    }
+
+        .btn-delete:hover {
+            background-color: #EF4444;
+            color: white;
+        }
+
+    .btn-create {
+        background-color: @colorPrimary;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: transform 0.2s;
+        text-decoration: none;
+    }
+
+        .btn-create:hover {
+            background-color: #4338CA;
+            transform: translateY(-1px);
+            color: white;
+        }
+
+</style>
+
+<div class="container py-5" style="min-height: 100vh;">
+
+    <!-- Header Section -->
+    <div class="page-header">
+        <div>
+            <h1 class="h3 fw-bold mb-1" style="color: @textDark;">Dossiers Médicaux</h1>
+            <p class="text-muted mb-0">Gérez les dossiers patients et accédez à l'historique.</p>
+        </div>
+        <a href="@Url.Action("Create", "DossierMedicals", new { area = "Medical" })" class="btn-create">
+            <i class="fas fa-plus"></i> Nouveau Dossier
         </a>
     </div>
 
-    <!-- Carte Tableau -->
-    <div class="card shadow-sm border-0">
-        <div class="card-header" style="background-color: @bgHeader;">
-            <h5 class="mb-0" style="color: @textMain;">Patients enregistrés</h5>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th style="color: @textMain;">Patient</th>
-                        <th class="text-center" style="width: 250px; color: @textMain;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td class="align-middle">
-                                <div class="fw-bold" style="color: @textMain;">
-                                    <i class="fas fa-user-circle fa-lg me-2" style="color: @btnPrimary;"></i>
-                                    <!-- Affiche Nom et Prénom si disponibles -->
-                                    @(item.Patient != null ? $"{item.Patient.Nom} {item.Patient.Prenom}" : "Patient Inconnu")
-                                </div>
-                            </td>
-                            <td class="text-center">
-                                <div class="btn-group" role="group">
-                                    <!-- FIX: Utilisation de Url.Action pour les boutons d'action -->
-                                    <a href='@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = item.Id })' class="btn btn-sm btn-outline-primary fw-bold">
-                                        <i class="fas fa-folder-open"></i> Ouvrir Dashboard
-                                    </a>
-
-                                    <a href='@Url.Action("Delete", "DossierMedicals", new { area = "Medical", id = item.Id })' class="btn btn-sm btn-outline-danger">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Message si la liste est vide -->
+    <!-- Main Content Card -->
+    <div class="glass-card">
         @if (!Model.Any())
         {
-            <div class="p-5 text-center text-muted">
-                <i class="fas fa-folder-open fa-3x mb-3" style="color: #ccc;"></i>
-                <p>Aucun dossier médical trouvé pour le moment.</p>
-                <p class="small">Cliquez sur le bouton en haut à droite pour commencer.</p>
+            <div class="text-center py-5">
+                <div class="mb-3">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 80px; height: 80px; background-color: #F3F4F6; color: #9CA3AF;">
+                        <i class="fas fa-folder-open fa-2x"></i>
+                    </div>
+                </div>
+                <h5 class="fw-bold" style="color: @textDark;">Aucun dossier trouvé</h5>
+                <p class="text-muted mb-4">Commencez par créer un dossier pour un patient existant.</p>
+                <a href="@Url.Action("Create", "DossierMedicals", new { area = "Medical" })" class="btn-create">
+                    Créer le premier dossier
+                </a>
             </div>
         }
-    </div>
-</div>commencer.</p>
+        else
+        {
+            <div class="table-responsive">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Contact</th>
+                            <th>Dernière Visite</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var nom = item.Patient?.Nom ?? "Inconnu";
+                            var prenom = item.Patient?.Prenom ?? "";
+                            var initials = (nom.Length > 0 ? nom[0].ToString() : "") + (prenom.Length > 0 ? prenom[0].ToString() : "");
+
+                            <tr style="cursor: pointer;" onclick="window.location='@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = item.Id })'">
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-initials">@initials</div>
+                                        <div>
+                                            <div class="fw-bold">@nom @prenom</div>
+                                            <small class="text-muted">Né(e) le @(item.Patient?.DateNaissance.ToShortDateString() ?? "N/A")</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="small"><i class="fas fa-phone me-2 text-muted"></i>@(item.Patient?.Telephone ?? "N/A")</span>
+                                        <span class="small"><i class="fas fa-envelope me-2 text-muted"></i>@(item.Patient?.Email ?? "N/A")</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <!-- Placeholder pour la date de dernière consult si disponible, sinon statique -->
+                                    <span class="badge bg-light text-dark border">
+                                        @(item.Consultations != null && item.Consultations.Any()
+                                                                        ? item.Consultations.OrderByDescending(c => c.Date).First().Date.ToShortDateString()
+                                                                        : "Aucune")
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end gap-2" onclick="event.stopPropagation();">
+                                <a href="@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = item.Id })"
+                                   class="btn-icon btn-view" title="Ouvrir le Dashboard">
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                                <a href="@Url.Action("Delete", "DossierMedicals", new { area = "Medical", id = item.Id })"
+                                   class="btn-icon btn-delete" title="Supprimer">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                                        }
+                    </tbody>
+                </table>
             </div>
         }
     </div>

@@ -2,6 +2,10 @@
 using CabinetMedicalWeb.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace CabinetMedicalWeb.Areas.Medical.Controllers
 {
@@ -18,7 +22,6 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
         }
 
         // GET: Medical/Prescription/Create?dossierId=5
-        // Affiche le formulaire de création de prescription
         public IActionResult Create(int dossierId)
         {
             if (dossierId == 0)
@@ -39,14 +42,16 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Prescription prescription)
         {
-            // Vérifier si le Dossier existe avant d'enregistrer
+            // Vérification existence dossier
+            // NOTE: On utilise Id pour le dossier (car DossierMedical a gardé Id ou IdDossier selon votre version, on suppose Id ici)
             var dossierExists = _context.Dossiers.Any(d => d.Id == prescription.DossierMedicalId);
+
             if (!dossierExists)
             {
                 ModelState.AddModelError("", "Dossier médical introuvable.");
             }
 
-            // Assigner l'ID du médecin actuellement connecté
+            // Assigner le médecin connecté
             var user = await _userManager.GetUserAsync(User);
             if (user != null)
             {
@@ -58,8 +63,31 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
                 _context.Add(prescription);
                 await _context.SaveChangesAsync();
 
-                // Rediriger vers le Dashboard du dossier pour voir la nouvelle ordonnance
+                // Retour au Dashboard
                 return RedirectToAction("Details", "DossierMedicals", new { id = prescription.DossierMedicalId });
+            }
+
+            return View(prescription);
+        }
+
+        // GET: Medical/Prescription/Print/12
+        public async Task<IActionResult> Print(int id)
+        {
+            if (id == 0)
+            {
+                return NotFound();
+            }
+
+            // CORRECTION MAJEURE ICI : Utilisation de IdPrescription
+            var prescription = await _context.Prescriptions
+                .Include(p => p.DossierMedical)
+                    .ThenInclude(d => d.Patient)
+                .Include(p => p.Doctor)
+                .FirstOrDefaultAsync(m => m.IdPrescription == id); // <--- C'est ici que ça bloquait souvent
+
+            if (prescription == null)
+            {
+                return NotFound();
             }
 
             return View(prescription);
