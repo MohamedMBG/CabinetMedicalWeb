@@ -2,25 +2,45 @@
     ViewData["Title"] = "Accueil";
 }
 
-<div class="text-center mt-5">
-    <h1 class="display-4 mb-3">Bienvenue au Cabinet Médical</h1>
-    <p class="lead text-muted">Sélectionnez votre espace de travail ci-dessous.</p>
+<section class="hero-section text-center">
+    <div class="badge-pill mb-3"><i class="fa-solid fa-sparkles me-2"></i>Interface modernisée</div>
+    <h1 class="display-5 fw-bold text-gradient">Une expérience médicale fluide et élégante</h1>
+    <p class="lead text-muted mx-auto hero-subtitle">Gérez vos dossiers patients, consultations et prescriptions dans une interface soignée conçue pour gagner du temps.</p>
+    <div class="d-flex justify-content-center gap-3 flex-wrap mt-4">
+        <a asp-area="Medical" asp-controller="DossierMedicals" asp-action="Index" class="btn btn-primary btn-lg px-4 shadow-sm">
+            <i class="fa-solid fa-stethoscope me-2"></i>Accéder aux dossiers
+        </a>
+        <a asp-area="" asp-controller="Home" asp-action="Privacy" class="btn btn-outline-light btn-lg px-4">
+            <i class="fa-solid fa-shield-heart me-2"></i>Politique de confidentialité
+        </a>
+    </div>
+</section>
 
-    <div class="row justify-content-center mt-5">
-
-        <!-- CARTE ESPACE MEDICAL (DEV B) -->
-        <div class="col-md-5 mb-4">
-            <div class="card h-100 shadow-sm border-0" style="background-color: #E9EFF7;">
-                <div class="card-body text-center p-5">
-                    <i class="fas fa-stethoscope fa-4x mb-3" style="color: #91B3D9;"></i>
-                    <h3 class="card-title" style="color: #666B72;">Espace Médecin</h3>
-                    <p class="card-text">Accédez aux dossiers patients, consultations et prescriptions.</p>
-                    <a asp-area="Medical" asp-controller="DossierMedicals" asp-action="Index" class="btn btn-lg text-white mt-3" style="background-color: #91B3D9; width: 100%;">
-                        Accéder aux Dossiers &rarr;
-                    </a>
-                </div>
+<section class="mt-5">
+    <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+            <div class="feature-card h-100 p-4">
+                <div class="icon-badge mb-3 gradient-primary"><i class="fa-solid fa-notes-medical"></i></div>
+                <h4 class="fw-semibold mb-2">Dossiers centralisés</h4>
+                <p class="text-muted mb-3">Consultez en un coup d'œil les antécédents, traitements et bilans de vos patients.</p>
+                <a asp-area="Medical" asp-controller="DossierMedicals" asp-action="Index" class="btn btn-link p-0 fw-semibold">Voir les dossiers <i class="fa-solid fa-arrow-right ms-1"></i></a>
             </div>
         </div>
-
+        <div class="col-lg-4 col-md-6">
+            <div class="feature-card h-100 p-4">
+                <div class="icon-badge mb-3 gradient-success"><i class="fa-solid fa-heart-pulse"></i></div>
+                <h4 class="fw-semibold mb-2">Suivi patient intuitif</h4>
+                <p class="text-muted mb-3">Planifiez les consultations, suivez les prescriptions et partagez facilement les informations.</p>
+                <span class="badge rounded-pill bg-success-subtle text-success fw-semibold">Améliore la productivité</span>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="feature-card h-100 p-4">
+                <div class="icon-badge mb-3 gradient-info"><i class="fa-solid fa-lock"></i></div>
+                <h4 class="fw-semibold mb-2">Sécurité renforcée</h4>
+                <p class="text-muted mb-3">Vos données sont protégées grâce à des contrôles d'accès modernes et des bonnes pratiques.</p>
+                <span class="badge rounded-pill bg-info-subtle text-info fw-semibold">Conformité RGPD</span>
+            </div>
+        </div>
     </div>
-</div>
+</section>
