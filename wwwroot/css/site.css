@@ -169,6 +169,18 @@ a {
     margin-right: auto;
 }
 
+.badge-soft {
+    background: rgba(255, 255, 255, 0.35);
+    color: white;
+    padding: 0.55rem 1rem;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    letter-spacing: 0.5px;
+}
+
 .hero-buttons {
     display: flex;
     gap: 1rem;
@@ -313,6 +325,12 @@ a {
     font-weight: 600;
     color: var(--text-main);
     line-height: 1.4;
+}
+
+.service-text {
+    font-size: 0.95rem;
+    color: var(--card-primary);
+    margin-top: 0.75rem;
 }
 
 /* --- FEATURE CARDS --- */
@@ -561,6 +579,239 @@ main {
 /* Ensure proper spacing for sections */
 section {
     position: relative;
+}
+
+/* --- DENTAL HOMEPAGE EXTRAS --- */
+.dental-hero::after {
+    content: '';
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle, rgba(145, 179, 217, 0.18) 0%, transparent 70%);
+    bottom: -120px;
+    right: -80px;
+}
+
+.section-header .section-description {
+    max-width: 480px;
+}
+
+.profile-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    height: 100%;
+}
+
+.profile-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--card-secondary), var(--btn-accent));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.profile-meta h4 {
+    margin: 0.5rem 0 0.25rem;
+    color: var(--text-main);
+}
+
+.profile-meta p {
+    margin: 0;
+    color: var(--card-primary);
+}
+
+.availability {
+    display: inline-block;
+    color: var(--btn-accent);
+    font-weight: 600;
+    margin-top: 0.35rem;
+}
+
+.profile-footer {
+    margin-top: auto;
+}
+
+.tag,
+.pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.9rem;
+    background: rgba(122, 163, 209, 0.12);
+    color: var(--btn-accent);
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.space-section {
+    padding: 4rem 2rem;
+    background: linear-gradient(180deg, rgba(233, 239, 247, 0.6) 0%, rgba(167, 203, 237, 0.25) 100%);
+}
+
+.space-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    align-items: center;
+}
+
+.space-content h3 {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    color: var(--text-main);
+    margin: 0.75rem 0;
+}
+
+.space-content p {
+    color: var(--card-primary);
+    margin-bottom: 1rem;
+}
+
+.space-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.space-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: var(--text-main);
+}
+
+.space-list i {
+    color: var(--btn-accent);
+}
+
+.space-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-soft);
+}
+
+.space-card h4 {
+    margin-top: 0.5rem;
+    color: var(--text-main);
+}
+
+.timeline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+}
+
+.timeline-step {
+    background: var(--bg-primary);
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    text-align: center;
+    border: 1px solid var(--border-soft);
+}
+
+.timeline-step.active {
+    background: linear-gradient(135deg, var(--btn-primary), var(--btn-accent));
+    color: white;
+    border-color: transparent;
+}
+
+.timeline-step span {
+    display: block;
+    font-weight: 600;
+}
+
+.timeline-step small {
+    color: inherit;
+}
+
+.reservation-section {
+    padding: 4rem 0 5rem;
+}
+
+.reservation-copy h3 {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    color: var(--text-main);
+}
+
+.reservation-copy p {
+    color: var(--card-primary);
+    margin: 0.5rem 0 1.5rem;
+}
+
+.reservation-benefits {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    color: var(--text-main);
+}
+
+.reservation-benefits i {
+    color: var(--btn-accent);
+    margin-right: 0.35rem;
+}
+
+.reservation-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.75rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-soft);
+}
+
+.reservation-form label {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.reservation-form .form-control,
+.reservation-form .form-select {
+    background-color: #f8fbff;
+    border-color: var(--border-soft);
+}
+
+.reservation-form .form-control:focus,
+.reservation-form .form-select:focus {
+    background-color: white;
+}
+
+.badge-pill.badge-soft {
+    background: rgba(122, 163, 209, 0.18);
+    color: var(--btn-accent);
+}
+
+.reservation-card .pill {
+    background: rgba(102, 107, 114, 0.08);
+    color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+    .space-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .timeline {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 /* Smooth transitions */
