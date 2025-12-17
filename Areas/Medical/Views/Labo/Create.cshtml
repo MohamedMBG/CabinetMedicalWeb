@@ -3,12 +3,12 @@
 @{
     ViewData["Title"] = "Nouveau Résultat Labo";
     
-    // Palette "Laboratoire" (Teal/Turquoise - Distinct from Blue/Indigo)
-    var colorPrimary = "#10B981"; // Emerald Green / Teal
-    var colorBg = "#F3F4F6"; 
-    var colorCard = "#FFFFFF"; 
-    var textDark = "#111827";
-    var borderSubtle = "rgba(0, 0, 0, 0.05)";
+    // Palette harmonisée avec le tableau de bord médical
+    var colorPrimary = "#7AA3D1";
+    var colorBg = "#E9EFF7";
+    var colorCard = "#FFFFFF";
+    var textDark = "#666B72";
+    var borderSubtle = "#D4DEEC";
 }
 
 <style>
@@ -23,7 +23,7 @@
     }
 
     .form-header {
-        background: linear-gradient(135deg, @colorPrimary 0%, #059669 100%);
+        background: linear-gradient(135deg, @colorPrimary 0%, #91B3D9 100%);
         padding: 2.5rem;
         color: white;
     }
@@ -52,7 +52,7 @@
         border-color: @colorPrimary;
         outline: none;
         background-color: #FFFFFF;
-        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); /* Green shadow */
+        box-shadow: 0 0 0 4px rgba(145, 179, 217, 0.25); /* Soft blue shadow */
     }
 
     .btn-action {
