@@ -8,7 +8,6 @@
     // Theme colors matching the layout
     var primaryColor = "#7AA3D1";
     var textDark = "#666B72";
-    var textMuted = "#7B8592";
 }
 
 <style>
@@ -22,6 +21,18 @@
         --text-main: #666B72;
     }
 
+    /* Animation Keyframes */
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     .page-container {
         font-family: 'Inter', system-ui, -apple-system, sans-serif;
         padding: 0 1.5rem 3rem 1.5rem;
@@ -30,6 +41,8 @@
         border-radius: 18px;
         box-shadow: 0 18px 42px rgba(122, 163, 209, 0.12);
         margin-top: 0.5rem;
+        opacity: 0; /* Start hidden for animation */
+        animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
 
     /* --- Header & Actions --- */
@@ -177,12 +190,15 @@
     }
 
     .table-custom tbody tr {
-        transition: background 0.2s;
+        transition: background 0.2s, transform 0.2s;
         cursor: pointer;
+        opacity: 0; /* Hidden initially for staggered animation */
+        animation: fadeInUp 0.5s ease-out forwards;
     }
 
     .table-custom tbody tr:hover {
         background: #F8FAFC;
+        transform: scale(1.002);
     }
 
     /* --- Avatars & Badges --- */
@@ -329,7 +345,7 @@
     <!-- Success Message -->
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success d-flex align-items-center shadow-sm border-0 rounded-3 mb-4 p-3 bg-white border-start border-success border-4">
+        <div class="alert alert-success d-flex align-items-center shadow-sm border-0 rounded-3 mb-4 p-3 bg-white border-start border-success border-4 animate__animated animate__fadeIn">
             <i class="fas fa-check-circle text-success me-3 fs-5"></i>
             <div class="text-success fw-medium">@TempData["SuccessMessage"]</div>
             <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -364,6 +380,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @{ var delayIndex = 0; }
                         @foreach (var item in Model)
                         {
                             var nom = item.Patient?.Nom ?? "Unknown";
@@ -371,8 +388,12 @@
                             var fullName = $"{nom} {prenom}";
                             var initial = (nom.Length > 0 ? nom[0].ToString() : "") + (prenom.Length > 0 ? prenom[0].ToString() : "");
                             var lastConsult = item.Consultations?.OrderByDescending(c => c.Date).FirstOrDefault()?.Date;
+                            
+                            // Staggered animation delay
+                            var delayStyle = $"animation-delay: {delayIndex * 0.05}s;";
+                            delayIndex++;
 
-                            <tr onclick="window.location='@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = item.Id })'">
+                            <tr style="@delayStyle" onclick="window.location='@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = item.Id })'">
                                 <td>
                                     <div class="patient-cell">
                                         <div class="avatar-circle">@initial</div>

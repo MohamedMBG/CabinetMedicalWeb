@@ -32,25 +32,23 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
         // GET: Medical/Consultation/Create
         public async Task<IActionResult> Create(int dossierId)
         {
-            // Validate dossierId
             if (dossierId <= 0)
             {
-                TempData["ErrorMessage"] = "Invalid medical record ID.";
+                TempData["ErrorMessage"] = "ID dossier invalide.";
                 return RedirectToAction("Index", "DossierMedicals");
             }
 
-            // Check if dossier exists
             var dossier = await _context.Dossiers
                 .Include(d => d.Patient)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(d => d.Id == dossierId);
 
             if (dossier == null)
             {
-                TempData["ErrorMessage"] = "Medical record not found.";
+                TempData["ErrorMessage"] = "Dossier introuvable.";
                 return RedirectToAction("Index", "DossierMedicals");
             }
 
-            // Create new consultation with default values
             var consultation = new Consultation
             {
                 DossierMedicalId = dossierId,
@@ -68,75 +66,60 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Consultation consultation)
         {
-            // Validate DossierMedicalId
-            if (consultation.DossierMedicalId <= 0)
-            {
-                ModelState.AddModelError("DossierMedicalId", "Medical record ID is required.");
-            }
-            else
-            {
-                // Verify dossier exists
-                var dossier = await _context.Dossiers
-                    .Include(d => d.Patient)
-                    .FirstOrDefaultAsync(d => d.Id == consultation.DossierMedicalId);
-
-                if (dossier == null)
-                {
-                    ModelState.AddModelError("DossierMedicalId", "Medical record not found.");
-                }
-                else
-                {
-                    ViewBag.PatientName = $"{dossier.Patient.Nom} {dossier.Patient.Prenom}";
-                    ViewBag.DossierId = consultation.DossierMedicalId;
-                }
-            }
-
-            // Ensure Notes is not null (database might require it)
+            // 1. Nettoyage des erreurs de validation connues
+            ModelState.Remove("DossierMedical");
+            ModelState.Remove("Doctor");
+            ModelState.Remove("DoctorId"); 
+            
             if (string.IsNullOrWhiteSpace(consultation.Notes))
             {
                 consultation.Notes = string.Empty;
+                ModelState.Remove("Notes");
             }
 
-            // Validate required fields
-            if (string.IsNullOrWhiteSpace(consultation.Motif))
-            {
-                ModelState.AddModelError("Motif", "Visit reason is required.");
-            }
+            // 2. Validation explicite
+            if (consultation.DossierMedicalId <= 0) 
+                ModelState.AddModelError("DossierMedicalId", "L'ID du dossier est requis.");
+            
+            if (string.IsNullOrWhiteSpace(consultation.Motif)) 
+                ModelState.AddModelError("Motif", "Le motif est obligatoire.");
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // Get current logged-in doctor
                     var currentUser = await _userManager.GetUserAsync(User);
-                    if (currentUser != null)
-                    {
-                        consultation.DoctorId = currentUser.Id;
-                    }
+                    if (currentUser != null) consultation.DoctorId = currentUser.Id;
 
                     _context.Add(consultation);
                     await _context.SaveChangesAsync();
                     
-                    TempData["SuccessMessage"] = "Consultation created successfully!";
+                    TempData["SuccessMessage"] = "Consultation enregistrée !";
                     return RedirectToAction("Details", "DossierMedicals", new { area = "Medical", id = consultation.DossierMedicalId });
-                }
-                catch (DbUpdateException ex)
-                {
-                    _logger.LogError(ex, "Error creating consultation: {Message}", ex.Message);
-                    ModelState.AddModelError("", $"An error occurred while creating the consultation: {ex.Message}");
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Unexpected error creating consultation");
-                    ModelState.AddModelError("", "An unexpected error occurred. Please try again.");
+                    _logger.LogError(ex, "Erreur sauvegarde consultation");
+                    ModelState.AddModelError("", "Erreur lors de la sauvegarde en base.");
                 }
             }
+            else
+            {
+                // --- DEBUG : AFFICHER LES ERREURS DANS LA CONSOLE ---
+                var errors = ModelState.Values.SelectMany(v => v.Errors);
+                foreach (var error in errors)
+                {
+                    _logger.LogError($"ERREUR DE VALIDATION : {error.ErrorMessage} / {error.Exception?.Message}");
+                }
+                // ----------------------------------------------------
+            }
 
-            // If we get here, there was a validation error - reload patient info
+            // Rechargement des infos patient pour la vue
             if (consultation.DossierMedicalId > 0)
             {
                 var dossier = await _context.Dossiers
                     .Include(d => d.Patient)
+                    .AsNoTracking()
                     .FirstOrDefaultAsync(d => d.Id == consultation.DossierMedicalId);
                 
                 if (dossier != null)
