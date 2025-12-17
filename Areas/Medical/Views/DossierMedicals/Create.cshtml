@@ -158,56 +158,55 @@
     </form>
 </div>
 
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const submitBtn = document.getElementById('submitBtn');
-            const cards = document.querySelectorAll('.patient-card');
-            
-            // Function to handle selection visual state
-            function handleSelection(radioInput) {
-                // 1. Remove 'selected' class from ALL cards
-                cards.forEach(c => c.classList.remove('selected'));
 
-                // 2. Find the card belonging to the checked radio
-                const selectedCard = document.querySelector(`#card_${radioInput.value}`);
-                if (selectedCard) {
-                    selectedCard.classList.add('selected');
-                }
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const submitBtn = document.getElementById('submitBtn');
+        const cards = document.querySelectorAll('.patient-card');
 
-                // 3. Enable the button
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-plus-circle me-2"></i>Create Medical Record';
-                }
+        // Function to handle selection visual state
+        function handleSelection(radioInput) {
+            // 1. Remove 'selected' class from ALL cards
+            cards.forEach(c => c.classList.remove('selected'));
+
+            // 2. Find the card belonging to the checked radio
+            const selectedCard = document.querySelector(`#card_${radioInput.value}`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
             }
 
-            // Add click listener to every card
-            cards.forEach(card => {
-                card.addEventListener('click', function(e) {
-                    // Find the radio inside this card
-                    const radio = this.querySelector('input[type="radio"]');
-                    
-                    // If the user clicked the radio itself, don't double-trigger
-                    if (e.target === radio) return;
+            // 3. Enable the button
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-plus-circle me-2"></i>Create Medical Record';
+            }
+        }
 
-                    // Otherwise, check the radio manually
-                    radio.checked = true;
-                    
-                    // Manually trigger the selection logic
-                    handleSelection(radio);
-                });
-            });
+        // Add click listener to every card
+        cards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                // Find the radio inside this card
+                const radio = this.querySelector('input[type="radio"]');
 
-            // Listen for native radio changes (handles keyboard nav or direct clicks)
-            const radios = document.querySelectorAll('input[name="patientId"]');
-            radios.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    if (this.checked) {
-                        handleSelection(this);
-                    }
-                });
+                // If the user clicked the radio itself, don't double-trigger
+                if (e.target === radio) return;
+
+                // Otherwise, check the radio manually
+                radio.checked = true;
+
+                // Manually trigger the selection logic
+                handleSelection(radio);
             });
         });
-    </script>
-}
+
+        // Listen for native radio changes (handles keyboard nav or direct clicks)
+        const radios = document.querySelectorAll('input[name="patientId"]');
+        radios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.checked) {
+                    handleSelection(this);
+                }
+            });
+        });
+    });
+</script>
