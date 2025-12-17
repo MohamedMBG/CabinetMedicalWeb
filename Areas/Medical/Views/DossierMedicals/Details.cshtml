@@ -1,575 +1,781 @@
 ﻿@model CabinetMedicalWeb.Areas.Medical.Models.DossierCompletViewModel
 
 @{
-    ViewData["Title"] = "Medical Record - " + Model.PatientInfo.Nom;
+    ViewData["Title"] = $"{Model.PatientInfo.Nom} {Model.PatientInfo.Prenom} - Medical Record";
+    
+    // Calculate Age
     var age = (int)Math.Floor((DateTime.Now - Model.PatientInfo.DateNaissance).TotalDays / 365.25);
+    
+    // Counters
     var consultationsCount = Model.Consultations.Count();
     var prescriptionsCount = Model.Prescriptions.Count();
     var examensCount = Model.Examens.Count();
+    var totalEntries = consultationsCount + prescriptionsCount + examensCount;
+
+    // Theme Colors (Matching your Layout)
+    var primaryColor = "#4F46E5";
+    var successColor = "#10B981";
+    var warningColor = "#F59E0B";
 }
 
-<div class="container-fluid px-4 py-5" style="max-width: 1400px; margin: 0 auto;">
-    
-    <!-- Patient Header Card -->
-    <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px; overflow: hidden;">
-        <div class="card-body p-4" style="background: linear-gradient(135deg, rgba(145, 179, 217, 0.1) 0%, rgba(122, 163, 209, 0.1) 100%);">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="d-flex align-items-center gap-4">
-                        <div class="patient-avatar-large">
-                            @Model.PatientInfo.Nom.Substring(0, 1)@Model.PatientInfo.Prenom.Substring(0, 1)
-                        </div>
-                        <div class="flex-grow-1">
-                            <div class="d-flex align-items-center gap-3 mb-2">
-                                <h1 class="h3 fw-bold mb-0" style="color: var(--text-main);">
-                                    @Model.PatientInfo.Nom @Model.PatientInfo.Prenom
-                                </h1>
-                                <span class="badge rounded-pill px-3 py-2" style="background: rgba(145, 179, 217, 0.2); color: var(--btn-accent); font-weight: 600;">
-                                    @age years old
-                                </span>
-                            </div>
-                            <div class="text-muted small mb-3">Medical Record #@Model.DossierId</div>
-                            <div class="d-flex flex-wrap gap-2">
-                                <div class="info-badge">
-                                    <i class="fas fa-birthday-cake me-2"></i>
-                                    <span>@Model.PatientInfo.DateNaissance.ToString("MMM dd, yyyy")</span>
-                                </div>
-                                <div class="info-badge">
-                                    <i class="fas fa-phone me-2"></i>
-                                    <span>@Model.PatientInfo.Telephone</span>
-                                </div>
-                                @if (!string.IsNullOrEmpty(Model.PatientInfo.Email))
-                                {
-                                    <div class="info-badge">
-                                        <i class="fas fa-envelope me-2"></i>
-                                        <span>@Model.PatientInfo.Email</span>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mt-3 mt-md-0">
-                    <div class="d-flex flex-column gap-2">
-                        <a href="@Url.Action("Create", "Consultation", new { area = "Medical", dossierId = Model.DossierId })" 
-                           class="btn btn-primary-modern w-100">
-                            <i class="fas fa-stethoscope me-2"></i>New Consultation
-                        </a>
-                        <div class="btn-group w-100">
-                            <a href="@Url.Action("Create", "Prescription", new { area = "Medical", dossierId = Model.DossierId })" 
-                               class="btn btn-outline-modern">
-                                <i class="fas fa-file-prescription me-2"></i>Prescription
-                            </a>
-                            <a href="@Url.Action("Create", "Labo", new { area = "Medical", dossierId = Model.DossierId })" 
-                               class="btn btn-outline-modern">
-                                <i class="fas fa-microscope me-2"></i>Lab Result
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Medical Alert -->
-    @if (!string.IsNullOrEmpty(Model.PatientInfo.AntecedentsMedicaux))
-    {
-        <div class="alert alert-warning-modern mb-4" style="border-radius: 16px; border: none;">
-            <div class="d-flex align-items-start gap-3">
-                <div class="alert-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div class="flex-grow-1">
-                    <strong class="d-block mb-1">Medical Alerts</strong>
-                    <div class="small">@Model.PatientInfo.AntecedentsMedicaux</div>
-                </div>
-            </div>
-        </div>
+<style>
+    /* Scope styles to this view */
+    .medical-dashboard {
+        --primary: #4F46E5;
+        --primary-light: #EEF2FF;
+        --secondary: #64748B;
+        --success: #10B981;
+        --warning: #F59E0B;
+        --danger: #EF4444;
+        --surface: #FFFFFF;
+        --bg: #F8FAFC;
+        --border: #E2E8F0;
+        
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        padding: 0 1.5rem 3rem 1.5rem;
     }
 
-    <!-- Statistics Cards -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-4">
-            <div class="stat-card">
-                <div class="stat-icon" style="background: rgba(145, 179, 217, 0.15); color: var(--btn-primary);">
-                    <i class="fas fa-notes-medical"></i>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-label">Consultations</div>
-                    <div class="stat-value">@consultationsCount</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stat-card">
-                <div class="stat-icon" style="background: rgba(145, 179, 217, 0.15); color: var(--btn-primary);">
-                    <i class="fas fa-prescription-bottle-alt"></i>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-label">Prescriptions</div>
-                    <div class="stat-value">@prescriptionsCount</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stat-card">
-                <div class="stat-icon" style="background: rgba(145, 179, 217, 0.15); color: var(--btn-primary);">
-                    <i class="fas fa-flask"></i>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-label">Lab Tests</div>
-                    <div class="stat-value">@examensCount</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Content Grid -->
-    <div class="row g-4">
-        <!-- Consultations Timeline -->
-        <div class="col-lg-8">
-            <div class="card-modern">
-                <div class="card-header-modern">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <h5 class="mb-0 fw-bold">
-                            <i class="fas fa-history me-2" style="color: var(--btn-primary);"></i>Consultation History
-                        </h5>
-                        <span class="badge rounded-pill px-3" style="background: rgba(145, 179, 217, 0.15); color: var(--btn-accent);">
-                            @consultationsCount
-                        </span>
-                    </div>
-                </div>
-                <div class="card-body-modern">
-                    @if (Model.Consultations.Any())
-                    {
-                        <div class="timeline-modern">
-                            @foreach (var consult in Model.Consultations)
-                            {
-                                <div class="timeline-item-modern">
-                                    <div class="timeline-marker"></div>
-                                    <div class="timeline-content">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <h6 class="fw-bold mb-0" style="color: var(--text-main);">@consult.Motif</h6>
-                                            <span class="badge-date">@consult.Date.ToString("MMM dd, yyyy")</span>
-                                        </div>
-                                        @if (!string.IsNullOrEmpty(consult.Notes))
-                                        {
-                                            <p class="text-muted small mb-2">@consult.Notes</p>
-                                        }
-                                        <div class="d-flex align-items-center gap-2">
-                                            <span class="doctor-badge">
-                                                <i class="fas fa-user-md me-1"></i>
-                                                Dr. @(consult.Doctor?.Nom ?? consult.Doctor?.Prenom ?? "Unknown")
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="empty-state-modern">
-                            <i class="fas fa-clipboard-list"></i>
-                            <p class="mb-0">No consultations recorded yet</p>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-
-        <!-- Sidebar: Prescriptions & Lab Results -->
-        <div class="col-lg-4">
-            <div class="d-flex flex-column gap-4">
-                <!-- Prescriptions -->
-                <div class="card-modern">
-                    <div class="card-header-modern">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <h5 class="mb-0 fw-bold">
-                                <i class="fas fa-pills me-2" style="color: var(--btn-primary);"></i>Prescriptions
-                            </h5>
-                            <span class="badge rounded-pill px-3" style="background: rgba(145, 179, 217, 0.15); color: var(--btn-accent);">
-                                @prescriptionsCount
-                            </span>
-                        </div>
-                    </div>
-                    <div class="card-body-modern">
-                        @if (Model.Prescriptions.Any())
-                        {
-                            <div class="list-modern">
-                                @foreach (var presc in Model.Prescriptions)
-                                {
-                                    <div class="list-item-modern">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div class="flex-grow-1">
-                                                <div class="fw-semibold small mb-1">@presc.DatePrescription.ToString("MMM dd, yyyy")</div>
-                                                <div class="text-muted small text-truncate">@presc.Medicaments</div>
-                                            </div>
-                                            <a href="@Url.Action("Print", "Prescription", new { area = "Medical", id = presc.IdPrescription })" 
-                                               target="_blank" 
-                                               class="btn-icon-modern" 
-                                               title="Print">
-                                                <i class="fas fa-print"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="empty-state-modern">
-                                <i class="fas fa-prescription-bottle-alt"></i>
-                                <p class="mb-0">No prescriptions</p>
-                            </div>
-                        }
-                    </div>
-                </div>
-
-                <!-- Lab Results -->
-                <div class="card-modern">
-                    <div class="card-header-modern">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <h5 class="mb-0 fw-bold">
-                                <i class="fas fa-flask me-2" style="color: var(--btn-primary);"></i>Lab Results
-                            </h5>
-                            <span class="badge rounded-pill px-3" style="background: rgba(145, 179, 217, 0.15); color: var(--btn-accent);">
-                                @examensCount
-                            </span>
-                        </div>
-                    </div>
-                    <div class="card-body-modern">
-                        @if (Model.Examens.Any())
-                        {
-                            <div class="list-modern">
-                                @foreach (var exam in Model.Examens)
-                                {
-                                    <div class="list-item-modern">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <span class="fw-semibold small" style="color: var(--btn-primary);">@exam.TypeExamen</span>
-                                            <span class="text-muted small">@exam.DateExamen.ToString("MMM dd, yyyy")</span>
-                                        </div>
-                                        <div class="text-muted small">@exam.Resultat</div>
-                                    </div>
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="empty-state-modern">
-                                <i class="fas fa-flask"></i>
-                                <p class="mb-0">No lab results</p>
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-    /* Patient Avatar */
-    .patient-avatar-large {
-        width: 80px;
-        height: 80px;
-        border-radius: 20px;
-        background: linear-gradient(135deg, var(--btn-primary) 0%, var(--btn-accent) 100%);
+    /* --- 1. Hero Header --- */
+    .patient-header {
+        background: linear-gradient(120deg, var(--primary) 0%, #4338CA 100%);
+        border-radius: 24px;
+        padding: 2.5rem;
         color: white;
-        font-weight: 700;
-        font-size: 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
+    }
+
+    /* Decorative Circle */
+    .patient-header::after {
+        content: '';
+        position: absolute;
+        top: -50px; right: -50px;
+        width: 300px; height: 300px;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .header-grid {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 2rem;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .patient-avatar {
+        width: 110px; height: 110px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(8px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 24px;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 8px 20px rgba(145, 179, 217, 0.3);
-        flex-shrink: 0;
+        font-size: 3rem;
+        font-weight: 700;
+        color: white;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
     }
 
-    /* Info Badges */
-    .info-badge {
+    .patient-identity h1 {
+        font-size: 2.25rem;
+        font-weight: 800;
+        margin: 0 0 0.5rem 0;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+    }
+
+    .patient-badges {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .p-badge {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 0.35rem 0.85rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        backdrop-filter: blur(4px);
         display: inline-flex;
         align-items: center;
-        padding: 0.5rem 1rem;
-        background: white;
-        border-radius: 12px;
-        font-size: 0.875rem;
-        color: var(--text-main);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        gap: 0.4rem;
     }
 
-    .info-badge i {
-        color: var(--btn-primary);
+    .patient-contact {
+        display: flex;
+        gap: 1.5rem;
+        font-size: 0.95rem;
+        opacity: 0.9;
+        flex-wrap: wrap;
     }
 
-    /* Buttons */
-    .btn-primary-modern {
-        background: linear-gradient(135deg, var(--btn-primary) 0%, var(--btn-accent) 100%);
-        color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 12px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px rgba(145, 179, 217, 0.3);
-    }
-
-    .btn-primary-modern:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(145, 179, 217, 0.4);
-        color: white;
-    }
-
-    .btn-outline-modern {
-        border: 1.5px solid var(--btn-primary);
-        color: var(--btn-primary);
-        background: white;
-        padding: 0.75rem 1rem;
-        border-radius: 12px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        flex: 1;
-    }
-
-    .btn-outline-modern:hover {
-        background: var(--btn-primary);
-        color: white;
-        transform: translateY(-2px);
-    }
-
-    /* Stat Cards */
-    .stat-card {
-        background: white;
-        border-radius: 16px;
-        padding: 1.5rem;
+    .contact-item {
         display: flex;
         align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Action Buttons in Header */
+    .header-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        min-width: 200px;
+    }
+
+    .btn-action-primary {
+        background: white;
+        color: var(--primary);
+        border: none;
+        padding: 0.85rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .btn-action-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+        background: #F8FAFC;
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .btn-action-secondary {
+        background: rgba(255,255,255,0.15);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.3);
+        padding: 0.6rem 1rem;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        backdrop-filter: blur(4px);
+    }
+
+    .btn-action-secondary:hover {
+        background: rgba(255,255,255,0.25);
+        text-decoration: none;
+        color: white;
+    }
+
+    /* --- 2. Medical Alert Banner --- */
+    .medical-alert {
+        background: #FEF2F2;
+        border-left: 5px solid var(--danger);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .medical-alert i {
+        color: var(--danger);
+        font-size: 1.5rem;
+        margin-top: 0.1rem;
+    }
+
+    .medical-alert-content h4 {
+        color: #991B1B;
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .medical-alert-content p {
+        color: #7F1D1D;
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    /* --- 3. Stats Cards --- */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
         gap: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        border: 1px solid rgba(0, 0, 0, 0.05);
+        margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+        background: var(--surface);
+        padding: 1.5rem;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: transform 0.2s, box-shadow 0.2s;
     }
 
     .stat-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        border-color: #CBD5E1;
     }
 
     .stat-icon {
-        width: 56px;
-        height: 56px;
+        width: 56px; height: 56px;
         border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 1.5rem;
+        color: white;
         flex-shrink: 0;
     }
+    
+    .bg-indigo { background: linear-gradient(135deg, #6366F1, #4338CA); }
+    .bg-green { background: linear-gradient(135deg, #34D399, #059669); }
+    .bg-purple { background: linear-gradient(135deg, #A78BFA, #7C3AED); }
+    .bg-orange { background: linear-gradient(135deg, #FBBF24, #D97706); }
 
-    .stat-content {
-        flex-grow: 1;
-    }
-
-    .stat-label {
-        font-size: 0.875rem;
-        color: var(--text-muted);
-        margin-bottom: 0.25rem;
-    }
-
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--text-main);
+    .stat-info .count {
+        font-size: 1.75rem;
+        font-weight: 800;
         line-height: 1;
+        color: #1E293B;
     }
 
-    /* Modern Cards */
-    .card-modern {
-        background: white;
-        border-radius: 20px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-        transition: all 0.3s ease;
+    .stat-info .label {
+        color: var(--secondary);
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-top: 0.25rem;
     }
 
-    .card-modern:hover {
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    /* --- 4. Main Content Layout (Grid) --- */
+    .content-layout {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 2rem;
     }
 
-    .card-header-modern {
-        padding: 1.5rem;
-        background: linear-gradient(135deg, rgba(145, 179, 217, 0.05) 0%, rgba(122, 163, 209, 0.05) 100%);
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    /* Section Styling */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
     }
 
-    .card-body-modern {
-        padding: 1.5rem;
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1E293B;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
     }
 
-    /* Timeline */
-    .timeline-modern {
+    .section-title i { color: var(--primary); }
+
+    /* Timeline Styles (Consultations) */
+    .timeline {
         position: relative;
         padding-left: 2rem;
     }
 
-    .timeline-item-modern {
-        position: relative;
-        padding-bottom: 2rem;
-        padding-left: 1.5rem;
-    }
-
-    .timeline-item-modern:last-child {
-        padding-bottom: 0;
-    }
-
-    .timeline-marker {
-        position: absolute;
-        left: -0.5rem;
-        top: 0.25rem;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: var(--btn-primary);
-        border: 3px solid white;
-        box-shadow: 0 0 0 3px rgba(145, 179, 217, 0.2);
-    }
-
-    .timeline-modern::before {
+    .timeline::before {
         content: '';
         position: absolute;
-        left: 0;
+        left: 7px;
         top: 0;
         bottom: 0;
         width: 2px;
-        background: linear-gradient(180deg, var(--btn-primary) 0%, rgba(145, 179, 217, 0.3) 100%);
+        background: #E2E8F0;
     }
 
-    .timeline-content {
-        background: rgba(145, 179, 217, 0.03);
-        padding: 1.25rem;
-        border-radius: 12px;
-        border-left: 3px solid var(--btn-primary);
+    .timeline-item {
+        position: relative;
+        margin-bottom: 2rem;
     }
 
-    .badge-date {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        font-weight: 600;
+    .timeline-dot {
+        position: absolute;
+        left: -2.4rem;
+        top: 0.25rem;
+        width: 16px;
+        height: 16px;
+        background: var(--surface);
+        border: 3px solid var(--primary);
+        border-radius: 50%;
+        z-index: 2;
     }
 
-    .doctor-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.35rem 0.75rem;
-        background: rgba(145, 179, 217, 0.1);
-        color: var(--btn-accent);
-        border-radius: 8px;
-        font-size: 0.75rem;
-        font-weight: 600;
+    .timeline-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.2s;
     }
 
-    /* List Items */
-    .list-modern {
+    .timeline-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .t-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #F1F5F9;
+        padding-bottom: 1rem;
+    }
+
+    .t-date {
         display: flex;
         flex-direction: column;
+    }
+
+    .t-date .day { font-weight: 800; font-size: 1.25rem; color: #1E293B; line-height: 1; }
+    .t-date .my { font-size: 0.8rem; color: var(--secondary); text-transform: uppercase; font-weight: 600; margin-top: 2px; }
+
+    .t-title h4 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1E293B;
+    }
+
+    .t-title .time {
+        font-size: 0.85rem;
+        color: var(--secondary);
+    }
+
+    .t-body {
+        color: #475569;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .t-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.85rem;
+    }
+
+    .doctor-pill {
+        background: #F1F5F9;
+        color: #475569;
+        padding: 0.25rem 0.75rem;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+
+    .btn-icon-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-icon {
+        width: 32px; height: 32px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: white;
+        color: var(--secondary);
+        transition: all 0.2s;
+    }
+    
+    .btn-icon:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: #F8FAFC;
+    }
+
+    /* Sidebar Cards */
+    .sidebar-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .mini-list-item {
+        background: #F8FAFC;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        transition: transform 0.2s;
+    }
+
+    .mini-list-item:hover {
+        transform: translateX(4px);
+        border-color: #CBD5E1;
+    }
+
+    .item-header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        color: var(--secondary);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .item-body {
+        font-weight: 500;
+        color: #334155;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .item-footer {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .badge-info {
+        background: #E0F2FE;
+        color: #0369A1;
+        padding: 0.25rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .quick-actions-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: 0.75rem;
     }
 
-    .list-item-modern {
+    .btn-quick {
+        background: white;
+        border: 1px solid var(--border);
         padding: 1rem;
-        background: rgba(145, 179, 217, 0.03);
         border-radius: 12px;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        transition: all 0.2s ease;
-    }
-
-    .list-item-modern:hover {
-        background: rgba(145, 179, 217, 0.08);
-        transform: translateX(4px);
-    }
-
-    .btn-icon-modern {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        color: var(--btn-primary);
-        background: rgba(145, 179, 217, 0.1);
-        text-decoration: none;
-        transition: all 0.2s ease;
-        flex-shrink: 0;
-    }
-
-    .btn-icon-modern:hover {
-        background: var(--btn-primary);
-        color: white;
-        transform: scale(1.1);
-    }
-
-    /* Empty States */
-    .empty-state-modern {
         text-align: center;
-        padding: 3rem 1rem;
-        color: var(--text-muted);
+        transition: all 0.2s;
+        cursor: pointer;
+        color: var(--secondary);
     }
 
-    .empty-state-modern i {
-        font-size: 3rem;
-        opacity: 0.3;
-        margin-bottom: 1rem;
+    .btn-quick:hover {
+        background: var(--primary-light);
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .btn-quick i {
         display: block;
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
     }
 
-    .empty-state-modern p {
-        font-size: 0.875rem;
+    .btn-quick span {
+        font-size: 0.8rem;
+        font-weight: 600;
     }
 
-    /* Alert */
-    .alert-warning-modern {
-        background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%);
-        border-left: 4px solid #ffc107;
-        border-radius: 16px;
+    /* Responsive Breakpoints */
+    @@media (max-width: 992px) {
+        .content-layout { grid-template-columns: 1fr; }
+        .stats-row { grid-template-columns: repeat(2, 1fr); }
     }
 
-    .alert-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        background: rgba(255, 193, 7, 0.2);
-        color: #ffc107;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    /* Responsive */
     @@media (max-width: 768px) {
-        .patient-avatar-large {
-            width: 60px;
-            height: 60px;
-            font-size: 1.5rem;
+        .header-grid {
+            grid-template-columns: 1fr;
+            text-align: center;
+            gap: 1.5rem;
         }
-
-        .stat-card {
-            padding: 1rem;
+        
+        .patient-avatar { margin: 0 auto; }
+        
+        .patient-badges, .patient-contact {
+            justify-content: center;
         }
-
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            font-size: 1.25rem;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-        }
-
-        .card-header-modern,
-        .card-body-modern {
-            padding: 1rem;
-        }
+        
+        .header-actions { width: 100%; }
+        
+        .stats-row { grid-template-columns: 1fr; }
+        
+        .timeline { padding-left: 1.5rem; }
     }
 </style>
+
+<div class="container-fluid medical-dashboard">
+
+    <!-- 1. Hero Header -->
+    <div class="patient-header">
+        <div class="header-grid">
+            
+            <!-- Avatar -->
+            <div class="patient-avatar">
+                @{
+                    var initials = (!string.IsNullOrEmpty(Model.PatientInfo.Nom) ? Model.PatientInfo.Nom[0].ToString() : "") + 
+                                   (!string.IsNullOrEmpty(Model.PatientInfo.Prenom) ? Model.PatientInfo.Prenom[0].ToString() : "");
+                }
+                @initials
+            </div>
+
+            <!-- Identity -->
+            <div class="patient-identity">
+                <h1>@Model.PatientInfo.Nom @Model.PatientInfo.Prenom</h1>
+                
+                <div class="patient-badges">
+                    <span class="p-badge"><i class="fas fa-hashtag"></i> ID: @Model.DossierId</span>
+                    <span class="p-badge"><i class="fas fa-hourglass-half"></i> @age Years Old</span>
+                    <span class="p-badge"><i class="fas fa-venus-mars"></i> Patient</span>
+                </div>
+
+                <div class="patient-contact">
+                    <div class="contact-item">
+                        <i class="fas fa-birthday-cake"></i> @Model.PatientInfo.DateNaissance.ToString("d MMMM yyyy")
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone-alt"></i> @(Model.PatientInfo.Telephone ?? "N/A")
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.PatientInfo.Email))
+                    {
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i> @Model.PatientInfo.Email
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="header-actions">
+                <a href="@Url.Action("Create", "Consultation", new { area = "Medical", dossierId = Model.DossierId })" class="btn-action-primary">
+                    <i class="fas fa-stethoscope"></i> New Consultation
+                </a>
+                <div class="d-flex gap-2">
+                    <a href="@Url.Action("Create", "Prescription", new { area = "Medical", dossierId = Model.DossierId })" class="btn-action-secondary flex-grow-1">
+                        <i class="fas fa-file-prescription"></i> Nouvelle Ordonnance
+                    </a>
+                    <a href="@Url.Action("Create", "Labo", new { area = "Medical", dossierId = Model.DossierId })" class="btn-action-secondary flex-grow-1">
+                        <i class="fas fa-flask"></i> Lab
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Medical Alerts -->
+    @if (!string.IsNullOrEmpty(Model.PatientInfo.AntecedentsMedicaux))
+    {
+        <div class="medical-alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div class="medical-alert-content">
+                <h4>Medical History & Alerts</h4>
+                <p>@Model.PatientInfo.AntecedentsMedicaux</p>
+            </div>
+        </div>
+    }
+
+    <!-- 3. Statistics Overview -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon bg-indigo"><i class="fas fa-user-md"></i></div>
+            <div class="stat-info">
+                <div class="count">@consultationsCount</div>
+                <div class="label">Consultations</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon bg-green"><i class="fas fa-capsules"></i></div>
+            <div class="stat-info">
+                <div class="count">@prescriptionsCount</div>
+                <div class="label">Prescriptions</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon bg-purple"><i class="fas fa-microscope"></i></div>
+            <div class="stat-info">
+                <div class="count">@examensCount</div>
+                <div class="label">Lab Tests</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon bg-orange"><i class="fas fa-folder-open"></i></div>
+            <div class="stat-info">
+                <div class="count">@totalEntries</div>
+                <div class="label">Total Entries</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Main Content Grid -->
+    <div class="content-layout">
+        
+        <!-- Left: Consultation Timeline -->
+        <div class="main-column">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="fas fa-history"></i>
+                    <h3>Consultation Timeline</h3>
+                </div>
+                <a href="#" class="text-decoration-none small fw-bold">View Full History <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            @if (Model.Consultations.Any())
+            {
+                <div class="timeline">
+                    @foreach (var consult in Model.Consultations.OrderByDescending(c => c.Date))
+                    {
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-card">
+                                <div class="t-header">
+                                    <div class="t-title">
+                                        <h4>@consult.Motif</h4>
+                                        <span class="time">@consult.Date.ToString("HH:mm") • Dr. @(consult.Doctor?.Nom ?? "Unknown")</span>
+                                    </div>
+                                    <div class="t-date">
+                                        <span class="day">@consult.Date.ToString("dd")</span>
+                                        <span class="my">@consult.Date.ToString("MMM yy")</span>
+                                    </div>
+                                </div>
+                                @if (!string.IsNullOrEmpty(consult.Notes))
+                                {
+                                    <div class="t-body">
+                                        @consult.Notes
+                                    </div>
+                                }
+                                <div class="t-footer">
+                                    <span class="doctor-pill">Consultation</span>
+                                    <div class="btn-icon-group">
+                                        <button class="btn-icon" title="View"><i class="fas fa-eye"></i></button>
+                                        <button class="btn-icon" title="Edit"><i class="fas fa-pen"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5 border rounded-3 bg-white">
+                    <i class="fas fa-clipboard-list fa-3x text-muted mb-3 opacity-25"></i>
+                    <h5 class="text-muted">No consultations recorded yet.</h5>
+                    <button class="btn btn-sm btn-outline-primary mt-2" onclick="location.href='@Url.Action("Create", "Consultation", new { area = "Medical", dossierId = Model.DossierId })'">Start First Consultation</button>
+                </div>
+            }
+        </div>
+
+        <!-- Right: Sidebar (Prescriptions, Labs, Actions) -->
+        <div class="sidebar-column">
+            
+            <!-- Quick Actions -->
+            <div class="sidebar-card">
+                <h5 class="section-title mb-3" style="font-size: 1rem;">Quick Actions</h5>
+                <div class="quick-actions-grid">
+                    <div class="btn-quick" onclick="location.href='@Url.Action("Edit", "DossierMedicals", new { area = "Medical", id = Model.DossierId })'">
+                        <i class="fas fa-user-edit"></i>
+                        <span>Edit Patient</span>
+                    </div>
+                    <div class="btn-quick" onclick="window.print()">
+                        <i class="fas fa-print"></i>
+                        <span>Print</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Prescriptions -->
+            <div class="sidebar-card">
+                <div class="section-header mb-3">
+                    <h5 class="section-title" style="font-size: 1rem;">
+                        <i class="fas fa-prescription-bottle-alt"></i> Active Meds
+                    </h5>
+                    <span class="badge bg-light text-dark">@prescriptionsCount</span>
+                </div>
+
+                @if (Model.Prescriptions.Any())
+                {
+                    foreach (var presc in Model.Prescriptions.OrderByDescending(p => p.DatePrescription).Take(3))
+                    {
+                        <div class="mini-list-item">
+                            <div class="item-header">
+                                <span>@presc.DatePrescription.ToString("dd MMM yyyy")</span>
+                                <i class="fas fa-file-medical text-muted"></i>
+                            </div>
+                            <div class="item-body">
+                                @presc.Medicaments
+                            </div>
+                            <div class="item-footer">
+                                <span class="badge-info">Active</span>
+                                <a href="#" class="ms-auto text-decoration-none small"><i class="fas fa-external-link-alt"></i></a>
+                            </div>
+                        </div>
+                    }
+                    if (prescriptionsCount > 3)
+                    {
+                        <a href="#" class="d-block text-center small fw-bold mt-2">View All</a>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted small fst-italic">No active prescriptions.</p>
+                }
+            </div>
+
+            <!-- Recent Labs -->
+            <div class="sidebar-card">
+                <div class="section-header mb-3">
+                    <h5 class="section-title" style="font-size: 1rem;">
+                        <i class="fas fa-vial"></i> Lab Results
+                    </h5>
+                    <span class="badge bg-light text-dark">@examensCount</span>
+                </div>
+
+                @if (Model.Examens.Any())
+                {
+                    foreach (var exam in Model.Examens.OrderByDescending(e => e.DateExamen).Take(3))
+                    {
+                        <div class="mini-list-item">
+                            <div class="item-header">
+                                <span>@exam.DateExamen.ToString("dd MMM")</span>
+                                <span>@exam.TypeExamen</span>
+                            </div>
+                            <div class="item-body text-truncate">
+                                Result: @exam.Resultat
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted small fst-italic">No lab results found.</p>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simple script to handle print action
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Medical Record View Loaded for @Model.PatientInfo.Nom");
+    });
+</script>
