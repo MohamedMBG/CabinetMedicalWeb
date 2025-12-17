@@ -1,203 +1,348 @@
 ﻿@model IEnumerable<CabinetMedicalWeb.Models.DossierMedical>
 
 @{
-    ViewData["Title"] = "Medical Records";
-
-    // Dental Clinic Color Palette
-    var colorPrimary = "#91B3D9";
-    var colorSecondary = "#7AA3D1";
-    var colorBg = "#E9EFF7";
-    var colorCard = "#FFFFFF";
-    var textDark = "#666B72";
-    var textMuted = "#989DA5";
-    var borderSubtle = "rgba(0, 0, 0, 0.05)";
+    ViewData["Title"] = "Medical Records Directory";
+    // FIX: Explicitly point to the main layout file
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    
+    // Theme colors matching the layout
+    var primaryColor = "#4F46E5";
+    var textDark = "#1E293B";
+    var textMuted = "#64748B";
 }
 
 <style>
-    body {
-        background-color: @colorBg;
-        font-family: 'Inter', system-ui, sans-serif;
+    :root {
+        --primary: #4F46E5;
+        --primary-light: #EEF2FF;
+        --secondary: #64748B;
+        --surface: #FFFFFF;
+        --bg: #F8FAFC;
+        --border: #E2E8F0;
+        --text-main: #1E293B;
     }
 
-    .glass-card {
-        background-color: @colorCard;
-        border-radius: 16px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-        border: 1px solid @borderSubtle;
-        overflow: hidden;
+    .page-container {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        padding: 0 1.5rem 3rem 1.5rem;
+        color: var(--text-main);
     }
 
+    /* --- Header & Actions --- */
     .page-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
     }
 
-    /* Table Styling */
-    .table-modern {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
+    .header-title h1 {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin: 0;
+        letter-spacing: -0.02em;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
     }
 
-        .table-modern thead th {
-            background-color: #F9FAFB;
-            color: @textMuted;
-            font-weight: 600;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid #E5E7EB;
-            text-align: left;
-        }
+    .header-subtitle {
+        color: var(--secondary);
+        font-size: 0.95rem;
+        margin-top: 0.25rem;
+    }
 
-        .table-modern tbody tr {
-            transition: background-color 0.2s;
-        }
-
-            .table-modern tbody tr:hover {
-                background-color: #F8FAFC;
-            }
-
-        .table-modern td {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid #F3F4F6;
-            color: @textDark;
-            vertical-align: middle;
-        }
-
-        .table-modern tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-    /* Avatar Initials */
-    .avatar-initials {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, @colorPrimary 0%, @colorSecondary 100%);
+    .btn-add-record {
+        background: var(--primary);
         color: white;
-        border-radius: 50%;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        text-decoration: none;
+    }
+
+    .btn-add-record:hover {
+        background: #4338CA;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(79, 70, 229, 0.3);
+        color: white;
+    }
+
+    /* --- Search Section --- */
+    .search-wrapper {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        max-width: 600px;
+        width: 100%;
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .search-input-group {
+        position: relative;
+        flex: 1;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94A3B8;
+    }
+
+    .form-control-search {
+        border: none;
+        background: transparent;
+        padding: 0.75rem 1rem 0.75rem 2.5rem;
+        width: 100%;
+        font-size: 0.95rem;
+        color: var(--text-main);
+    }
+
+    .form-control-search:focus {
+        outline: none;
+    }
+
+    .btn-search {
+        background: #F1F5F9;
+        color: var(--text-main);
+        border: none;
+        padding: 0.5rem 1.25rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .btn-search:hover {
+        background: #E2E8F0;
+    }
+
+    /* --- Data Card & Table --- */
+    .data-card {
+        background: var(--surface);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .table-custom {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-custom thead {
+        background: #F8FAFC;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .table-custom th {
+        padding: 1rem 1.5rem;
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--secondary);
+    }
+
+    .table-custom td {
+        padding: 1.25rem 1.5rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #F1F5F9;
+        color: var(--text-main);
+        font-size: 0.95rem;
+    }
+
+    .table-custom tr:last-child td {
+        border-bottom: none;
+    }
+
+    .table-custom tbody tr {
+        transition: background 0.2s;
+        cursor: pointer;
+    }
+
+    .table-custom tbody tr:hover {
+        background: #F8FAFC;
+    }
+
+    /* --- Avatars & Badges --- */
+    .patient-cell {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .avatar-circle {
+        width: 42px;
+        height: 42px;
+        background: linear-gradient(135deg, #6366F1, #818CF8);
+        color: white;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 700;
-        font-size: 0.9rem;
-        margin-right: 1rem;
+        font-size: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
     }
 
-    /* Action Buttons */
-    .btn-icon {
+    .info-sub {
+        font-size: 0.8rem;
+        color: var(--secondary);
+        display: block;
+        margin-top: 0.1rem;
+    }
+
+    .contact-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        font-size: 0.85rem;
+        color: var(--secondary);
+    }
+
+    .contact-info i {
+        width: 16px;
+        color: #94A3B8;
+    }
+
+    .date-badge {
+        background: #F1F5F9;
+        color: var(--text-main);
+        padding: 0.35rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: inline-block;
+    }
+
+    /* --- Actions --- */
+    .action-group {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .btn-action {
         width: 36px;
         height: 36px;
-        border-radius: 8px;
-        display: inline-flex;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: white;
+        display: flex;
         align-items: center;
         justify-content: center;
-        border: none;
+        color: var(--secondary);
         transition: all 0.2s;
-        text-decoration: none;
     }
 
-    .btn-view {
-        background-color: rgba(145, 179, 217, 0.15);
-        color: @colorPrimary;
+    .btn-action:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--primary-light);
     }
 
-        .btn-view:hover {
-            background-color: @colorPrimary;
-            color: white;
-        }
-
-    .btn-delete {
-        background-color: #FEF2F2;
+    .btn-action.delete:hover {
+        border-color: #EF4444;
         color: #EF4444;
+        background: #FEF2F2;
     }
 
-        .btn-delete:hover {
-            background-color: #EF4444;
-            color: white;
-        }
+    /* --- Empty State --- */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
 
-    .btn-create {
-        background-color: @colorPrimary;
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 12px;
-        font-weight: 600;
-        box-shadow: 0 4px 6px rgba(145, 179, 217, 0.3);
-        border: none;
-        display: inline-flex;
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        background: #F1F5F9;
+        border-radius: 50%;
+        display: flex;
         align-items: center;
-        gap: 0.5rem;
-        transition: transform 0.2s;
-        text-decoration: none;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: #94A3B8;
+        font-size: 2rem;
     }
-
-        .btn-create:hover {
-            background-color: @colorSecondary;
-            transform: translateY(-1px);
-            color: white;
-        }
-
 </style>
 
-<div class="container py-5" style="min-height: 100vh;">
+<div class="container-fluid page-container px-4" style="max-width: 1600px;">
 
-    <!-- Header Section -->
+    <!-- Header -->
     <div class="page-header">
-        <div>
-            <h1 class="h3 fw-bold mb-1" style="color: @textDark;">Medical Records</h1>
-            <p class="text-muted mb-0">Manage patient records and access medical history.</p>
+        <div class="header-text">
+            <div class="header-title">
+                <h1><i class="fas fa-folder-medical text-primary"></i> Medical Records</h1>
+            </div>
+            <div class="header-subtitle">
+                Access and manage patient dossiers securely.
+            </div>
         </div>
-        <a href="@Url.Action("Create", "DossierMedicals", new { area = "Medical" })" class="btn-create">
-            <i class="fas fa-plus"></i> New Record
+        <a href="@Url.Action("Create", "DossierMedicals", new { area = "Medical" })" class="btn-add-record">
+            <i class="fas fa-plus"></i>
+            <span>New Record</span>
         </a>
     </div>
 
-    <!-- Search Bar -->
-    <div class="mb-4">
-        <form method="get" action="@Url.Action("Index", "DossierMedicals", new { area = "Medical" })" class="d-flex gap-2">
-            <div class="flex-grow-1 position-relative">
-                <i class="fas fa-search position-absolute" style="left: 1rem; top: 50%; transform: translateY(-50%); color: @textMuted; z-index: 10;"></i>
+    <!-- Search Toolbar -->
+    <form method="get" action="@Url.Action("Index", "DossierMedicals", new { area = "Medical" })">
+        <div class="search-wrapper">
+            <div class="search-input-group">
+                <i class="fas fa-search search-icon"></i>
                 <input type="text" name="searchTerm" value="@ViewBag.SearchTerm" 
-                       class="form-control" placeholder="Search by patient name, phone, or email..." 
-                       style="padding-left: 2.5rem; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1);">
+                       class="form-control-search" 
+                       placeholder="Search by name, phone, or email..." 
+                       autocomplete="off">
             </div>
-            <button type="submit" class="btn" style="background-color: @colorPrimary; color: white; border-radius: 12px;">
-                <i class="fas fa-search me-2"></i>Search
-            </button>
+            <button type="submit" class="btn-search">Search</button>
             @if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string))
             {
-                <a href="@Url.Action("Index", "DossierMedicals", new { area = "Medical" })" class="btn btn-secondary" style="border-radius: 12px;">
-                    <i class="fas fa-times me-2"></i>Clear
+                <a href="@Url.Action("Index", "DossierMedicals", new { area = "Medical" })" class="btn-search text-danger" title="Clear">
+                    <i class="fas fa-times"></i>
                 </a>
             }
-        </form>
-    </div>
+        </div>
+    </form>
 
+    <!-- Success Message -->
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 12px;">
-            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="alert alert-success d-flex align-items-center shadow-sm border-0 rounded-3 mb-4 p-3 bg-white border-start border-success border-4">
+            <i class="fas fa-check-circle text-success me-3 fs-5"></i>
+            <div class="text-success fw-medium">@TempData["SuccessMessage"]</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <!-- Main Content Card -->
-    <div class="glass-card">
+    <!-- Content -->
+    <div class="data-card">
         @if (!Model.Any())
         {
-            <div class="text-center py-5">
-                <div class="mb-3">
-                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 80px; height: 80px; background-color: #F3F4F6; color: #9CA3AF;">
-                        <i class="fas fa-folder-open fa-2x"></i>
-                    </div>
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-folder-open"></i>
                 </div>
-                <h5 class="fw-bold" style="color: @textDark;">No records found</h5>
-                <p class="text-muted mb-4">Start by creating a medical record for an existing patient.</p>
-                <a href="@Url.Action("Create", "DossierMedicals", new { area = "Medical" })" class="btn-create">
+                <h4 class="fw-bold text-dark mb-2">No records found</h4>
+                <p class="text-muted mb-4">Start by creating a dossier for a patient.</p>
+                <a href="@Url.Action("Create", "DossierMedicals", new { area = "Medical" })" class="btn-add-record d-inline-flex">
                     Create First Record
                 </a>
             </div>
@@ -205,60 +350,70 @@
         else
         {
             <div class="table-responsive">
-                <table class="table-modern">
+                <table class="table-custom">
                     <thead>
                         <tr>
-                            <th>Patient</th>
-                            <th>Contact</th>
-                            <th>Last Visit</th>
+                            <th>Patient Identity</th>
+                            <th>Contact Details</th>
+                            <th>Last Activity</th>
                             <th class="text-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model)
                         {
-                            var nom = item.Patient?.Nom ?? "Inconnu";
+                            var nom = item.Patient?.Nom ?? "Unknown";
                             var prenom = item.Patient?.Prenom ?? "";
-                            var initials = (nom.Length > 0 ? nom[0].ToString() : "") + (prenom.Length > 0 ? prenom[0].ToString() : "");
+                            var fullName = $"{nom} {prenom}";
+                            var initial = (nom.Length > 0 ? nom[0].ToString() : "") + (prenom.Length > 0 ? prenom[0].ToString() : "");
+                            var lastConsult = item.Consultations?.OrderByDescending(c => c.Date).FirstOrDefault()?.Date;
 
-                            <tr style="cursor: pointer;" onclick="window.location='@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = item.Id })'">
+                            <tr onclick="window.location='@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = item.Id })'">
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-initials">@initials</div>
+                                    <div class="patient-cell">
+                                        <div class="avatar-circle">@initial</div>
                                         <div>
-                                            <div class="fw-bold">@nom @prenom</div>
-                                            <small class="text-muted">Born: @(item.Patient?.DateNaissance.ToShortDateString() ?? "N/A")</small>
+                                            <div class="fw-bold text-dark">@fullName</div>
+                                            <span class="info-sub">Born: @(item.Patient?.DateNaissance.ToShortDateString() ?? "N/A")</span>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="d-flex flex-column">
-                                        <span class="small"><i class="fas fa-phone me-2 text-muted"></i>@(item.Patient?.Telephone ?? "N/A")</span>
-                                        <span class="small"><i class="fas fa-envelope me-2 text-muted"></i>@(item.Patient?.Email ?? "N/A")</span>
+                                    <div class="contact-info">
+                                        <span><i class="fas fa-phone-alt"></i> @(item.Patient?.Telephone ?? "N/A")</span>
+                                        @if (!string.IsNullOrEmpty(item.Patient?.Email))
+                                        {
+                                            <span><i class="fas fa-envelope"></i> @item.Patient.Email</span>
+                                        }
                                     </div>
                                 </td>
                                 <td>
-                                    <!-- Placeholder pour la date de dernière consult si disponible, sinon statique -->
-                                    <span class="badge bg-light text-dark border">
-                                        @(item.Consultations != null && item.Consultations.Any()
-                                                                        ? item.Consultations.OrderByDescending(c => c.Date).First().Date.ToShortDateString()
-                                                                        : "None")
-                            </span>
-                        </td>
-                        <td class="text-end">
-                            <div class="d-flex justify-content-end gap-2" onclick="event.stopPropagation();">
-                                <a href="@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = item.Id })"
-                                   class="btn-icon btn-view" title="Open Dashboard">
-                                    <i class="fas fa-arrow-right"></i>
-                                </a>
-                                <a href="@Url.Action("Delete", "DossierMedicals", new { area = "Medical", id = item.Id })"
-                                   class="btn-icon btn-delete" title="Delete">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                                        }
+                                    @if (lastConsult.HasValue)
+                                    {
+                                        <span class="date-badge">
+                                            <i class="far fa-calendar-alt me-1 text-muted"></i> 
+                                            @lastConsult.Value.ToString("dd MMM yyyy")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small fst-italic">No visits yet</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="action-group" onclick="event.stopPropagation();">
+                                        <a href="@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = item.Id })" 
+                                           class="btn-action" title="View Dashboard">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                        <a href="@Url.Action("Delete", "DossierMedicals", new { area = "Medical", id = item.Id })" 
+                                           class="btn-action delete" title="Delete Record">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
