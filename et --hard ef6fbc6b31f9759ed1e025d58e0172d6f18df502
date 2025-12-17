@@ -1,0 +1,179 @@
+[33mcommit 72c64b2212336f6009f9d90bfd8522999e7927cd[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mbaghdad[m[33m, [m[1;31morigin/baghdad[m[33m)[m
+Author: MohamedMBG <mohamedbaghdad.me@gmail.com>
+Date:   Wed Dec 17 14:39:01 2025 +0100
+
+    deleted databases
+
+[33mcommit ca8ba634d6b4058692818f08900d8d4732155e5f[m
+Author: MohamedMBG <mohamedbaghdad.me@gmail.com>
+Date:   Wed Dec 17 14:38:27 2025 +0100
+
+    updating the logic and the ui
+
+[33mcommit 55272f007a187317b458a87bcd6c9bd300815d67[m
+Merge: d5fcab6 29c2e24
+Author: BAGHDAD Mohamed <123114744+MohamedMBG@users.noreply.github.com>
+Date:   Sun Dec 14 20:42:23 2025 +0100
+
+    Merge pull request #9 from MohamedMBG/codex/investigate-sql-server-connection-issue
+    
+    Add SQLite fallback for development database
+
+[33mcommit 29c2e24f66a1e04f99bb5ea95881ea7b391a3ce9[m[33m ([m[1;31morigin/codex/investigate-sql-server-connection-issue[m[33m)[m
+Author: BAGHDAD Mohamed <123114744+MohamedMBG@users.noreply.github.com>
+Date:   Sun Dec 14 20:42:11 2025 +0100
+
+    Add SQLite fallback for development database
+
+[33mcommit d5fcab66c3afa145116e595fcd287442bc4a41ef[m
+Merge: ef6fbc6 2cdb2dc
+Author: BAGHDAD Mohamed <123114744+MohamedMBG@users.noreply.github.com>
+Date:   Sun Dec 14 20:37:33 2025 +0100
+
+    Merge pull request #8 from MohamedMBG/redesign-medical-app-ui-for-better-ux
+    
+    Refresh UI theme and improve database configuration
+
+[33mcommit 2cdb2dc6b329b93a698bbff056b514fea9535732[m[33m ([m[1;31morigin/codex/redesign-medical-app-ui-for-better-ux[m[33m)[m
+Author: BAGHDAD Mohamed <123114744+MohamedMBG@users.noreply.github.com>
+Date:   Sun Dec 14 20:37:17 2025 +0100
+
+    Enhance UI styling and database setup
+
+[33mcommit ef6fbc6b31f9759ed1e025d58e0172d6f18df502[m
+Merge: 4455e44 07c3592
+Author: BAGHDAD Mohamed <123114744+MohamedMBG@users.noreply.github.com>
+Date:   Sun Dec 14 20:33:35 2025 +0100
+
+    Merge pull request #7 from MohamedMBG/codex/redesign-overall-ui-of-the-app
+    
+    Refresh UI with English-first calming theme
+
+[33mcommit 07c359201244793bc5c734205ef0b287253f6a0a[m[33m ([m[1;31morigin/codex/redesign-overall-ui-of-the-app[m[33m)[m
+Author: BAGHDAD Mohamed <123114744+MohamedMBG@users.noreply.github.com>
+Date:   Sun Dec 14 20:33:18 2025 +0100
+
+    Refresh UI with English-first calming theme
+
+[33mcommit 4455e440dcc786f96580ef0aacb5b0b9590415a2[m
+Author: MohamedMBG <mohamedbaghdad.me@gmail.com>
+Date:   Sun Dec 14 20:28:37 2025 +0100
+
+     working on the UI and the logic basic ui with erros
+
+[33mcommit dffe4f8124e980faf0e6ded3154f82898dd33605[m
+Merge: 25098af ab006f3
+Author: BAGHDAD Mohamed <123114744+MohamedMBG@users.noreply.github.com>
+Date:   Sun Dec 14 19:46:56 2025 +0100
+
+    Merge pull request #6 from MohamedMBG/codex/improve-ui-for-dossiermedicals-details
+    
+    Refresh dossier details UI
+
+[33mcommit ab006f3a9060e6ec326e3b6f40886123dfdf3a58[m[33m ([m[1;31morigin/codex/improve-ui-for-dossiermedicals-details[m[33m)[m
+Author: BAGHDAD Mohamed <123114744+MohamedMBG@users.noreply.github.com>
+Date:   Sun Dec 14 19:46:46 2025 +0100
+
+    Refresh dossier details UI
+
+[33mcommit 25098af8aacfcc874a3e773c544d9b2460242b6b[m
+Author: MohamedMBG <mohamedbaghdad.me@gmail.com>
+Date:   Sun Dec 14 19:43:04 2025 +0100
+
+    working on the logic + UI/UX / prescriptions and dossier medical
+
+[33mcommit da91a6ae87abba11c3b5bee771bd74a547a7daf5[m
+Merge: 5bf5050 a163eee
+Author: BAGHDAD Mohamed <123114744+MohamedMBG@users.noreply.github.com>
+Date:   Sun Dec 14 03:05:44 2025 +0100
+
+    Merge pull request #5 from MohamedMBG/codex/improve-ui-for-modern-appeal
+    
+    Enhance home page UI styling
+
+[33mcommit a163eeefcc6f2063cbad2bc8ecd07503d523a8b4[m[33m ([m[1;31morigin/codex/improve-ui-for-modern-appeal[m[33m)[m
+Author: BAGHDAD Mohamed <123114744+MohamedMBG@users.noreply.github.com>
+Date:   Sun Dec 14 03:05:32 2025 +0100
+
+    Enhance home page UI styling
+
+[33mcommit 5bf50506bbe7afbfdfc17449fe0abcf1bec84de0[m
+Merge: f847aae 0b59e62
+Author: BAGHDAD Mohamed <123114744+MohamedMBG@users.noreply.github.com>
+Date:   Sun Dec 14 03:01:53 2025 +0100
+
+    Merge pull request #4 from MohamedMBG/codex/fix-crash-when-creating-medical-folder
+    
+    Fix patient selection crash by sharing patient list model
+
+[33mcommit 0b59e62a4449e722e480d8eba74d0566e05a1213[m[33m ([m[1;31morigin/codex/fix-crash-when-creating-medical-folder[m[33m)[m
+Author: BAGHDAD Mohamed <123114744+MohamedMBG@users.noreply.github.com>
+Date:   Sun Dec 14 03:01:42 2025 +0100
+
+    Fix patient selection crash by sharing patient list model
+
+[33mcommit f847aae80d1b3aaaeb48544bd536d6712b91a216[m
+Merge: 2e1bba4 4a7d18d
+Author: BAGHDAD Mohamed <123114744+MohamedMBG@users.noreply.github.com>
+Date:   Sun Dec 14 02:54:08 2025 +0100
+
+    Merge pull request #3 from MohamedMBG/fix-empty-dropdown-menu-issue
+    
+    Fix patients list ViewData key in create view
+
+[33mcommit 4a7d18d320d630792282679acbb6c71729534174[m[33m ([m[1;31morigin/codex/fix-empty-dropdown-menu-issue[m[33m)[m
+Author: BAGHDAD Mohamed <123114744+MohamedMBG@users.noreply.github.com>
+Date:   Sun Dec 14 02:53:42 2025 +0100
+
+    Fix initial patients ViewData key in create view
+
+[33mcommit 2e1bba419aaebc43077739700c4486aa0f7b5c89[m
+Author: MohamedMBG <mohamedbaghdad.me@gmail.com>
+Date:   Sun Dec 14 02:51:03 2025 +0100
+
+    fixing the drop down menu
+
+[33mcommit ab9dcf3aca6b28907aba81442dac16d5745bf5a7[m
+Merge: a6e6e67 72b9321
+Author: BAGHDAD Mohamed <123114744+MohamedMBG@users.noreply.github.com>
+Date:   Sun Dec 14 02:36:15 2025 +0100
+
+    Merge pull request #1 from MohamedMBG/codex/fix-empty-patient-dropdown-menu
+    
+    Fix dossier creation patient dropdown and enhance UI
+
+[33mcommit 72b93211cf4cf3eac76e567a1c4e0d8f43315ef0[m[33m ([m[1;31morigin/codex/fix-empty-patient-dropdown-menu[m[33m)[m
+Author: BAGHDAD Mohamed <123114744+MohamedMBG@users.noreply.github.com>
+Date:   Sun Dec 14 02:36:02 2025 +0100
+
+    Improve dossier creation patient loading and UI
+
+[33mcommit a6e6e673d2dbded2c90b0cabf241c2873585de3b[m
+Author: MohamedMBG <mohamedbaghdad.me@gmail.com>
+Date:   Sun Dec 14 02:31:57 2025 +0100
+
+    trying to fix the dropdown menu
+
+[33mcommit 227dfd3b65610a077e58d02e0ffda28d66db4b21[m
+Author: MohamedMBG <mohamedbaghdad.me@gmail.com>
+Date:   Sun Dec 14 02:18:18 2025 +0100
+
+    dropdown menu empty
+
+[33mcommit be02eb0f9ff7445f05a03ed594e55e461f469501[m[33m ([m[1;31morigin/monssef[m[33m)[m
+Author: MohamedMBG <mohamedbaghdad.me@gmail.com>
+Date:   Sat Dec 13 19:46:17 2025 +0100
+
+    Création de larchitecture des fichiers (Controllers & ViewModels) pour FrontDesk et Medical
+
+[33mcommit 6f7e971f349f285df251ed1d22f3f60cff1a9632[m
+Author: MohamedMBG <mohamedbaghdad.me@gmail.com>
+Date:   Sat Dec 13 18:31:03 2025 +0100
+
+    Add project files.
+
+[33mcommit d5dfeb861d6e66ad295f048b3b78b208c4724bdf[m
+Author: MohamedMBG <mohamedbaghdad.me@gmail.com>
+Date:   Sat Dec 13 18:31:00 2025 +0100
+
+    Add .gitattributes and .gitignore.

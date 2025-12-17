@@ -1,24 +1,20 @@
 ﻿@using CabinetMedicalWeb.Areas.Medical.Models
 @{
     ViewData["Title"] = "Create Medical Record";
-
-    // Dental Clinic Palette
-    var colorPrimary = "#91B3D9";
-    var colorSecondary = "#7AA3D1";
-    var bgPage = "#E9EFF7";
-    var textDark = "#666B72";
-    var textMuted = "#989DA5";
-
+    
+    // Safety check for nulls
     var availablePatients = ViewBag.AvailablePatients as List<PatientListItem> ?? new List<PatientListItem>();
     var searchTerm = ViewBag.SearchTerm as string ?? string.Empty;
     var patientCount = ViewBag.PatientCount as int? ?? 0;
+    
+    // Styling variables
+    var colorPrimary = "#91B3D9";
+    var bgPage = "#E9EFF7";
+    var textDark = "#666B72";
 }
 
 <style>
-    body {
-        background-color: @bgPage;
-        font-family: 'Inter', system-ui, sans-serif;
-    }
+    body { background-color: @bgPage; font-family: 'Inter', system-ui, sans-serif; }
 
     .patient-card {
         background: white;
@@ -26,238 +22,136 @@
         padding: 1.5rem;
         margin-bottom: 1rem;
         border: 2px solid transparent;
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
         cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        position: relative;
     }
 
     .patient-card:hover {
         border-color: @colorPrimary;
-        box-shadow: 0 4px 12px rgba(145, 179, 217, 0.2);
         transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(145, 179, 217, 0.2);
     }
 
+    /* Selected State Style */
     .patient-card.selected {
         border-color: @colorPrimary;
-        background: linear-gradient(135deg, rgba(145, 179, 217, 0.1) 0%, rgba(122, 163, 209, 0.1) 100%);
-        box-shadow: 0 4px 12px rgba(145, 179, 217, 0.3);
+        background-color: rgba(145, 179, 217, 0.1);
+        box-shadow: 0 0 0 2px @colorPrimary; /* Stronger visual cue */
     }
 
     .patient-avatar {
-        width: 60px;
-        height: 60px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, @colorPrimary 0%, @colorSecondary 100%);
+        width: 50px; height: 50px;
+        border-radius: 10px;
+        background: @colorPrimary;
         color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 1.25rem;
-        flex-shrink: 0;
-    }
-
-    .search-box {
-        background: white;
-        border-radius: 12px;
-        padding: 1rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: bold; font-size: 1.2rem;
     }
 
     .btn-create-record {
-        background: linear-gradient(135deg, @colorPrimary 0%, @colorSecondary 100%);
+        background: @colorPrimary;
         color: white;
         border: none;
         padding: 1rem 2rem;
         border-radius: 12px;
         font-weight: 600;
-        font-size: 1rem;
-        box-shadow: 0 4px 6px rgba(145, 179, 217, 0.3);
-        transition: all 0.3s ease;
         width: 100%;
+        transition: all 0.3s;
     }
-
-    .btn-create-record:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(145, 179, 217, 0.4);
-        color: white;
-    }
-
+    
     .btn-create-record:disabled {
-        opacity: 0.5;
+        background-color: #ccc;
         cursor: not-allowed;
+        opacity: 0.7;
     }
 
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        color: @textMuted;
-    }
-
-    .empty-state-icon {
-        font-size: 4rem;
-        color: @textMuted;
-        opacity: 0.3;
-        margin-bottom: 1rem;
+    .btn-create-record:not(:disabled):hover {
+        background-color: #7aa3d1; /* Darker shade */
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 </style>
 
-<div class="container py-5" style="max-width: 1000px;">
-    <!-- Page Header -->
+<div class="container py-5" style="max-width: 900px;">
+    
+    <!-- Header -->
     <div class="mb-4">
-        <h1 class="fw-bold mb-2" style="color: @textDark;">
-            <i class="fas fa-file-medical me-2"></i>Create New Medical Record
-        </h1>
-        <p class="text-muted">Select a patient who doesn't have a medical record yet.</p>
+        <h1 class="fw-bold" style="color: @textDark;">Create Medical Record</h1>
+        <p class="text-muted">Select a patient below to proceed.</p>
     </div>
 
-    <!-- Success/Error Messages -->
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 12px;">
-            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
+    <!-- Alert Messages -->
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 12px;">
-            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
-            @if (TempData["ExistingRecordId"] != null)
-            {
-                <a href="@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = TempData["ExistingRecordId"] })" 
-                   class="alert-link ms-2">
-                    <i class="fas fa-eye me-1"></i>View Existing Record
-                </a>
-            }
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+        <div class="alert alert-danger mb-4">@TempData["ErrorMessage"]</div>
     }
 
-    <!-- Search Box -->
-    <div class="search-box">
-        <form method="get" action="@Url.Action("Create", "DossierMedicals", new { area = "Medical" })" class="d-flex gap-2">
-            <div class="flex-grow-1 position-relative">
-                <i class="fas fa-search position-absolute" style="left: 1rem; top: 50%; transform: translateY(-50%); color: @textMuted; z-index: 10;"></i>
-                <input type="text" name="searchTerm" value="@searchTerm" 
-                       class="form-control" placeholder="Search by name, phone, or email..." 
-                       style="padding-left: 2.5rem; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1);">
-            </div>
-            <button type="submit" class="btn" style="background-color: @colorPrimary; color: white; border-radius: 12px;">
-                <i class="fas fa-search me-2"></i>Search
-            </button>
-            @if (!string.IsNullOrEmpty(searchTerm))
-            {
-                <a href="@Url.Action("Create", "DossierMedicals", new { area = "Medical" })" 
-                   class="btn btn-secondary" style="border-radius: 12px;">
-                    <i class="fas fa-times me-2"></i>Clear
-                </a>
+    <!-- Search Form -->
+    <div class="card border-0 shadow-sm mb-4 p-3 rounded-4">
+        <form method="get" asp-action="Create" class="d-flex gap-2">
+            <input type="text" name="searchTerm" value="@searchTerm" class="form-control border-0 bg-light py-2" placeholder="Search patient..." style="border-radius: 10px;">
+            <button type="submit" class="btn btn-primary px-4" style="background-color: @colorPrimary; border: none; border-radius: 10px;">Search</button>
+            @if(!string.IsNullOrEmpty(searchTerm)) {
+                <a href="@Url.Action("Create")" class="btn btn-light" style="border-radius: 10px;">Clear</a>
             }
         </form>
-        @if (!string.IsNullOrEmpty(searchTerm))
-        {
-            <div class="mt-2 text-muted small">
-                <i class="fas fa-info-circle me-1"></i>Found @patientCount patient(s) matching your search.
-            </div>
-        }
-        else
-        {
-            <div class="mt-2 text-muted small">
-                <i class="fas fa-info-circle me-1"></i>Showing @patientCount patient(s) without medical records.
-            </div>
-        }
     </div>
 
-    <!-- Patient Selection Form -->
+    <!-- Main Selection Form -->
     <form method="post" asp-action="Create" id="createForm">
         @Html.AntiForgeryToken()
 
         @if (availablePatients.Count == 0)
         {
-            <div class="empty-state">
-                <div class="empty-state-icon">
-                    <i class="fas fa-user-slash"></i>
-                </div>
-                <h4 class="fw-bold mb-2" style="color: @textDark;">No Patients Available</h4>
-                <p class="text-muted mb-4">
-                    @if (string.IsNullOrEmpty(searchTerm))
-                    {
-                        <text>All patients already have medical records, or there are no patients in the system.</text>
-                    }
-                    else
-                    {
-                        <text>No patients found matching your search criteria.</text>
-                    }
-                </p>
-                @if (!string.IsNullOrEmpty(searchTerm))
-                {
-                    <a href="@Url.Action("Create", "DossierMedicals", new { area = "Medical" })" 
-                       class="btn" style="background-color: @colorPrimary; color: white; border-radius: 12px;">
-                        <i class="fas fa-arrow-left me-2"></i>Clear Search
-                    </a>
-                }
-                <div class="mt-4">
-                    <a href="@Url.Action("Index", "DossierMedicals", new { area = "Medical" })" 
-                       class="btn btn-secondary" style="border-radius: 12px;">
-                        <i class="fas fa-list me-2"></i>Back to Records
-                    </a>
-                </div>
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-users-slash fa-3x mb-3"></i>
+                <h4>No patients found</h4>
+                <p>Try searching for a different name or add a new patient.</p>
             </div>
         }
         else
         {
-            <div class="mb-4">
-                <h5 class="fw-bold mb-3" style="color: @textDark;">
-                    <i class="fas fa-users me-2"></i>Select a Patient
-                </h5>
-                
-                <div id="patientList">
-                    @foreach (var patient in availablePatients)
-                    {
-                        <div class="patient-card" data-patient-id="@patient.Id" onclick="selectPatient(@patient.Id)">
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="patient-avatar">
-                                    @{
-                                        var nameParts = patient.FullName.Split(' ');
-                                        var initials = (nameParts.Length > 0 ? nameParts[0][0].ToString() : "") + 
-                                                     (nameParts.Length > 1 ? nameParts[1][0].ToString() : "");
-                                    }
-                                    @initials
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="fw-bold mb-1" style="color: @textDark;">@patient.FullName</h6>
-                                    <div class="d-flex flex-wrap gap-3 small text-muted">
-                                        @if (!string.IsNullOrEmpty(patient.Telephone))
-                                        {
-                                            <span><i class="fas fa-phone me-1"></i>@patient.Telephone</span>
-                                        }
-                                        @if (!string.IsNullOrEmpty(patient.Email))
-                                        {
-                                            <span><i class="fas fa-envelope me-1"></i>@patient.Email</span>
-                                        }
-                                        <span><i class="fas fa-birthday-cake me-1"></i>@patient.DateNaissance</span>
-                                    </div>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="patientId" 
-                                           id="patient_@patient.Id" value="@patient.Id" 
-                                           style="width: 1.25rem; height: 1.25rem; cursor: pointer;">
-                                </div>
+            <div id="patientListContainer">
+                @foreach (var patient in availablePatients)
+                {
+                    <!-- NOTICE: No onclick="" here. We handle it in script below. -->
+                    <div class="patient-card" id="card_@patient.Id">
+                        <div class="d-flex align-items-center">
+                            
+                            <!-- Radio Button (Hidden but functional) -->
+                            <div class="me-3">
+                                <input type="radio" name="patientId" value="@patient.Id" 
+                                       id="radio_@patient.Id" 
+                                       class="form-check-input" 
+                                       style="width: 1.5em; height: 1.5em; cursor: pointer;">
+                            </div>
+
+                            <!-- Avatar -->
+                            <div class="patient-avatar me-3">
+                                @(patient.FullName.Length > 0 ? patient.FullName.Substring(0, 1) : "P")
+                            </div>
+
+                            <!-- Info -->
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0 fw-bold">@patient.FullName</h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-phone me-1"></i> @patient.Telephone 
+                                    <span class="mx-2">•</span> 
+                                    @patient.DateNaissance
+                                </small>
                             </div>
                         </div>
-                    }
-                </div>
+                    </div>
+                }
             </div>
 
-            <div class="d-flex gap-3 mt-4 pt-4 border-top">
-                <a href="@Url.Action("Index", "DossierMedicals", new { area = "Medical" })" 
-                   class="btn btn-secondary" style="border-radius: 12px; min-width: 150px;">
-                    <i class="fas fa-times me-2"></i>Cancel
-                </a>
-                <button type="submit" id="submitBtn" class="btn-create-record" disabled>
-                    <i class="fas fa-plus-circle me-2"></i>Create Medical Record
+            <div class="mt-4 pt-3 border-top d-flex gap-2">
+                <a href="@Url.Action("Index")" class="btn btn-light flex-grow-0" style="min-width: 120px;">Cancel</a>
+                
+                <!-- ID is strictly 'submitBtn' -->
+                <button type="submit" id="submitBtn" class="btn-create-record flex-grow-1" disabled>
+                    Select a Patient to Continue
                 </button>
             </div>
         }
@@ -266,53 +160,54 @@
 
 @section Scripts {
     <script>
-        // Handle patient selection
-        function selectPatient(patientId) {
-            // Uncheck all radio buttons
-            document.querySelectorAll('input[name="patientId"]').forEach(radio => {
-                radio.checked = false;
-            });
-
-            // Check the selected radio button
-            const radio = document.getElementById('patient_' + patientId);
-            if (radio) {
-                radio.checked = true;
-            }
-
-            // Update card styles
-            document.querySelectorAll('.patient-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-
-            const selectedCard = document.querySelector(`[data-patient-id="${patientId}"]`);
-            if (selectedCard) {
-                selectedCard.classList.add('selected');
-            }
-
-            // Enable submit button
+        document.addEventListener('DOMContentLoaded', function () {
             const submitBtn = document.getElementById('submitBtn');
-            if (submitBtn) {
-                submitBtn.disabled = false;
-            }
-        }
+            const cards = document.querySelectorAll('.patient-card');
+            
+            // Function to handle selection visual state
+            function handleSelection(radioInput) {
+                // 1. Remove 'selected' class from ALL cards
+                cards.forEach(c => c.classList.remove('selected'));
 
-        // Handle radio button clicks
-        document.querySelectorAll('input[name="patientId"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                if (this.checked) {
-                    selectPatient(parseInt(this.value));
+                // 2. Find the card belonging to the checked radio
+                const selectedCard = document.querySelector(`#card_${radioInput.value}`);
+                if (selectedCard) {
+                    selectedCard.classList.add('selected');
                 }
-            });
-        });
 
-        // Form validation
-        document.getElementById('createForm')?.addEventListener('submit', function(e) {
-            const selectedPatient = document.querySelector('input[name="patientId"]:checked');
-            if (!selectedPatient) {
-                e.preventDefault();
-                alert('Please select a patient first.');
-                return false;
+                // 3. Enable the button
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-plus-circle me-2"></i>Create Medical Record';
+                }
             }
+
+            // Add click listener to every card
+            cards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // Find the radio inside this card
+                    const radio = this.querySelector('input[type="radio"]');
+                    
+                    // If the user clicked the radio itself, don't double-trigger
+                    if (e.target === radio) return;
+
+                    // Otherwise, check the radio manually
+                    radio.checked = true;
+                    
+                    // Manually trigger the selection logic
+                    handleSelection(radio);
+                });
+            });
+
+            // Listen for native radio changes (handles keyboard nav or direct clicks)
+            const radios = document.querySelectorAll('input[name="patientId"]');
+            radios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.checked) {
+                        handleSelection(this);
+                    }
+                });
+            });
         });
     </script>
 }

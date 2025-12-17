@@ -1,12 +1,20 @@
-﻿using System.Text.Json.Serialization;
-
-namespace CabinetMedicalWeb.Areas.Medical.Models
+﻿namespace CabinetMedicalWeb.Areas.Medical.Models
 {
-    public record PatientListItem(
-        [property: JsonPropertyName("id")] int Id,
-        [property: JsonPropertyName("fullName")] string FullName,
-        [property: JsonPropertyName("telephone")] string Telephone,
-        [property: JsonPropertyName("email")] string Email,
-        [property: JsonPropertyName("dateNaissance")] string DateNaissance
-    );
+    public class PatientListItem
+    {
+        public int Id { get; set; }
+        public string FullName { get; set; }
+        public string Telephone { get; set; }
+        public string Email { get; set; }
+        public string DateNaissance { get; set; }
+
+        public PatientListItem(int id, string fullName, string telephone, string email, string dateNaissance)
+        {
+            Id = id;
+            FullName = fullName;
+            Telephone = telephone;
+            Email = email;
+            DateNaissance = dateNaissance;
+        }
+    }
 }
