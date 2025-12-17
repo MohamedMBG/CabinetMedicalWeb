@@ -6,101 +6,277 @@
     <title>@ViewData["Title"] - Cabinet Medical</title>
 
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-    <!-- Bootstrap (Structure) -->
+    <!-- Bootstrap -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
     <!-- Global Custom Theme -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CabinetMedicalWeb.styles.css" asp-append-version="true" />
+
+    <style>
+        :root{
+            --primary: #4F46E5;
+            --primary-dark: #4338CA;
+            --text: #111827;
+            --muted: #6B7280;
+            --bg: #F9FAFB;
+            --border: #E5E7EB;
+
+            --nav-height: 76px;
+            --radius: 14px;
+        }
+
+        html, body { height: 100%; }
+        body{
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding-top: var(--nav-height); /* prevent content under fixed navbar */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* NAVBAR */
+        .navbar{
+            height: var(--nav-height);
+            background: rgba(255,255,255,.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(229,231,235,.7);
+            transition: box-shadow .2s ease, background .2s ease;
+        }
+
+        .navbar .container{
+            max-width: 1200px;
+        }
+
+        .navbar-brand{
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text) !important;
+        }
+
+        .logo-icon{
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), #818CF8);
+            color: #fff;
+            box-shadow: 0 10px 20px rgba(79,70,229,.20);
+            flex-shrink: 0;
+        }
+
+        /* Nav links */
+        .navbar-nav .nav-link{
+            font-weight: 600;
+            color: #4B5563 !important;
+            padding: .55rem .9rem !important;
+            border-radius: 12px;
+            transition: background .15s ease, color .15s ease, transform .15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+        }
+
+        .navbar-nav .nav-link i{
+            color: #9CA3AF;
+            transition: color .15s ease;
+        }
+
+        .navbar-nav .nav-link:hover{
+            background: rgba(79,70,229,.07);
+            color: var(--primary) !important;
+            transform: translateY(-1px);
+        }
+
+        .navbar-nav .nav-link:hover i{
+            color: var(--primary);
+        }
+
+        /* Mobile menu panel */
+        @@media (max-width: 991.98px){
+            .navbar-collapse{
+                margin-top: .75rem;
+                background: rgba(255,255,255,.92);
+                border: 1px solid rgba(229,231,235,.8);
+                border-radius: 16px;
+                padding: .85rem;
+                box-shadow: 0 20px 35px rgba(0,0,0,.08);
+            }
+
+            .navbar-nav{
+                gap: .35rem !important;
+                margin-left: 0 !important;
+            }
+
+            .navbar-nav .nav-link{
+                width: 100%;
+                justify-content: flex-start;
+                padding: .7rem .9rem !important;
+            }
+
+            .phone-number{
+                width: 100%;
+                justify-content: center;
+                margin-top: .5rem;
+            }
+        }
+
+        /* Toggler polish */
+        .navbar-toggler{
+            border: 0 !important;
+            padding: .5rem .6rem;
+            border-radius: 12px;
+        }
+        .navbar-toggler:focus{
+            box-shadow: 0 0 0 .25rem rgba(79,70,229,.18);
+        }
+        .navbar-toggler-icon{
+            filter: contrast(1.15);
+        }
+
+        /* Phone badge */
+        .phone-number{
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            font-weight: 700;
+            color: var(--muted);
+            background: #F3F4F6;
+            border: 1px solid rgba(229,231,235,.9);
+            padding: .45rem .8rem;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        .phone-number i{ color: var(--primary); }
+
+        /* MAIN + FOOTER */
+        main{
+            flex: 1 0 auto;
+        }
+
+        footer{
+            background: white;
+            border-top: 1px solid var(--border);
+        }
+    </style>
 </head>
+
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg fixed-top">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <div class="logo-icon">
-                        <i class="fas fa-heart-pulse"></i>
-                    </div>
-                    <span>Cabinet Medical</span>
-                </a>
+<header>
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                <div class="logo-icon">
+                    <i class="fas fa-heart-pulse"></i>
+                </div>
+                <span>Cabinet Medical</span>
+            </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#mainNavbar"
+                    aria-controls="mainNavbar"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        <ul class="navbar-nav flex-grow-1 ms-4 gap-2">
-                            @if (User.IsInRole("Medecin"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="Medical" asp-controller="DossierMedicals" asp-action="Index">
-                                        <i class="fas fa-folder-medical me-1"></i>Medical Records
-                                    </a>
-                                </li>
-                            }
-                            @if (User.IsInRole("Secretaire"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="FrontDesk" asp-controller="Agenda" asp-action="Index">
-                                        <i class="fas fa-calendar-alt me-1"></i>Appointments
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="FrontDesk" asp-controller="Patients" asp-action="Index">
-                                        <i class="fas fa-users me-1"></i>Patients
-                                    </a>
-                                </li>
-                            }
-                        </ul>
-                    }
-                    else
-                    {
-                        <ul class="navbar-nav flex-grow-1 ms-4 gap-2">
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <ul class="navbar-nav me-auto ms-lg-4 mb-2 mb-lg-0 gap-2">
+                        @if (User.IsInRole("Medecin"))
+                        {
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Services</a>
+                                <a class="nav-link" asp-area="Medical" asp-controller="DossierMedicals" asp-action="Index">
+                                    <i class="fas fa-folder-medical"></i>
+                                    <span>Medical Records</span>
+                                </a>
+                            </li>
+                        }
+                        @if (User.IsInRole("Secretaire"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="FrontDesk" asp-controller="Agenda" asp-action="Index">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>Appointments</span>
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">About</a>
+                                <a class="nav-link" asp-area="FrontDesk" asp-controller="Patients" asp-action="Index">
+                                    <i class="fas fa-users"></i>
+                                    <span>Patients</span>
+                                </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Contact</a>
-                            </li>
-                        </ul>
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="phone-number">
-                                <i class="fas fa-phone me-1"></i>+7 (707) 770-70-37
-                            </span>
-                        </div>
-                    }
-                    <div class="d-flex align-items-center">
-                        <partial name="_LoginPartial" />
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <ul class="navbar-nav me-auto ms-lg-4 mb-2 mb-lg-0 gap-2">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-briefcase-medical"></i>
+                                <span>Services</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">
+                                <i class="fas fa-circle-info"></i>
+                                <span>About</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">
+                                <i class="fas fa-envelope"></i>
+                                <span>Contact</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="phone-number">
+                            <i class="fas fa-phone"></i>
+                            +7 (707) 770-70-37
+                        </span>
                     </div>
+                }
+
+                <div class="d-flex align-items-center ms-lg-3 mt-2 mt-lg-0">
+                    <partial name="_LoginPartial" />
                 </div>
             </div>
-        </nav>
-    </header>
-
-    <!-- Main Content Wrapper with padding for fixed navbar -->
-    <main role="main" class="flex-shrink-0">
-        @RenderBody()
-    </main>
-
-    <footer class="mt-auto">
-        <div class="container text-center text-muted small py-4">
-            &copy; 2025 - <strong>Cabinet Medical</strong> | Digital-first care experience
         </div>
-    </footer>
+    </nav>
+</header>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+<main role="main">
+    @RenderBody()
+</main>
+
+<footer class="mt-auto">
+    <div class="container text-center text-muted small py-4">
+        &copy; 2025 - <strong>Cabinet Medical</strong> | Digital-first care experience
+    </div>
+</footer>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>
