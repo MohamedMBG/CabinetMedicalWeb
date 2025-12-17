@@ -42,14 +42,20 @@
             min-height: 100vh;
         }
 
-        /* NAVBAR */
+        /* NAVBAR - Always Visible */
         .navbar{
             height: var(--nav-height);
-            background: rgba(255,255,255,.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(229,231,235,.7);
-            transition: box-shadow .2s ease, background .2s ease;
+            background: white;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border-bottom: 1px solid rgba(229,231,235,.9);
+            box-shadow: 0 1px 3px rgba(0,0,0,.04);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            transition: none;
         }
 
         .navbar .container{
@@ -63,6 +69,7 @@
             font-weight: 800;
             letter-spacing: -0.02em;
             color: var(--text) !important;
+            font-size: 1.25rem;
         }
 
         .logo-icon{
@@ -74,80 +81,52 @@
             justify-content: center;
             background: linear-gradient(135deg, var(--primary), #818CF8);
             color: #fff;
-            box-shadow: 0 10px 20px rgba(79,70,229,.20);
+            box-shadow: 0 6px 16px rgba(79,70,229,.20);
             flex-shrink: 0;
         }
 
-        /* Nav links */
+        /* Nav links - Always Visible */
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+        }
+
         .navbar-nav .nav-link{
             font-weight: 600;
             color: #4B5563 !important;
             padding: .55rem .9rem !important;
             border-radius: 12px;
-            transition: background .15s ease, color .15s ease, transform .15s ease;
+            transition: background .15s ease, color .15s ease;
             display: inline-flex;
             align-items: center;
             gap: .45rem;
+            white-space: nowrap;
         }
 
         .navbar-nav .nav-link i{
             color: #9CA3AF;
             transition: color .15s ease;
+            font-size: 0.9em;
         }
 
-        .navbar-nav .nav-link:hover{
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link.active{
             background: rgba(79,70,229,.07);
             color: var(--primary) !important;
-            transform: translateY(-1px);
         }
 
-        .navbar-nav .nav-link:hover i{
+        .navbar-nav .nav-link:hover i,
+        .navbar-nav .nav-link.active i{
             color: var(--primary);
         }
 
-        /* Mobile menu panel */
-        @@media (max-width: 991.98px){
-            .navbar-collapse{
-                margin-top: .75rem;
-                background: rgba(255,255,255,.92);
-                border: 1px solid rgba(229,231,235,.8);
-                border-radius: 16px;
-                padding: .85rem;
-                box-shadow: 0 20px 35px rgba(0,0,0,.08);
-            }
-
-            .navbar-nav{
-                gap: .35rem !important;
-                margin-left: 0 !important;
-            }
-
-            .navbar-nav .nav-link{
-                width: 100%;
-                justify-content: flex-start;
-                padding: .7rem .9rem !important;
-            }
-
-            .phone-number{
-                width: 100%;
-                justify-content: center;
-                margin-top: .5rem;
-            }
+        /* Always show navigation items based on role */
+        .nav-section {
+            display: flex;
+            gap: 0.25rem;
         }
 
-        /* Toggler polish */
-        .navbar-toggler{
-            border: 0 !important;
-            padding: .5rem .6rem;
-            border-radius: 12px;
-        }
-        .navbar-toggler:focus{
-            box-shadow: 0 0 0 .25rem rgba(79,70,229,.18);
-        }
-        .navbar-toggler-icon{
-            filter: contrast(1.15);
-        }
-
-        /* Phone badge */
+        /* Phone badge - Always visible */
         .phone-number{
             display: inline-flex;
             align-items: center;
@@ -159,24 +138,101 @@
             padding: .45rem .8rem;
             border-radius: 999px;
             white-space: nowrap;
+            font-size: 0.9rem;
         }
         .phone-number i{ color: var(--primary); }
+
+        /* Mobile menu */
+        @@media (max-width: 991.98px){
+            .navbar-collapse{
+                margin-top: .75rem;
+                background: white;
+                border: 1px solid rgba(229,231,235,.9);
+                border-radius: 16px;
+                padding: .85rem;
+                box-shadow: 0 20px 35px rgba(0,0,0,.08);
+                max-height: calc(100vh - 100px);
+                overflow-y: auto;
+            }
+
+            .navbar-nav{
+                gap: .5rem !important;
+                margin-left: 0 !important;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .navbar-nav .nav-link{
+                width: 100%;
+                justify-content: flex-start;
+                padding: .7rem 1rem !important;
+            }
+
+            .phone-number{
+                width: 100%;
+                justify-content: center;
+                margin: .5rem 0;
+            }
+            
+            .nav-section {
+                flex-direction: column;
+                width: 100%;
+            }
+        }
+
+        /* Toggler */
+        .navbar-toggler{
+            border: 0 !important;
+            padding: .5rem .6rem;
+            border-radius: 12px;
+            background: #F3F4F6;
+        }
+        .navbar-toggler:focus{
+            box-shadow: 0 0 0 .25rem rgba(79,70,229,.18);
+        }
+        .navbar-toggler-icon{
+            filter: contrast(1.15);
+        }
 
         /* MAIN + FOOTER */
         main{
             flex: 1 0 auto;
+            padding-top: 1.5rem;
         }
 
         footer{
             background: white;
             border-top: 1px solid var(--border);
+            margin-top: auto;
         }
     </style>
+    
+    <!-- Script to handle active nav links -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set active nav link based on current page
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+            
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && currentPath.startsWith(href.replace(/\/$/, '')) && href !== '/') {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Highlight home if on root
+            if (currentPath === '/' || currentPath === '/Home' || currentPath === '/Home/Index') {
+                const homeLink = document.querySelector('a[href="/"], a[href="/Home"], a[href="/Home/Index"]');
+                if (homeLink) homeLink.classList.add('active');
+            }
+        });
+    </script>
 </head>
 
 <body>
 <header>
-    <nav class="navbar navbar-expand-lg fixed-top">
+    <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
                 <div class="logo-icon">
@@ -195,15 +251,28 @@
             </button>
 
             <div class="collapse navbar-collapse" id="mainNavbar">
-                @if (User.Identity?.IsAuthenticated == true)
-                {
-                    <ul class="navbar-nav me-auto ms-lg-4 mb-2 mb-lg-0 gap-2">
+                <!-- Always show navigation for all users -->
+                <ul class="navbar-nav me-auto ms-lg-4 mb-2 mb-lg-0 gap-2 nav-section">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
                         @if (User.IsInRole("Medecin"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="Medical" asp-controller="DossierMedicals" asp-action="Index">
                                     <i class="fas fa-folder-medical"></i>
                                     <span>Medical Records</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Medical" asp-controller="Dashboard" asp-action="Index">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>Dashboard</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Medical" asp-controller="Patients" asp-action="Index">
+                                    <i class="fas fa-user-injured"></i>
+                                    <span>My Patients</span>
                                 </a>
                             </li>
                         }
@@ -221,41 +290,75 @@
                                     <span>Patients</span>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="FrontDesk" asp-controller="Calendar" asp-action="Index">
+                                    <i class="fas fa-calendar-day"></i>
+                                    <span>Calendar</span>
+                                </a>
+                            </li>
                         }
-                    </ul>
-                }
-                else
-                {
-                    <ul class="navbar-nav me-auto ms-lg-4 mb-2 mb-lg-0 gap-2">
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Admin" asp-controller="Users" asp-action="Index">
+                                    <i class="fas fa-user-cog"></i>
+                                    <span>User Management</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Admin" asp-controller="Settings" asp-action="Index">
+                                    <i class="fas fa-cogs"></i>
+                                    <span>Settings</span>
+                                </a>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <!-- Public navigation for non-authenticated users -->
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home"></i>
+                                <span>Home</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Services">
                                 <i class="fas fa-briefcase-medical"></i>
                                 <span>Services</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="About">
                                 <i class="fas fa-circle-info"></i>
                                 <span>About</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Contact">
                                 <i class="fas fa-envelope"></i>
                                 <span>Contact</span>
                             </a>
                         </li>
-                    </ul>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Doctors">
+                                <i class="fas fa-user-md"></i>
+                                <span>Our Doctors</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
 
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="phone-number">
-                            <i class="fas fa-phone"></i>
-                            +7 (707) 770-70-37
-                        </span>
-                    </div>
-                }
+                <!-- Phone number - Always visible -->
+                <div class="d-none d-lg-flex align-items-center gap-3 me-3">
+                    <span class="phone-number">
+                        <i class="fas fa-phone"></i>
+                        +7 (707) 770-70-37
+                    </span>
+                </div>
 
-                <div class="d-flex align-items-center ms-lg-3 mt-2 mt-lg-0">
+                <!-- Login/User section -->
+                <div class="d-flex align-items-center mt-2 mt-lg-0">
                     <partial name="_LoginPartial" />
                 </div>
             </div>
@@ -270,6 +373,12 @@
 <footer class="mt-auto">
     <div class="container text-center text-muted small py-4">
         &copy; 2025 - <strong>Cabinet Medical</strong> | Digital-first care experience
+        <div class="mt-2">
+            <span class="phone-number">
+                <i class="fas fa-phone"></i>
+                +7 (707) 770-70-37
+            </span>
+        </div>
     </div>
 </footer>
 
