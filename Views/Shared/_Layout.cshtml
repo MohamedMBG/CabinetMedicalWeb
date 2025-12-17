@@ -19,11 +19,11 @@
 
     <style>
         :root {
-            --primary-color: #4F46E5;
-            --primary-dark: #4338CA;
-            --secondary-color: #64748B;
-            --bg-light: #F8FAFC;
-            --text-main: #1E293B;
+            --primary-color: #7AA3D1;
+            --primary-dark: #91B3D9;
+            --secondary-color: #666B72;
+            --bg-light: #E9EFF7;
+            --text-main: #666B72;
             --nav-height: 70px;
         }
 
@@ -39,12 +39,12 @@
 
         /* Navbar Styling */
         .navbar-custom {
-            background-color: rgba(255, 255, 255, 0.95);
+            background-color: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid #E2E8F0;
+            border-bottom: 1px solid rgba(102, 107, 114, 0.12);
             height: var(--nav-height);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            box-shadow: 0 8px 24px rgba(121, 163, 209, 0.12);
         }
 
         .navbar-brand {
@@ -59,7 +59,7 @@
         .brand-icon {
             width: 32px;
             height: 32px;
-            background: linear-gradient(135deg, var(--primary-color), #818CF8);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             color: white;
             border-radius: 8px;
             display: flex;
@@ -80,7 +80,7 @@
 
         .nav-link:hover, .nav-link.active {
             color: var(--primary-color) !important;
-            background-color: #EEF2FF;
+            background-color: rgba(145, 179, 217, 0.2);
         }
 
         .nav-link i {
@@ -91,7 +91,7 @@
         /* Footer */
         .footer-custom {
             background: white;
-            border-top: 1px solid #E2E8F0;
+            border-top: 1px solid rgba(102, 107, 114, 0.14);
             padding: 1.5rem 0;
             margin-top: auto;
             font-size: 0.875rem;

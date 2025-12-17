@@ -6,26 +6,30 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     
     // Theme colors matching the layout
-    var primaryColor = "#4F46E5";
-    var textDark = "#1E293B";
-    var textMuted = "#64748B";
+    var primaryColor = "#7AA3D1";
+    var textDark = "#666B72";
+    var textMuted = "#7B8592";
 }
 
 <style>
     :root {
-        --primary: #4F46E5;
-        --primary-light: #EEF2FF;
-        --secondary: #64748B;
+        --primary: #7AA3D1;
+        --primary-light: #A7CBED;
+        --secondary: #666B72;
         --surface: #FFFFFF;
-        --bg: #F8FAFC;
-        --border: #E2E8F0;
-        --text-main: #1E293B;
+        --bg: #E9EFF7;
+        --border: #D4DEEC;
+        --text-main: #666B72;
     }
 
     .page-container {
         font-family: 'Inter', system-ui, -apple-system, sans-serif;
         padding: 0 1.5rem 3rem 1.5rem;
         color: var(--text-main);
+        background: linear-gradient(180deg, rgba(231, 240, 249, 0.65) 0%, rgba(233, 239, 247, 0.8) 30%, #E9EFF7 100%);
+        border-radius: 18px;
+        box-shadow: 0 18px 42px rgba(122, 163, 209, 0.12);
+        margin-top: 0.5rem;
     }
 
     /* --- Header & Actions --- */
@@ -56,7 +60,7 @@
     }
 
     .btn-add-record {
-        background: var(--primary);
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
         color: white;
         border: none;
         padding: 0.75rem 1.5rem;
@@ -71,9 +75,9 @@
     }
 
     .btn-add-record:hover {
-        background: #4338CA;
+        background: #91B3D9;
         transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(79, 70, 229, 0.3);
+        box-shadow: 0 10px 20px rgba(145, 179, 217, 0.35);
         color: white;
     }
 

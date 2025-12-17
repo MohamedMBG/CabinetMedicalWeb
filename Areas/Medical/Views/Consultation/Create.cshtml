@@ -6,21 +6,21 @@
     var dossierId = ViewBag.DossierId as int? ?? Model?.DossierMedicalId ?? 0;
     
     // Theme Colors
-    var primaryColor = "#4F46E5";
-    var primaryLight = "#EEF2FF";
+    var primaryColor = "#7AA3D1";
+    var primaryLight = "#A7CBED";
 }
 
 <style>
     /* Scoped Styles matching the Dashboard Theme */
     .consultation-wrapper {
-        --primary: #4F46E5;
-        --primary-hover: #4338CA;
-        --primary-light: #EEF2FF;
-        --secondary: #64748B;
+        --primary: #7AA3D1;
+        --primary-hover: #91B3D9;
+        --primary-light: #A7CBED;
+        --secondary: #666B72;
         --surface: #FFFFFF;
-        --bg: #F8FAFC;
-        --border: #E2E8F0;
-        --text-main: #1E293B;
+        --bg: #E9EFF7;
+        --border: #D4DEEC;
+        --text-main: #666B72;
         
         font-family: 'Inter', system-ui, -apple-system, sans-serif;
         padding: 0 1.5rem 3rem 1.5rem;
@@ -29,7 +29,7 @@
 
     /* --- Hero Header --- */
     .page-header {
-        background: linear-gradient(135deg, var(--primary) 0%, #7C3AED 100%);
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
         border-radius: 24px;
         padding: 2rem 2.5rem;
         color: white;
