@@ -1,35 +1,37 @@
 @{
-    ViewData["Title"] = "Cabinet Medical - Digital Clinic";
+    ViewData["Title"] = "Cabinet Dentaire - Accueil";
 }
 
 <!-- Hero Section -->
-<section class="hero-section">
+<section class="hero-section dental-hero">
     <div class="hero-content">
         <div class="text-center">
-            <h1 class="hero-title">Modern care, organized and calm</h1>
+            <div class="badge-pill badge-soft">Cabinet dentaire numérique</div>
+            <h1 class="hero-title">Des sourires soignés dans un espace apaisant</h1>
             <p class="hero-subtitle">
-                Cabinet Medical unifies appointments, records, and clinical workflows in one serene, bilingual-ready workspace designed for trusted care teams.
+                Une clinique dentaire moderne où chaque visite est fluide : prise de rendez-vous, suivi, et échange avec
+                votre dentiste préféré dans une ambiance douce.
             </p>
 
             <div class="hero-buttons">
-                <a href="#consultation" class="btn-hero-primary">
-                    Explore the medical hub
+                <a href="#dentists" class="btn-hero-primary">
+                    Découvrir nos dentistes
                     <i class="fas fa-arrow-right"></i>
                 </a>
-                <a href="#appointment" class="btn-hero-secondary">
+                <a href="#reservation" class="btn-hero-secondary">
                     <i class="fas fa-calendar-alt"></i>
-                    See how scheduling flows
+                    Prendre rendez-vous
                 </a>
             </div>
 
             <div class="hero-stats">
                 <div class="stat-card">
-                    <div class="stat-number">5,000 +</div>
-                    <div class="stat-text">Patients guided through organized treatment plans with clear follow-ups.</div>
+                    <div class="stat-number">12 +</div>
+                    <div class="stat-text">Années d'expérience en soins dentaires esthétiques et conservateurs.</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">100%</div>
-                    <div class="stat-text">Role-based security with modern tooling for confident, coordinated care.</div>
+                    <div class="stat-number">4</div>
+                    <div class="stat-text">Chirurgiens-dentistes disponibles avec des spécialisations complémentaires.</div>
                 </div>
             </div>
         </div>
@@ -37,16 +39,16 @@
 </section>
 
 <!-- Services Section -->
-<section class="services-section">
+<section class="services-section" id="services">
     <div class="services-container">
         <div class="row align-items-start mb-4">
             <div class="col-lg-6">
-                <h2 class="section-title">Built for calm, coordinated clinics</h2>
+                <h2 class="section-title">Une équipe à votre écoute</h2>
             </div>
             <div class="col-lg-6">
                 <p class="section-description">
-                    From reception to prescriptions, Cabinet Medical keeps every team member focused with structured pages,
-                    balanced typography, and a gentle blue palette that highlights what matters.
+                    Détartrage doux, implants, blanchiment : nos praticiens suivent des protocoles précis et partagent
+                    des recommandations claires avant, pendant et après chaque soin.
                 </p>
             </div>
         </div>
@@ -54,93 +56,225 @@
         <div class="services-grid">
             <div class="service-card">
                 <div class="service-icon">
-                    <i class="fas fa-folder-open"></i>
+                    <i class="fas fa-tooth"></i>
                 </div>
-                <h3 class="service-title">Centralized patient files</h3>
+                <h3 class="service-title">Soins conservateurs</h3>
+                <p class="service-text">Obturation, soins des gencives, contrôle complet dans une salle lumineuse.</p>
             </div>
 
             <div class="service-card">
                 <div class="service-icon">
-                    <i class="fas fa-clipboard-list"></i>
+                    <i class="fas fa-toothbrush"></i>
                 </div>
-                <h3 class="service-title">Structured clinical notes</h3>
+                <h3 class="service-title">Hygiène & prévention</h3>
+                <p class="service-text">Détartrage, conseils personnalisés et suivi digital des habitudes quotidiennes.</p>
             </div>
 
             <div class="service-card">
                 <div class="service-icon">
-                    <i class="fas fa-microscope"></i>
+                    <i class="fas fa-smile-beam"></i>
                 </div>
-                <h3 class="service-title">Diagnostic tracking</h3>
+                <h3 class="service-title">Esthétique dentaire</h3>
+                <p class="service-text">Blanchiment, alignement discret et retouches cosmétiques personnalisées.</p>
             </div>
 
             <div class="service-card">
                 <div class="service-icon">
-                    <i class="fas fa-prescription"></i>
+                    <i class="fas fa-user-md"></i>
                 </div>
-                <h3 class="service-title">Prescription workflows</h3>
+                <h3 class="service-title">Suivi post-soin</h3>
+                <p class="service-text">Notifications, contrôles réguliers et plans d'entretien simplifiés.</p>
             </div>
-
-            <div class="service-card">
-                <div class="service-icon">
-                    <i class="fas fa-user-heart"></i>
-                </div>
-                <h3 class="service-title">Patient-friendly summaries</h3>
-            </div>
-
-            <div class="service-card">
-                <div class="service-icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <h3 class="service-title">Secure multi-role access</h3>
-            </div>
-        </div>
-
-        <div class="text-center mt-4">
-            <p class="text-muted mb-3">Everything your clinic needs, thoughtfully organized in one calm interface.</p>
-            <a href="#appointment" class="btn btn-primary">
-                <i class="fas fa-calendar-check me-2"></i>Request a guided tour
-            </a>
         </div>
     </div>
 </section>
 
-<!-- Features Section (for internal use) -->
-<section class="container py-5" id="consultation">
+<!-- Dentists Section -->
+<section class="container py-5" id="dentists">
+    <div class="section-header d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4">
+        <div>
+            <h2 class="section-title mb-2">Rencontrez nos dentistes</h2>
+            <p class="section-description mb-0">Choisissez votre praticien, consultez ses disponibilités et son espace dédié.</p>
+        </div>
+        <a href="#reservation" class="btn btn-outline-primary d-flex align-items-center gap-2">
+            <i class="fas fa-calendar-check"></i>
+            Réserver un créneau
+        </a>
+    </div>
     <div class="row g-4">
-        <div class="col-lg-4 col-md-6">
-            <div class="feature-card">
-                <div class="icon-badge gradient-primary mb-3">
-                    <i class="fas fa-notes-medical"></i>
+        <div class="col-lg-3 col-md-6">
+            <div class="profile-card">
+                <div class="profile-avatar">EM</div>
+                <div class="profile-meta">
+                    <h4>Dr. Elise Martin</h4>
+                    <p>Esthétique & Facettes</p>
+                    <span class="availability">Disponible mardi - vendredi</span>
                 </div>
-                <h4 class="fw-semibold mb-2">Centralized dossiers</h4>
-                <p class="text-muted mb-3">Review histories, diagnostics, and prescriptions at a glance—always in English-first labels.</p>
-                <a asp-area="Medical" asp-controller="DossierMedicals" asp-action="Index" class="btn btn-link p-0 fw-semibold">
-                    Go to medical records <i class="fas fa-arrow-right ms-1"></i>
-                </a>
+                <div class="profile-footer">
+                    <span class="tag">Accepte nouveaux patients</span>
+                </div>
             </div>
         </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="feature-card">
-                <div class="icon-badge gradient-primary mb-3">
-                    <i class="fas fa-heart-pulse"></i>
+        <div class="col-lg-3 col-md-6">
+            <div class="profile-card">
+                <div class="profile-avatar">HL</div>
+                <div class="profile-meta">
+                    <h4>Dr. Hugo Leblanc</h4>
+                    <p>Implantologie</p>
+                    <span class="availability">Disponible lundi - jeudi</span>
                 </div>
-                <h4 class="fw-semibold mb-2">Intuitive monitoring</h4>
-                <p class="text-muted mb-3">Plan consultations, track care plans, and keep every encounter aligned with calming, legible UI cues.</p>
-                <span class="badge rounded-pill" style="background-color: rgba(122, 163, 209, 0.2); color: var(--btn-accent);">
-                    Designed for productivity
-                </span>
+                <div class="profile-footer">
+                    <span class="tag">Consultations longues</span>
+                </div>
             </div>
         </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="feature-card">
-                <div class="icon-badge gradient-primary mb-3">
-                    <i class="fas fa-lock"></i>
+        <div class="col-lg-3 col-md-6">
+            <div class="profile-card">
+                <div class="profile-avatar">SA</div>
+                <div class="profile-meta">
+                    <h4>Dr. Sofia Amrani</h4>
+                    <p>Soins enfants</p>
+                    <span class="availability">Disponible mercredi - samedi</span>
                 </div>
-                <h4 class="fw-semibold mb-2">Calm, secure by design</h4>
-                <p class="text-muted mb-3">Role separation between FrontDesk and Medical areas keeps data protected while preserving clarity for every user.</p>
-                <span class="badge rounded-pill" style="background-color: rgba(122, 163, 209, 0.2); color: var(--btn-accent);">
-                    GDPR-ready
-                </span>
+                <div class="profile-footer">
+                    <span class="tag">Approche douce</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="profile-card">
+                <div class="profile-avatar">NT</div>
+                <div class="profile-meta">
+                    <h4>Dr. Noah Tabet</h4>
+                    <p>Chirurgie & Urgences</p>
+                    <span class="availability">Disponible tous les jours</span>
+                </div>
+                <div class="profile-footer">
+                    <span class="tag">Urgences rapides</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Space Section -->
+<section class="space-section" id="appointment">
+    <div class="space-wrapper">
+        <div class="space-content">
+            <div class="badge-pill badge-soft">Espace patients</div>
+            <h3>Des salles lumineuses et connectées</h3>
+            <p>Votre dossier, vos radios et votre plan de traitement sont accessibles et partagés en toute sécurité.</p>
+            <ul class="space-list">
+                <li><i class="fas fa-check"></i> Salon d'attente calme avec diffusion d'informations utiles</li>
+                <li><i class="fas fa-check"></i> Cabines dédiées à la chirurgie, l'esthétique et la prévention</li>
+                <li><i class="fas fa-check"></i> Option de paiement et facturation en ligne</li>
+            </ul>
+        </div>
+        <div class="space-visual">
+            <div class="space-card">
+                <span class="pill">Salle Esthétique</span>
+                <h4>Session blanchiment</h4>
+                <p class="text-muted mb-4">Durée : 45 min · Dentiste : Dr. Elise Martin</p>
+                <div class="timeline">
+                    <div class="timeline-step active">
+                        <span>Accueil</span>
+                        <small>5 min</small>
+                    </div>
+                    <div class="timeline-step">
+                        <span>Préparation</span>
+                        <small>10 min</small>
+                    </div>
+                    <div class="timeline-step">
+                        <span>Soin</span>
+                        <small>25 min</small>
+                    </div>
+                    <div class="timeline-step">
+                        <span>Conseils</span>
+                        <small>5 min</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Reservation Section -->
+<section class="reservation-section" id="reservation">
+    <div class="container">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-5">
+                <div class="reservation-copy">
+                    <div class="badge-pill badge-soft">Réservation</div>
+                    <h3>Réservez votre rendez-vous</h3>
+                    <p>Une interface minimaliste pour choisir votre dentiste, votre motif et l'horaire qui vous convient.</p>
+                    <ul class="reservation-benefits">
+                        <li><i class="fas fa-check-circle"></i> Confirmation immédiate par email</li>
+                        <li><i class="fas fa-check-circle"></i> Créneaux visibles en temps réel</li>
+                        <li><i class="fas fa-check-circle"></i> Possibilité d'ajouter des notes</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="reservation-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h4 class="mb-1">Rendez-vous dentaire</h4>
+                            <p class="text-muted mb-0">Sélectionnez votre praticien et votre horaire.</p>
+                        </div>
+                        <span class="pill">UI uniquement</span>
+                    </div>
+                    <form class="reservation-form">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nom complet</label>
+                                <input type="text" class="form-control" placeholder="Votre nom" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" placeholder="vous@email.com" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Téléphone</label>
+                                <input type="tel" class="form-control" placeholder="06 00 00 00 00" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Dentiste</label>
+                                <select class="form-select">
+                                    <option>Dr. Elise Martin</option>
+                                    <option>Dr. Hugo Leblanc</option>
+                                    <option>Dr. Sofia Amrani</option>
+                                    <option>Dr. Noah Tabet</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Date</label>
+                                <input type="date" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Horaire</label>
+                                <select class="form-select">
+                                    <option>09:00</option>
+                                    <option>10:30</option>
+                                    <option>14:00</option>
+                                    <option>16:30</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Motif</label>
+                                <textarea class="form-control" rows="3" placeholder="Détartrage, consultation, urgence..." style="resize: none;"></textarea>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between mt-4">
+                            <div class="d-flex align-items-center gap-2 text-muted">
+                                <i class="fas fa-lock"></i>
+                                <small>Données sécurisées - UI de démonstration</small>
+                            </div>
+                            <button type="button" class="btn btn-primary px-4">
+                                Confirmer le créneau
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -151,9 +285,11 @@
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                const target = document.querySelector(targetId);
                 if (target) {
+                    e.preventDefault();
                     target.scrollIntoView({
                         behavior: 'smooth',
                         block: 'start'
