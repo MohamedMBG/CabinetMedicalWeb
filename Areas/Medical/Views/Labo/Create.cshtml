@@ -1,5 +1,157 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model CabinetMedicalWeb.Models.ResultatExamen
+
 @{
+    ViewData["Title"] = "Nouveau Résultat Labo";
+    
+    // Palette "Laboratoire" (Teal/Turquoise - Distinct from Blue/Indigo)
+    var colorPrimary = "#10B981"; // Emerald Green / Teal
+    var colorBg = "#F3F4F6"; 
+    var colorCard = "#FFFFFF"; 
+    var textDark = "#111827";
+    var borderSubtle = "rgba(0, 0, 0, 0.05)";
+}
+
+<style>
+    body { background-color: @colorBg; font-family: 'Inter', system-ui, sans-serif; }
+
+    .glass-form-card {
+        background-color: @colorCard;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        border: 1px solid @borderSubtle;
+        overflow: hidden;
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, @colorPrimary 0%, #059669 100%);
+        padding: 2.5rem;
+        color: white;
+    }
+
+    .form-label-modern {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        display: block;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .form-control-modern {
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        width: 100%;
+        transition: all 0.2s;
+        background-color: #F9FAFB;
+    }
+
+    .form-control-modern:focus {
+        border-color: @colorPrimary;
+        outline: none;
+        background-color: #FFFFFF;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); /* Green shadow */
+    }
+
+    .btn-action {
+        padding: 0.85rem 1.75rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.2s;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .btn-save {
+        background-color: @colorPrimary;
+        color: white;
+        box-shadow: 0 4px 6px rgba(16, 185, 129, 0.25);
+    }
+    .btn-save:hover { background-color: #059669; transform: translateY(-2px); color: white; }
+
+    .btn-cancel {
+        background-color: white;
+        color: #6B7280;
+        border: 1px solid #E5E7EB;
+    }
+    .btn-cancel:hover { background-color: #F3F4F6; color: #111827; }
+</style>
+
+<div class="container py-5" style="min-height: 100vh;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="glass-form-card">
+                
+                <!-- Stylized Header -->
+                <div class="form-header d-flex align-items-center gap-4">
+                    <div class="bg-white bg-opacity-20 rounded-circle p-3 d-flex justify-content-center align-items-center shadow-sm" style="width: 64px; height: 64px; backdrop-filter: blur(5px);">
+                        <i class="fas fa-microscope fa-2x text-white"></i>
+                    </div>
+                    <div>
+                        <h2 class="mb-1 fw-bold">Résultat d'Examen</h2>
+                        <p class="mb-0 opacity-90 font-monospace small">Ajout au dossier #@Model.DossierMedicalId</p>
+                    </div>
+                </div>
+
+                <div class="p-5">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4 shadow-sm border-0"></div>
+                        <input type="hidden" asp-for="DossierMedicalId" />
+
+                        <div class="row g-4">
+                            <!-- Date Exam -->
+                            <div class="col-md-6">
+                                <label asp-for="DateExamen" class="form-label-modern">
+                                    <i class="far fa-calendar-alt me-2 text-success opacity-75"></i>Date
+                                </label>
+                                <input asp-for="DateExamen" class="form-control-modern" type="datetime-local" />
+                                <span asp-validation-for="DateExamen" class="text-danger small mt-1 d-block"></span>
+                            </div>
+
+                            <!-- Exam Type -->
+                            <div class="col-md-6">
+                                <label asp-for="TypeExamen" class="form-label-modern">
+                                    <i class="fas fa-vial me-2 text-success opacity-75"></i>Type d'Analyse
+                                </label>
+                                <input asp-for="TypeExamen" class="form-control-modern" placeholder="Ex: Prise de sang, Radio Thorax..." />
+                                <span asp-validation-for="TypeExamen" class="text-danger small mt-1 d-block"></span>
+                            </div>
+
+                            <!-- Results -->
+                            <div class="col-12">
+                                <label asp-for="Resultat" class="form-label-modern">
+                                    <i class="fas fa-file-medical-alt me-2 text-success opacity-75"></i>Interprétation & Données
+                                </label>
+                                <textarea asp-for="Resultat" class="form-control-modern" rows="8" 
+                                          placeholder="Saisissez les résultats détaillés ici (ex: Hémoglobine: 13g/dL, Cholestérol: 2.1g/L...) ou collez le lien vers le document PDF."></textarea>
+                                <span asp-validation-for="Resultat" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                            <!-- Use Url.Action for robust linking -->
+                            <a href="@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = Model.DossierMedicalId })" 
+                               class="btn-action btn-cancel">
+                                <i class="fas fa-arrow-left"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn-action btn-save">
+                                <i class="fas fa-save"></i> Enregistrer le Résultat
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
