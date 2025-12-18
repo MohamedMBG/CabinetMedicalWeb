@@ -1,603 +1,369 @@
 @{
-    ViewData["Title"] = "Cabinet Dentaire - Accueil";
+    ViewData["Title"] = "Aurora Dental Clinic";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <style>
-    /* Variables locales pour la page d'accueil */
     :root {
-        --hero-overlay: linear-gradient(135deg, rgba(79, 70, 229, 0.9) 0%, rgba(124, 58, 237, 0.8) 100%);
-        --text-dark: #1E293B;
-        --text-light: #64748B;
-        --bg-soft: #F8FAFC;
+        --gradient-start: #dcefff;
+        --gradient-mid: #c5d9ff;
+        --gradient-end: #b3c7ff;
+        --primary: #7aa5ff;
+        --primary-strong: #6c8cff;
+        --soft-purple: #c7d3ff;
+        --text-dark: #1f2a44;
+        --text-muted: #65748a;
+        --card-bg: rgba(255, 255, 255, 0.9);
+        --glass: rgba(255, 255, 255, 0.75);
+        --shadow: 0 20px 50px rgba(52, 94, 161, 0.15);
+        --radius-lg: 28px;
+        --radius-md: 18px;
     }
 
-    /* --- 1. HERO SECTION --- */
-    .hero-section {
+    body {
+        background: radial-gradient(circle at 20% 20%, rgba(122, 165, 255, 0.15), transparent 30%),
+            radial-gradient(circle at 80% 10%, rgba(155, 171, 255, 0.22), transparent 30%),
+            linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+    }
+
+    .hero-wrapper {
         position: relative;
-        min-height: 85vh;
+        overflow: hidden;
+        min-height: 90vh;
         display: flex;
         align-items: center;
-        /* Image de fond : Cabinet dentaire moderne et lumineux */
-        background: url('https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=2068&auto=format&fit=crop') no-repeat center center/cover;
-        color: white;
-        overflow: hidden;
-        margin-top: -70px; /* Pour passer sous la navbar fixe si nécessaire */
-        padding-top: 70px;
+        padding: 4rem 0 2rem;
     }
 
-    .hero-overlay {
+    .hero-blob {
         position: absolute;
-        inset: 0;
-        background: linear-gradient(90deg, rgba(17, 24, 39, 0.8) 0%, rgba(17, 24, 39, 0.4) 100%);
+        width: 520px;
+        height: 520px;
+        background: radial-gradient(circle at 30% 30%, #f9fbff 0%, rgba(255, 255, 255, 0) 70%);
+        filter: blur(16px);
+        opacity: 0.7;
+        right: -80px;
+        top: -40px;
         z-index: 1;
     }
 
     .hero-content {
         position: relative;
         z-index: 2;
-        max-width: 800px;
     }
 
-    .hero-badge {
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        padding: 0.5rem 1rem;
-        border-radius: 50px;
-        font-size: 0.875rem;
-        font-weight: 600;
+    .badge-new {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        padding: 0.55rem 1rem;
+        border-radius: 999px;
+        color: var(--text-dark);
+        backdrop-filter: blur(10px);
+        font-weight: 600;
         margin-bottom: 1.5rem;
-        border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
     .hero-title {
-        font-size: 3.5rem;
+        font-size: clamp(2.4rem, 4vw, 3.6rem);
         font-weight: 800;
+        color: var(--text-dark);
         line-height: 1.1;
-        margin-bottom: 1.5rem;
-        letter-spacing: -0.02em;
+        margin-bottom: 1.25rem;
+        letter-spacing: -0.04em;
     }
 
     .hero-subtitle {
-        font-size: 1.25rem;
-        opacity: 0.9;
-        line-height: 1.6;
-        margin-bottom: 2.5rem;
-        font-weight: 300;
+        font-size: 1.1rem;
+        color: var(--text-muted);
+        max-width: 560px;
+        line-height: 1.7;
+        margin-bottom: 2rem;
     }
 
-    .btn-hero {
-        padding: 1rem 2rem;
-        border-radius: 12px;
-        font-weight: 600;
-        transition: all 0.3s ease;
+    .hero-buttons .btn {
+        padding: 0.95rem 1.6rem;
+        border-radius: var(--radius-md);
+        font-weight: 700;
+        box-shadow: var(--shadow);
+        border: none;
+    }
+
+    .btn-primary-gradient {
+        background: linear-gradient(120deg, #8eb9ff, #7aa5ff);
+        color: white;
+    }
+
+    .btn-secondary-light {
+        background: rgba(255, 255, 255, 0.8);
+        color: var(--text-dark);
+        border: 1px solid rgba(122, 165, 255, 0.25);
+    }
+
+    .hero-cards {
+        position: relative;
+    }
+
+    .floating-card {
+        position: absolute;
+        background: var(--card-bg);
+        box-shadow: var(--shadow);
+        border-radius: var(--radius-lg);
+        padding: 1.6rem;
+        min-width: 240px;
+        border: 1px solid rgba(122, 165, 255, 0.18);
+        backdrop-filter: blur(8px);
+    }
+
+    .card-appointment {
+        top: 0;
+        right: -10px;
+    }
+
+    .card-progress {
+        top: 190px;
+        right: 120px;
+    }
+
+    .card-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        display: grid;
+        place-items: center;
+        color: white;
+        font-size: 1.2rem;
+        box-shadow: 0 10px 25px rgba(122, 165, 255, 0.25);
+    }
+
+    .pill {
         display: inline-flex;
         align-items: center;
-        gap: 0.75rem;
-    }
-
-    .btn-hero-primary {
-        background: #4F46E5;
-        color: white;
-        border: none;
-        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
-    }
-
-    .btn-hero-primary:hover {
-        background: #4338CA;
-        transform: translateY(-2px);
-        color: white;
-    }
-
-    .btn-hero-secondary {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        margin-left: 1rem;
-    }
-
-    .btn-hero-secondary:hover {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-    }
-
-    /* --- 2. STATS FLOTTANTS --- */
-    .hero-stats-container {
-        position: relative;
-        z-index: 3;
-        margin-top: -4rem;
-        margin-bottom: 4rem;
-    }
-
-    .stats-card {
-        background: white;
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.1);
-        display: grid;
-        grid-template-columns: repeat(md, 1fr);
-        gap: 2rem;
-        border: 1px solid #E2E8F0;
-    }
-
-    .stat-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 0 1rem;
-        border-right: 1px solid #F1F5F9;
-    }
-
-    .stat-item:last-child { border-right: none; }
-
-    .stat-icon {
-        width: 56px;
-        height: 56px;
-        background: #EEF2FF;
-        color: #4F46E5;
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-    }
-
-    .stat-info h3 { font-size: 1.5rem; font-weight: 800; color: var(--text-dark); margin: 0; }
-    .stat-info p { margin: 0; color: var(--text-light); font-size: 0.9rem; }
-
-    /* --- 3. SERVICES --- */
-    .section-title-wrapper {
-        text-align: center;
-        max-width: 700px;
-        margin: 0 auto 3rem auto;
-    }
-
-    .section-tag {
-        color: #4F46E5;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        font-size: 0.85rem;
-        display: block;
-        margin-bottom: 0.5rem;
-    }
-
-    .section-heading {
-        font-size: 2.5rem;
-        font-weight: 700;
+        gap: 0.5rem;
+        padding: 0.65rem 1rem;
+        border-radius: 999px;
+        background: rgba(122, 165, 255, 0.15);
         color: var(--text-dark);
-        margin-bottom: 1rem;
+        font-weight: 600;
+        margin-top: 1rem;
+    }
+
+    .progress-ring {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: conic-gradient(#7aa5ff 0% 78%, #dbe6ff 78% 100%);
+        display: grid;
+        place-items: center;
+    }
+
+    .progress-ring span {
+        background: white;
+        width: 82px;
+        height: 82px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        color: var(--text-dark);
+        box-shadow: inset 0 0 0 1px rgba(122, 165, 255, 0.1);
+    }
+
+    /* Services */
+    .section-intro {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .section-intro h2 {
+        font-weight: 800;
+        color: var(--text-dark);
+        letter-spacing: -0.03em;
+        margin-bottom: 0.75rem;
+    }
+
+    .section-intro p {
+        color: var(--text-muted);
+        max-width: 620px;
+        margin: 0 auto;
     }
 
     .service-card {
         background: white;
-        border-radius: 24px;
-        padding: 2rem;
-        transition: all 0.3s ease;
-        border: 1px solid #F1F5F9;
+        border-radius: var(--radius-lg);
+        padding: 1.75rem;
+        text-align: center;
+        border: 1px solid rgba(122, 165, 255, 0.12);
+        box-shadow: 0 18px 40px rgba(43, 82, 143, 0.08);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
         height: 100%;
-        position: relative;
-        overflow: hidden;
     }
 
     .service-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.08);
-        border-color: #E0E7FF;
-    }
-
-    .service-card::before {
-        content: '';
-        position: absolute;
-        top: 0; right: 0;
-        width: 100px; height: 100px;
-        background: radial-gradient(circle at top right, #EEF2FF 0%, transparent 70%);
-        border-radius: 0 0 0 100%;
-        transition: all 0.3s;
+        transform: translateY(-6px);
+        box-shadow: 0 20px 50px rgba(43, 82, 143, 0.12);
     }
 
     .service-icon {
-        width: 64px;
-        height: 64px;
-        background: #4F46E5;
-        border-radius: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.75rem;
-        margin-bottom: 1.5rem;
-        position: relative;
-        z-index: 1;
-    }
-
-    .service-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-dark); }
-    .service-desc { color: var(--text-light); line-height: 1.6; font-size: 0.95rem; }
-
-    /* --- 4. DENTISTS (IMAGES) --- */
-    .profile-card {
-        background: white;
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-        border: 1px solid #F1F5F9;
-        transition: transform 0.3s;
-    }
-
-    .profile-card:hover { transform: translateY(-5px); }
-
-    .profile-img-wrapper {
-        height: 260px;
-        overflow: hidden;
-        position: relative;
-    }
-
-    .profile-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-    }
-
-    .profile-card:hover .profile-img { transform: scale(1.05); }
-
-    .profile-content { padding: 1.5rem; }
-    .profile-name { font-size: 1.1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.25rem; }
-    .profile-spec { color: #4F46E5; font-size: 0.85rem; font-weight: 500; margin-bottom: 1rem; }
-    .profile-availability {
-        background: #ECFDF5;
-        color: #059669;
-        padding: 0.25rem 0.75rem;
-        border-radius: 50px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        display: inline-block;
-    }
-
-    /* --- 5. SPACE SECTION (Split Layout) --- */
-    .space-section {
-        background-color: var(--bg-soft);
-        padding: 5rem 0;
-        overflow: hidden;
-    }
-
-    .space-img-container {
-        position: relative;
-        border-radius: 30px;
-        overflow: hidden;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-    }
-
-    .space-img {
-        width: 100%;
-        display: block;
-    }
-
-    .feature-list li {
-        display: flex;
-        align-items: flex-start;
-        margin-bottom: 1rem;
-        gap: 1rem;
-        color: var(--text-dark);
-    }
-
-    .feature-list i {
-        color: #4F46E5;
-        background: #EEF2FF;
-        padding: 0.5rem;
-        border-radius: 50%;
-        font-size: 0.9rem;
-    }
-
-    /* --- 6. RESERVATION (Floating Card) --- */
-    .reservation-card {
-        background: white;
-        padding: 2.5rem;
+        width: 78px;
+        height: 78px;
         border-radius: 24px;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        border: 1px solid #E2E8F0;
+        background: radial-gradient(circle at 30% 30%, #cfe0ff, #9ab6ff);
+        display: grid;
+        place-items: center;
+        color: white;
+        font-size: 2rem;
+        margin: 0 auto 1rem;
+        box-shadow: 0 12px 30px rgba(122, 165, 255, 0.25);
     }
 
-    .form-control-custom {
-        background: #F8FAFC;
-        border: 1px solid #E2E8F0;
-        border-radius: 12px;
-        padding: 0.75rem 1rem;
-    }
-    
-    .form-control-custom:focus {
-        background: white;
-        border-color: #4F46E5;
-        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    .service-title {
+        font-weight: 700;
+        margin-bottom: 0.6rem;
+        color: var(--text-dark);
+        font-size: 1.1rem;
     }
 
-    /* Responsive Tweaks */
-    @@media (max-width: 768px) {
-        .hero-title { font-size: 2.5rem; }
-        .hero-stats-container { margin-top: 2rem; }
-        .stat-item { border-right: none; border-bottom: 1px solid #F1F5F9; padding-bottom: 1rem; margin-bottom: 1rem; }
-        .stat-item:last-child { border-bottom: none; margin-bottom: 0; }
+    .service-desc {
+        color: var(--text-muted);
+        font-size: 0.98rem;
+        line-height: 1.6;
+    }
+
+    /* CTA ribbon */
+    .cta-card {
+        background: linear-gradient(120deg, rgba(122, 165, 255, 0.2), rgba(255, 255, 255, 0.75));
+        border-radius: var(--radius-lg);
+        padding: 1.75rem;
+        border: 1px solid rgba(122, 165, 255, 0.2);
+        box-shadow: 0 16px 40px rgba(52, 94, 161, 0.12);
+        backdrop-filter: blur(8px);
+    }
+
+    .cta-card h3 {
+        color: var(--text-dark);
+        font-weight: 800;
+        margin-bottom: 0.35rem;
+    }
+
+    .cta-card p { color: var(--text-muted); margin-bottom: 0; }
+
+    @media (max-width: 992px) {
+        .hero-wrapper { padding-top: 2rem; }
+        .hero-cards { margin-top: 2rem; }
+        .floating-card { position: relative; right: auto; top: auto; margin-bottom: 1rem; }
     }
 </style>
 
-<!-- 1. HERO SECTION -->
-<section class="hero-section">
-    <div class="hero-overlay"></div>
+<section class="hero-wrapper" id="top">
+    <div class="hero-blob"></div>
     <div class="container hero-content">
-        <div class="hero-badge">
-            <i class="fas fa-magic"></i> Cabinet Dentaire Numérique
-        </div>
-        <h1 class="hero-title">
-            Votre sourire, <br> notre expertise.
-        </h1>
-        <p class="hero-subtitle">
-            Une expérience dentaire repensée. De la prise de rendez-vous en ligne aux soins dans un cadre apaisant, nous prenons soin de vous à chaque étape.
-        </p>
-        <div class="d-flex flex-wrap gap-3">
-            <a href="#dentists" class="btn-hero btn-hero-primary">
-                Rencontrer l'équipe <i class="fas fa-arrow-right"></i>
-            </a>
-            <a href="#reservation" class="btn-hero btn-hero-secondary">
-                Prendre Rendez-vous
-            </a>
-        </div>
-    </div>
-</section>
-
-<!-- 2. STATS SECTION (Floating) -->
-<div class="container hero-stats-container">
-    <div class="stats-card d-md-flex justify-content-around">
-        <div class="stat-item">
-            <div class="stat-icon">
-                <i class="fas fa-smile-beam"></i>
-            </div>
-            <div class="stat-info">
-                <h3>15+</h3>
-                <p>Années d'expérience</p>
-            </div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-icon">
-                <i class="fas fa-user-md"></i>
-            </div>
-            <div class="stat-info">
-                <h3>4</h3>
-                <p>Chirurgiens experts</p>
-            </div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-icon">
-                <i class="fas fa-heart"></i>
-            </div>
-            <div class="stat-info">
-                <h3>2k+</h3>
-                <p>Patients heureux</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 3. SERVICES SECTION -->
-<section class="py-5" id="services">
-    <div class="container py-4">
-        <div class="section-title-wrapper">
-            <span class="section-tag">Nos Expertises</span>
-            <h2 class="section-heading">Des soins complets pour toute la famille</h2>
-            <p class="text-muted">Nous utilisons les dernières technologies pour garantir des soins indolores et précis.</p>
-        </div>
-
-        <div class="row g-4">
-            <!-- Service 1 -->
-            <div class="col-md-6 col-lg-3">
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-tooth"></i>
-                    </div>
-                    <h3 class="service-title">Soins Conservateurs</h3>
-                    <p class="service-desc">Traitement des caries, dévitalisation et restauration pour garder vos dents saines plus longtemps.</p>
-                </div>
-            </div>
-            <!-- Service 2 -->
-            <div class="col-md-6 col-lg-3">
-                <div class="service-card">
-                    <div class="service-icon" style="background: #10B981;">
-                        <i class="fas fa-shield-virus"></i>
-                    </div>
-                    <h3 class="service-title">Prévention</h3>
-                    <p class="service-desc">Détartrage, fluoration et conseils d'hygiène personnalisés pour prévenir les problèmes futurs.</p>
-                </div>
-            </div>
-            <!-- Service 3 -->
-            <div class="col-md-6 col-lg-3">
-                <div class="service-card">
-                    <div class="service-icon" style="background: #F59E0B;">
-                        <i class="fas fa-gem"></i>
-                    </div>
-                    <h3 class="service-title">Esthétique</h3>
-                    <p class="service-desc">Blanchiment dentaire, facettes céramiques et alignement invisible pour un sourire éclatant.</p>
-                </div>
-            </div>
-            <!-- Service 4 -->
-            <div class="col-md-6 col-lg-3">
-                <div class="service-card">
-                    <div class="service-icon" style="background: #EC4899;">
-                        <i class="fas fa-child"></i>
-                    </div>
-                    <h3 class="service-title">Pédodontie</h3>
-                    <p class="service-desc">Une approche douce et ludique pour soigner les dents de vos enfants sans stress.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- 4. DENTISTS SECTION -->
-<section class="py-5 bg-light" id="dentists">
-    <div class="container py-4">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-end mb-5">
-            <div>
-                <span class="section-tag">Notre Équipe</span>
-                <h2 class="section-heading mb-0">Rencontrez vos praticiens</h2>
-            </div>
-            <a href="#" class="btn btn-outline-primary rounded-pill px-4 mt-3 mt-md-0">Voir toute l'équipe</a>
-        </div>
-
-        <div class="row g-4">
-            <!-- Dentist 1 -->
-            <div class="col-md-6 col-lg-3">
-                <div class="profile-card">
-                    <div class="profile-img-wrapper">
-                        <!-- Image Dentiste Femme -->
-                        <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=2070&auto=format&fit=crop" class="profile-img" alt="Dr. Elise Martin">
-                    </div>
-                    <div class="profile-content">
-                        <h4 class="profile-name">Dr. Elise Martin</h4>
-                        <div class="profile-spec">Esthétique & Facettes</div>
-                        <span class="profile-availability"><i class="fas fa-check-circle me-1"></i> Dispo. Aujourd'hui</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dentist 2 -->
-            <div class="col-md-6 col-lg-3">
-                <div class="profile-card">
-                    <div class="profile-img-wrapper">
-                        <!-- Image Dentiste Homme -->
-                        <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=1964&auto=format&fit=crop" class="profile-img" alt="Dr. Hugo Leblanc">
-                    </div>
-                    <div class="profile-content">
-                        <h4 class="profile-name">Dr. Hugo Leblanc</h4>
-                        <div class="profile-spec">Implantologie</div>
-                        <span class="profile-availability"><i class="far fa-clock me-1"></i> Prochain rdv: Mardi</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dentist 3 -->
-            <div class="col-md-6 col-lg-3">
-                <div class="profile-card">
-                    <div class="profile-img-wrapper">
-                        <!-- Image Dentiste Femme 2 -->
-                        <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?q=80&w=1887&auto=format&fit=crop" class="profile-img" alt="Dr. Sofia Amrani">
-                    </div>
-                    <div class="profile-content">
-                        <h4 class="profile-name">Dr. Sofia Amrani</h4>
-                        <div class="profile-spec">Pédodontie</div>
-                        <span class="profile-availability"><i class="fas fa-check-circle me-1"></i> Accepte nouveaux</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dentist 4 -->
-            <div class="col-md-6 col-lg-3">
-                <div class="profile-card">
-                    <div class="profile-img-wrapper">
-                        <!-- Image Dentiste Homme 2 -->
-                        <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=2070&auto=format&fit=crop" class="profile-img" alt="Dr. Noah Tabet">
-                    </div>
-                    <div class="profile-content">
-                        <h4 class="profile-name">Dr. Noah Tabet</h4>
-                        <div class="profile-spec">Chirurgie</div>
-                        <span class="profile-availability"><i class="fas fa-check-circle me-1"></i> Urgences</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- 5. SPACE & TECHNOLOGY -->
-<section class="space-section">
-    <div class="container">
         <div class="row align-items-center g-5">
             <div class="col-lg-6">
-                <div class="space-img-container">
-                    <!-- Image Cabinet Moderne -->
-                    <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=2053&auto=format&fit=crop" class="space-img" alt="Salle de soin">
+                <div class="badge-new"><i class="fas fa-sparkles"></i> Premium digital dental care</div>
+                <h1 class="hero-title">Enhance your smile with Aurora Dental.</h1>
+                <p class="hero-subtitle">
+                    Gentle, tech-forward dentistry designed to keep you comfortable. From whitening to implants, our specialists craft confident smiles every day.
+                </p>
+                <div class="hero-buttons d-flex flex-wrap gap-3">
+                    <a class="btn btn-primary-gradient" href="#appointment">Book now</a>
+                    <a class="btn btn-secondary-light" href="#services">View treatments</a>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <span class="section-tag">Technologie & Confort</span>
-                <h2 class="section-heading">Un environnement pensé pour votre sérénité</h2>
-                <p class="text-muted mb-4">
-                    Notre clinique est équipée des dernières technologies d'imagerie numérique 3D pour des diagnostics précis. Détendez-vous dans nos salles insonorisées pendant que nous prenons soin de votre sourire.
-                </p>
-                <ul class="list-unstyled feature-list">
-                    <li><i class="fas fa-wifi"></i> <span>Dossier médical 100% numérique et sécurisé</span></li>
-                    <li><i class="fas fa-x-ray"></i> <span>Radio panoramique sur place</span></li>
-                    <li><i class="fas fa-couch"></i> <span>Salle d'attente confortable avec Wifi</span></li>
-                    <li><i class="fas fa-calendar-check"></i> <span>Rappels de rendez-vous par SMS</span></li>
-                </ul>
-                <a href="#reservation" class="btn btn-primary rounded-pill px-4 mt-2">Visiter le cabinet</a>
+            <div class="col-lg-6 hero-cards d-none d-lg-block">
+                <div class="floating-card card-appointment">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #8fbaff, #6c8cff);">
+                            <i class="fas fa-tooth"></i>
+                        </div>
+                        <span class="pill"><i class="fas fa-clock"></i> Same-day visits</span>
+                    </div>
+                    <h5 class="fw-bold mb-1">Whitening consultation</h5>
+                    <p class="text-muted small mb-3">Thursday, 05 October • Dr. Olivia Hart</p>
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="https://images.unsplash.com/photo-1528892952291-009c663ce843?auto=format&fit=crop&w=200&q=60" class="rounded-circle" width="52" height="52" alt="Dentist">
+                        <div>
+                            <strong>Jonathan Ross</strong>
+                            <p class="text-muted mb-0 small">New patient onboarding</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="floating-card card-progress">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <p class="text-muted small mb-1">Treatment progress</p>
+                            <h5 class="fw-bold mb-0">Digital aligners</h5>
+                        </div>
+                        <div class="progress-ring"><span>78%</span></div>
+                    </div>
+                    <p class="text-muted small mb-3">Checkpoints completed this month.</p>
+                    <div class="pill"><i class="fas fa-calendar-check"></i> Next scan in 3 days</div>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- 6. RESERVATION SECTION -->
-<section class="py-5" id="reservation">
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="reservation-card">
-                    <div class="row g-5">
-                        <div class="col-md-5 d-flex flex-column justify-content-center border-end-md">
-                            <h3 class="fw-bold mb-3">Prendre Rendez-vous</h3>
-                            <p class="text-muted mb-4">Sélectionnez simplement votre motif et l'horaire. Une confirmation vous sera envoyée immédiatement.</p>
-                            
-                            <div class="d-flex align-items-center gap-3 mb-3">
-                                <div class="icon-circle bg-light text-primary p-3 rounded-circle">
-                                    <i class="fas fa-phone-alt"></i>
-                                </div>
-                                <div>
-                                    <small class="text-muted d-block">Urgence dentaire ?</small>
-                                    <span class="fw-bold">+7 (707) 770-70-37</span>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="icon-circle bg-light text-primary p-3 rounded-circle">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <div>
-                                    <small class="text-muted d-block">Nous trouver</small>
-                                    <span class="fw-bold">Centre Ville, Rabat</span>
-                                </div>
-                            </div>
-                        </div>
+<section class="py-5" id="services">
+    <div class="container py-4">
+        <div class="section-intro">
+            <span class="badge-new mb-3" style="background: rgba(255,255,255,0.9); border-color: rgba(122,165,255,0.25);">Wide range of care</span>
+            <h2>Modern dentistry for every smile</h2>
+            <p>Experience minimally invasive treatments with calming environments, advanced imaging, and caring professionals by your side.</p>
+        </div>
 
-                        <div class="col-md-7">
-                            <form>
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label small fw-bold text-muted">Votre Nom</label>
-                                        <input type="text" class="form-control form-control-custom" placeholder="ex: Jean Dupont">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label small fw-bold text-muted">Téléphone</label>
-                                        <input type="tel" class="form-control form-control-custom" placeholder="06 XX XX XX XX">
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label small fw-bold text-muted">Praticien (Optionnel)</label>
-                                        <select class="form-select form-control-custom">
-                                            <option selected>Peu importe (Premier disponible)</option>
-                                            <option>Dr. Elise Martin</option>
-                                            <option>Dr. Hugo Leblanc</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-12">
-                                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-3 fw-bold mt-2">
-                                            Confirmer la demande
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-tooth"></i></div>
+                    <h3 class="service-title">Restorative Care</h3>
+                    <p class="service-desc">Precision fillings and ceramic crowns that restore strength and keep your bite natural.</p>
                 </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="service-card">
+                    <div class="service-icon" style="background: radial-gradient(circle at 30% 30%, #cff5e4, #80e0b4); box-shadow: 0 12px 30px rgba(76, 201, 150, 0.25);">
+                        <i class="fas fa-shield-virus"></i>
+                    </div>
+                    <h3 class="service-title">Preventive Dentistry</h3>
+                    <p class="service-desc">Gentle cleanings, fluoride care, and screenings to keep you cavity-free all year.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="service-card">
+                    <div class="service-icon" style="background: radial-gradient(circle at 30% 30%, #ffe9c7, #ffc074); box-shadow: 0 12px 30px rgba(255, 192, 116, 0.25);">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <h3 class="service-title">Cosmetic Upgrades</h3>
+                    <p class="service-desc">Whitening, veneers, and smile design built to match your facial harmony.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="service-card">
+                    <div class="service-icon" style="background: radial-gradient(circle at 30% 30%, #ffc9df, #ff8fbf); box-shadow: 0 12px 30px rgba(255, 143, 191, 0.22);">
+                        <i class="fas fa-child"></i>
+                    </div>
+                    <h3 class="service-title">Kids & Teens</h3>
+                    <p class="service-desc">A calm, playful atmosphere for young patients, plus sealants and early orthodontics.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="pb-5" id="appointment">
+    <div class="container">
+        <div class="cta-card d-flex flex-column flex-lg-row align-items-center justify-content-between gap-3">
+            <div>
+                <h3>Schedule your visit</h3>
+                <p>Call +1 (555) 910-2020 or book online to reserve the next available appointment.</p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <a class="btn btn-primary-gradient" href="#top">Plan a visit</a>
+                <a class="btn btn-secondary-light" href="#services">See services</a>
             </div>
         </div>
     </div>
