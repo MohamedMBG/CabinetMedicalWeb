@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Cabinet Medical</title>
+    <title>@ViewData["Title"] - Aurora Dental Clinic</title>
 
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -19,17 +19,17 @@
 
     <style>
         :root {
-            --primary-color: #7AA3D1;
-            --primary-dark: #91B3D9;
-            --secondary-color: #666B72;
-            --bg-light: #E9EFF7;
-            --text-main: #666B72;
+            --primary-color: #7AA5FF;
+            --primary-dark: #6C8CFF;
+            --secondary-color: #4B5563;
+            --bg-light: #EEF3FF;
+            --text-main: #1F2A44;
             --nav-height: 70px;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-light);
+            background: linear-gradient(135deg, #dcefff, #c5d9ff, #b3c7ff);
             color: var(--text-main);
             padding-top: var(--nav-height); /* Space for fixed navbar */
             min-height: 100vh;
@@ -40,11 +40,11 @@
         /* Navbar Styling */
         .navbar-custom {
             background-color: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(102, 107, 114, 0.12);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(108, 140, 255, 0.14);
             height: var(--nav-height);
-            box-shadow: 0 8px 24px rgba(121, 163, 209, 0.12);
+            box-shadow: 0 12px 28px rgba(108, 140, 255, 0.12);
         }
 
         .navbar-brand {
@@ -57,8 +57,8 @@
         }
 
         .brand-icon {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             color: white;
             border-radius: 8px;
@@ -133,9 +133,9 @@
                 <!-- Brand -->
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
                     <div class="brand-icon">
-                        <i class="fas fa-heart-pulse"></i>
+                        <i class="fas fa-tooth"></i>
                     </div>
-                    <span>Cabinet Medical</span>
+                    <span>Aurora Dental</span>
                 </a>
 
                 <!-- Mobile Toggle -->
