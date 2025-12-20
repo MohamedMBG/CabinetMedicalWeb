@@ -6,7 +6,7 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
     {
         public IActionResult Index()
         {
-            return View(); // Affiche le calendrier
+            return View(); // monssef test
         }
     }
 }
