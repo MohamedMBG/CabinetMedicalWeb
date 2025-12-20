@@ -148,7 +148,18 @@
                     
                     <!-- Left Side: Main Navigation -->
                     <ul class="navbar-nav me-auto ms-lg-4 mb-2 mb-lg-0">
-                        
+
+                        <!-- Role: Admin -->
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Area"]?.ToString() == "Admin" ? "active" : "")"
+                                   asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                                    <i class="fas fa-chart-line"></i>Dashboard
+                                </a>
+                            </li>
+                        }
+
                         <!-- Role: Medecin & Admin -->
                         @if (User.IsInRole("Medecin") || User.IsInRole("Admin"))
                         {

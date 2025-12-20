@@ -25,7 +25,23 @@ namespace CabinetMedicalWeb.Data
                 }
             }
 
-            // 2. Création du Médecin (Dr. House)
+            // 2. Création de l'administrateur
+            var admin = new ApplicationUser
+            {
+                UserName = "admin@clinic.com",
+                Email = "admin@clinic.com",
+                Nom = "Admin",
+                Prenom = "Principal",
+                EmailConfirmed = true
+            };
+
+            if (await userManager.FindByEmailAsync(admin.Email) == null)
+            {
+                await userManager.CreateAsync(admin, "Admin123!");
+                await userManager.AddToRoleAsync(admin, "Admin");
+            }
+
+            // 3. Création du Médecin (Dr. House)
             var doctor = new ApplicationUser
             {
                 UserName = "doc@clinic.com",
