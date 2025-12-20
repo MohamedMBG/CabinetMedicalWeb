@@ -27,6 +27,10 @@
             --nav-height: 70px;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #dcefff, #c5d9ff, #b3c7ff);
@@ -123,6 +127,23 @@
             margin-right: 8px;
             color: #94A3B8;
         }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white !important;
+            padding: 0.55rem 1.15rem !important;
+            border-radius: 12px;
+            font-weight: 700;
+            box-shadow: 0 12px 28px rgba(108, 140, 255, 0.18);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: none;
+        }
+
+        .nav-cta:hover {
+            color: white !important;
+            transform: translateY(-1px);
+            box-shadow: 0 14px 30px rgba(108, 140, 255, 0.24);
+        }
     </style>
 </head>
 <body>
@@ -199,13 +220,20 @@
                                 <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Home" asp-action="Services">Services</a>
+                                <a class="nav-link" href="/#services">Services</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/#appointment">Appointments</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/#faq">FAQ</a>
                             </li>
                         }
                     </ul>
 
                     <!-- Right Side: User Profile & Logout -->
                     <div class="d-flex align-items-center gap-3">
+                        <a class="nav-cta d-none d-lg-inline-flex" href="/#appointment"><i class="fas fa-bolt me-2"></i>Book now</a>
                         <partial name="_LoginPartial" />
                     </div>
                 </div>

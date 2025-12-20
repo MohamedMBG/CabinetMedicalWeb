@@ -328,10 +328,133 @@
         50% { box-shadow: 0 24px 52px rgba(122,165,255,0.22); transform: translateY(-2px); }
     }
 
+    .trust-bar {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(122,165,255,0.16);
+        border-radius: var(--radius-lg);
+        padding: 1.15rem 1.5rem;
+        box-shadow: 0 18px 40px rgba(43, 82, 143, 0.12);
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        align-items: center;
+        margin-top: 2.5rem;
+    }
+
+    .trust-item {
+        display: flex;
+        gap: 0.85rem;
+        align-items: center;
+    }
+
+    .trust-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: rgba(122,165,255,0.12);
+        display: grid;
+        place-items: center;
+        color: var(--text-dark);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+
+    .trust-item strong { color: var(--text-dark); }
+    .trust-item span { color: var(--text-muted); }
+
+    .comfort-card {
+        background: rgba(255, 255, 255, 0.88);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        border: 1px solid rgba(122,165,255,0.16);
+        box-shadow: 0 16px 40px rgba(43,82,143,0.1);
+        height: 100%;
+        display: grid;
+        gap: 0.5rem;
+    }
+
+    .icon-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 16px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(145deg, rgba(122,165,255,0.16), rgba(122,165,255,0.34));
+        color: var(--text-dark);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+
+    .comfort-card h5 { margin: 0; color: var(--text-dark); }
+    .comfort-card p { margin: 0; color: var(--text-muted); }
+
+    .faq-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        border: 1px solid rgba(122,165,255,0.14);
+        box-shadow: 0 16px 40px rgba(43,82,143,0.1);
+    }
+
+    .faq-item {
+        border-bottom: 1px solid rgba(122,165,255,0.18);
+        padding: 0.75rem 0;
+    }
+
+    .faq-item:last-child { border-bottom: none; }
+
+    .faq-question {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        color: var(--text-dark);
+        font-weight: 700;
+    }
+
+    .faq-answer {
+        margin-top: 0.4rem;
+        color: var(--text-muted);
+        display: none;
+    }
+
+    .faq-item.active .faq-answer { display: block; }
+
+    .support-widget {
+        position: fixed;
+        right: 22px;
+        bottom: 22px;
+        z-index: 50;
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .support-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.8rem 1rem;
+        border-radius: 16px;
+        border: 1px solid rgba(122,165,255,0.24);
+        background: rgba(255,255,255,0.92);
+        box-shadow: 0 16px 40px rgba(43,82,143,0.14);
+        color: var(--text-dark);
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .support-button.primary {
+        background: linear-gradient(135deg, #8eb9ff, #7aa5ff);
+        color: white;
+        border: none;
+    }
+
+    .support-button:hover { transform: translateY(-2px); }
+
     @@media (max-width: 992px) {
         .hero-wrapper { padding-top: 2rem; }
         .hero-cards { margin-top: 2rem; }
         .floating-card { position: relative; right: auto; top: auto; margin-bottom: 1rem; }
+        .support-widget { right: 14px; bottom: 14px; }
+        .support-button { padding: 0.7rem 0.85rem; }
     }
 </style>
 
@@ -387,6 +510,37 @@
                     </div>
                     <p class="text-muted small mb-3">Checkpoints completed this month.</p>
                     <div class="pill"><i class="fas fa-calendar-check"></i> Next scan in 3 days</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="trust-bar">
+            <div class="trust-item">
+                <div class="trust-icon"><i class="fas fa-award"></i></div>
+                <div>
+                    <strong>Top-rated clinicians</strong>
+                    <span class="d-block small">15+ years average experience</span>
+                </div>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon"><i class="fas fa-heart"></i></div>
+                <div>
+                    <strong>Comfort-first visits</strong>
+                    <span class="d-block small">Aromatherapy, music, blankets</span>
+                </div>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon"><i class="fas fa-shield-check"></i></div>
+                <div>
+                    <strong>Transparent pricing</strong>
+                    <span class="d-block small">Upfront plans without surprises</span>
+                </div>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon"><i class="fas fa-star"></i></div>
+                <div>
+                    <strong>1,200+ reviews</strong>
+                    <span class="d-block small">4.9/5 average satisfaction</span>
                 </div>
             </div>
         </div>
@@ -499,6 +653,47 @@
     </div>
 </section>
 
+<section class="pb-5" id="experience">
+    <div class="container py-4">
+        <div class="section-intro">
+            <span class="badge-new mb-3" style="background: rgba(255,255,255,0.9); border-color: rgba(122,165,255,0.25);">Comfortable by design</span>
+            <h2>Feel cared for from arrival to goodbye</h2>
+            <p>Soothing spaces, modern tech, and thoughtful amenities mean you can focus on feeling great—not just getting through a visit.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="comfort-card">
+                    <div class="icon-circle"><i class="fas fa-mug-hot"></i></div>
+                    <h5>Welcome lounge</h5>
+                    <p>Essential oils, refreshments, and calming lighting ease pre-visit jitters.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="comfort-card">
+                    <div class="icon-circle"><i class="fas fa-headphones"></i></div>
+                    <h5>Noise-free care</h5>
+                    <p>Noise-canceling headphones and soft playlists keep the experience serene.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="comfort-card">
+                    <div class="icon-circle"><i class="fas fa-laptop-medical"></i></div>
+                    <h5>Digital-first</h5>
+                    <p>Instant imaging, tablet check-in, and virtual follow-ups streamline every visit.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="comfort-card">
+                    <div class="icon-circle"><i class="fas fa-hand-holding-heart"></i></div>
+                    <h5>Anxiety support</h5>
+                    <p>Guided breathing, nitrous options, and gentle pacing tailored to your comfort.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="pb-5" id="appointment">
     <div class="container py-4">
         <div class="section-intro">
@@ -598,6 +793,56 @@
     </div>
 </section>
 
+<section class="pb-5" id="faq">
+    <div class="container py-4">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-5">
+                <div class="section-intro text-start">
+                    <span class="badge-new mb-3" style="background: rgba(255,255,255,0.9); border-color: rgba(122,165,255,0.25);">Questions answered fast</span>
+                    <h2>Everything you need to know</h2>
+                    <p>Our concierge team responds within minutes. Explore common topics or tap the quick-help buttons to reach us directly.</p>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                    <a class="btn btn-primary-gradient" href="tel:+15559102020"><i class="fas fa-phone me-2"></i>Call our desk</a>
+                    <a class="btn btn-secondary-light" href="mailto:hello@auroradental.com"><i class="fas fa-envelope me-2"></i>Email care team</a>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="faq-card">
+                    <div class="faq-item active">
+                        <div class="faq-question">
+                            <span><i class="fas fa-circle-question me-2 text-primary"></i>Do you accept my insurance?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">We work with most major providers and will verify benefits before your visit. Our coordinators share clear estimates so you can decide with confidence.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span><i class="fas fa-stopwatch me-2 text-primary"></i>How soon can I be seen?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">Same-day and next-day appointments are prioritized for pain or emergencies. Online booking shows live availability, and we keep a standby list for quick openings.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span><i class="fas fa-leaf me-2 text-primary"></i>What if I am anxious about dental visits?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">We start with a comfort check, offer blankets and headphones, and provide guided breathing or nitrous when helpful. Your pace and pauses are always respected.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span><i class="fas fa-credit-card me-2 text-primary"></i>Do you provide payment plans?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">Yes. Flexible monthly plans and interest-free options are available for most treatments. We outline everything upfront—no surprise fees.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="pb-5">
     <div class="container">
         <div class="cta-card d-flex flex-column flex-lg-row align-items-center justify-content-between gap-3">
@@ -612,3 +857,8 @@
         </div>
     </div>
 </section>
+
+<div class="support-widget">
+    <a class="support-button primary" href="#appointment"><i class="fas fa-bolt"></i>Quick book</a>
+    <a class="support-button" href="mailto:hello@auroradental.com"><i class="fas fa-comments"></i>Message us</a>
+</div>
