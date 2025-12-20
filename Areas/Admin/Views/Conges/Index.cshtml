@@ -1,0 +1,107 @@
+﻿@model IEnumerable<CabinetMedicalWeb.Models.Conge>
+
+@{
+    ViewData["Title"] = "Gestion des Congés";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var primaryColor = "#6366F1"; // Indigo Theme for Admin
+}
+
+<div class="container py-5">
+    
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1" style="color: #1F2937;">Planning des Absences</h2>
+            <p class="text-muted">Gérez les congés des médecins et du secrétariat.</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary fw-bold shadow-sm px-4 py-2" style="background-color: @primaryColor; border: none; border-radius: 10px;">
+            <i class="fas fa-calendar-plus me-2"></i>Ajouter un Congé
+        </a>
+    </div>
+
+    <!-- Main Card -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="py-3 ps-4 text-uppercase small fw-bold text-muted">Employé</th>
+                        <th class="py-3 text-uppercase small fw-bold text-muted">Période</th>
+                        <th class="py-3 text-uppercase small fw-bold text-muted">Durée</th>
+                        <th class="py-3 text-uppercase small fw-bold text-muted">Motif</th>
+                        <th class="py-3 text-uppercase small fw-bold text-muted">Statut</th>
+                        <th class="py-3 text-end pe-4 text-uppercase small fw-bold text-muted">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-umbrella-beach fa-3x mb-3 opacity-25"></i>
+                                <p>Aucun congé enregistré pour le moment.</p>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            var duree = (item.DateFin - item.DateDebut).Days + 1;
+                            var isPast = item.DateFin < DateTime.Today;
+                            var isCurrent = item.DateDebut <= DateTime.Today && item.DateFin >= DateTime.Today;
+                            
+                            <tr style="@(isPast ? "opacity: 0.6;" : "")">
+                                <td class="ps-4 py-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-indigo-50 d-flex align-items-center justify-content-center me-3 text-primary fw-bold" 
+                                             style="width: 40px; height: 40px; background-color: #E0E7FF; color: #4338CA;">
+                                            @(item.Personnel?.Nom?.Substring(0,1) ?? "?")
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark">@item.Personnel?.Nom @item.Personnel?.Prenom</div>
+                                            <div class="small text-muted">@item.Personnel?.Email</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold text-dark">@item.DateDebut.ToShortDateString()</span>
+                                        <span class="small text-muted">au @item.DateFin.ToShortDateString()</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">@duree jours</span>
+                                </td>
+                                <td>
+                                    @item.Motif
+                                </td>
+                                <td>
+                                    @if (isCurrent)
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success">En cours</span>
+                                    }
+                                    else if (isPast)
+                                    {
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">Terminé</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary">À venir</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Supprimer ce congé ?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger border-0 rounded-circle" title="Supprimer">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

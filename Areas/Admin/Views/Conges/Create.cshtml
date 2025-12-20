@@ -1,0 +1,70 @@
+﻿@model CabinetMedicalWeb.Models.Conge
+
+@{
+    ViewData["Title"] = "Enregistrer un Congé";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var primaryColor = "#6366F1";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                
+                <!-- Header -->
+                <div class="card-header text-white p-4" style="background: linear-gradient(135deg, @primaryColor 0%, #818CF8 100%);">
+                    <h3 class="mb-0 fw-bold"><i class="fas fa-plane-departure me-2"></i>Nouveau Congé</h3>
+                    <p class="mb-0 opacity-75 small">Enregistrer une période d'absence pour un employé.</p>
+                </div>
+                
+                <div class="card-body p-5 bg-white">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4"></div>
+
+                        <!-- Sélection Employé -->
+                        <div class="mb-4">
+                            <label asp-for="PersonnelId" class="form-label fw-bold small text-uppercase text-muted">Employé</label>
+                            <select asp-for="PersonnelId" class="form-select form-select-lg bg-light border-0" asp-items="ViewBag.PersonnelId">
+                                <option value="">-- Sélectionner un membre du personnel --</option>
+                            </select>
+                            <span asp-validation-for="PersonnelId" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Dates Row -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="DateDebut" class="form-label fw-bold small text-uppercase text-muted">Date de Début</label>
+                                <input asp-for="DateDebut" class="form-control form-control-lg bg-light border-0" type="date" />
+                                <span asp-validation-for="DateDebut" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="DateFin" class="form-label fw-bold small text-uppercase text-muted">Date de Fin</label>
+                                <input asp-for="DateFin" class="form-control form-control-lg bg-light border-0" type="date" />
+                                <span asp-validation-for="DateFin" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- Motif -->
+                        <div class="mb-4">
+                            <label asp-for="Motif" class="form-label fw-bold small text-uppercase text-muted">Motif (Optionnel)</label>
+                            <textarea asp-for="Motif" class="form-control bg-light border-0" rows="3" placeholder="Ex: Vacances annuelles, Maladie..."></textarea>
+                            <span asp-validation-for="Motif" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-grid gap-2 mt-5">
+                            <button type="submit" class="btn btn-lg text-white fw-bold shadow-sm" style="background-color: @primaryColor; border-radius: 12px;">
+                                <i class="fas fa-save me-2"></i>Enregistrer
+                            </button>
+                            <a asp-action="Index" class="btn btn-link text-muted text-decoration-none text-center">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

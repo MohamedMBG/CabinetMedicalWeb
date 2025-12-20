@@ -1,4 +1,4 @@
-﻿using CabinetMedicalWeb.Models; // <--- OBLIGATOIRE POUR QUE LE BUILD FONCTIONNE
+﻿using CabinetMedicalWeb.Models;  
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,5 +18,6 @@ namespace CabinetMedicalWeb.Data
         public DbSet<Prescription> Prescriptions { get; set; }
         public DbSet<ResultatExamen> ResultatExamens { get; set; }
         public DbSet<Horaire> Horaires { get; set; }
+        public DbSet<Conge> Conges { get; set; }
     }
 }

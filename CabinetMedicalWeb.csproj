@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Areas\Admin\Views\Conges\" />
     <Folder Include="Areas\FrontDesk\Data\" />
     <Folder Include="Areas\Medical\Data\" />
   </ItemGroup>

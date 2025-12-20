@@ -174,9 +174,21 @@
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["Area"]?.ToString() == "Admin" ? "active" : "")"
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "active" : "")"
                                    asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
                                     <i class="fas fa-chart-line"></i>Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Users" ? "active" : "")"
+                                   asp-area="Admin" asp-controller="Users" asp-action="Index">
+                                    <i class="fas fa-users-cog"></i>Personnel
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Conges" ? "active" : "")"
+                                   asp-area="Admin" asp-controller="Conges" asp-action="Index">
+                                    <i class="fas fa-plane-departure"></i>Absences
                                 </a>
                             </li>
                         }
@@ -233,7 +245,10 @@
 
                     <!-- Right Side: User Profile & Logout -->
                     <div class="d-flex align-items-center gap-3">
-                        <a class="nav-cta d-none d-lg-inline-flex" href="/#appointment"><i class="fas fa-bolt me-2"></i>Book now</a>
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <a class="nav-cta d-none d-lg-inline-flex" href="/#appointment"><i class="fas fa-bolt me-2"></i>Book now</a>
+                        }
                         <partial name="_LoginPartial" />
                     </div>
                 </div>
