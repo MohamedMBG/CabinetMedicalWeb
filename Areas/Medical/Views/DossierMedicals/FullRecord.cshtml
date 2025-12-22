@@ -4,6 +4,7 @@
     ViewData["Title"] = $"Dossier Complet - {Model.PatientInfo.Nom}";
     Layout = null; // Important: No navbar for the printed version
     var primaryColor = "#4F46E5";
+    var autoPrint = Context.Request?.Query.ContainsKey("print") == true;
 }
 
 <!DOCTYPE html>
@@ -90,6 +91,39 @@
         }
         .btn-print { background: @primaryColor; color: white; }
         .btn-back { background: white; color: #374151; }
+
+        .patient-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 10px;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: #EEF2FF;
+            color: #4338CA;
+            font-weight: 600;
+            font-size: 0.85em;
+            margin-right: 8px;
+        }
+
+        .stat-strip {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 12px 0 4px;
+        }
+
+        .stat-pill {
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #F3F4F6;
+            font-weight: 700;
+            color: #111827;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
@@ -117,10 +151,20 @@
         </div>
 
         <div class="patient-box">
-            <div class="info-row"><span class="info-label">Patient</span> <span class="info-value">@Model.PatientInfo.Nom @Model.PatientInfo.Prenom</span></div>
-            <div class="info-row"><span class="info-label">Né(e) le</span> <span class="info-value">@Model.PatientInfo.DateNaissance.ToShortDateString()</span></div>
-            <div class="info-row"><span class="info-label">Contact</span> <span class="info-value">@Model.PatientInfo.Telephone</span></div>
-            <div class="info-row"><span class="info-label">Alertes</span> <span class="info-value" style="color: #EF4444;">@(string.IsNullOrEmpty(Model.PatientInfo.AntecedentsMedicaux) ? "RAS" : Model.PatientInfo.AntecedentsMedicaux)</span></div>
+            <div class="patient-grid">
+                <div class="info-row"><span class="info-label">Patient</span> <span class="info-value">@Model.PatientInfo.Nom @Model.PatientInfo.Prenom</span></div>
+                <div class="info-row"><span class="info-label">Né(e) le</span> <span class="info-value">@Model.PatientInfo.DateNaissance.ToShortDateString()</span></div>
+                <div class="info-row"><span class="info-label">Contact</span> <span class="info-value">@Model.PatientInfo.Telephone</span></div>
+                <div class="info-row"><span class="info-label">Email</span> <span class="info-value">@Model.PatientInfo.Email</span></div>
+                <div class="info-row"><span class="info-label">Adresse</span> <span class="info-value">@Model.PatientInfo.Adresse</span></div>
+                <div class="info-row"><span class="info-label">Alertes</span> <span class="info-value" style="color: #EF4444;">@(string.IsNullOrEmpty(Model.PatientInfo.AntecedentsMedicaux) ? "RAS" : Model.PatientInfo.AntecedentsMedicaux)</span></div>
+            </div>
+            <div class="stat-strip">
+                <span class="stat-pill"><i class="fas fa-calendar-check"></i> Consultations : @Model.Consultations.Count</span>
+                <span class="stat-pill"><i class="fas fa-prescription-bottle"></i> Ordonnances : @Model.Prescriptions.Count</span>
+                <span class="stat-pill"><i class="fas fa-vial"></i> Examens : @Model.Examens.Count</span>
+            </div>
+            <div class="pill">Dossier prêt pour export</div>
         </div>
 
         <!-- Consultations -->
@@ -160,5 +204,12 @@
         } else { <div style="color:#999">Aucun résultat.</div> }
 
     </div>
+
+    @if (autoPrint)
+    {
+        <script>
+            window.addEventListener('DOMContentLoaded', () => window.print());
+        </script>
+    }
 </body>
 </html>
