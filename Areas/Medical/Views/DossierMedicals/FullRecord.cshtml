@@ -1,0 +1,164 @@
+﻿@model CabinetMedicalWeb.Areas.Medical.Models.DossierCompletViewModel
+
+@{
+    ViewData["Title"] = $"Dossier Complet - {Model.PatientInfo.Nom}";
+    Layout = null; // Important: No navbar for the printed version
+    var primaryColor = "#4F46E5";
+}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #525659; /* PDF Viewer style background */
+            margin: 0;
+            padding: 20px;
+            color: #1F2937;
+        }
+
+        .page-sheet {
+            background: white;
+            width: 210mm; /* A4 width */
+            min-height: 297mm; /* A4 height */
+            margin: 0 auto;
+            padding: 15mm;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        @@media print {
+            body { background: none; padding: 0; }
+            .page-sheet { box-shadow: none; margin: 0; width: 100%; }
+            .no-print { display: none !important; }
+        }
+
+        /* Header */
+        .doc-header {
+            border-bottom: 3px solid @primaryColor;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .clinic-name { font-size: 24px; font-weight: bold; color: @primaryColor; text-transform: uppercase; }
+        .doc-meta { text-align: right; font-size: 0.9em; color: #6B7280; }
+
+        /* Patient Info */
+        .patient-box {
+            background: #F3F4F6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 5px solid @primaryColor;
+        }
+        .info-row { display: flex; margin-bottom: 5px; }
+        .info-label { width: 150px; font-weight: bold; color: #4B5563; text-transform: uppercase; font-size: 0.8em; }
+        .info-value { font-weight: 600; }
+
+        /* Sections */
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: @primaryColor;
+            border-bottom: 1px solid #E5E7EB;
+            padding-bottom: 5px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        /* Items */
+        .timeline-item { margin-bottom: 20px; page-break-inside: avoid; }
+        .item-date { font-weight: bold; color: #111827; }
+        .item-sub { font-size: 0.85em; color: #6B7280; font-style: italic; }
+        .item-body { margin-top: 5px; line-height: 1.5; white-space: pre-wrap; }
+
+        /* Action Bar (Floating) */
+        .action-bar {
+            position: fixed;
+            top: 20px; right: 20px;
+            display: flex; gap: 10px;
+            z-index: 1000;
+        }
+        .btn {
+            padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn-print { background: @primaryColor; color: white; }
+        .btn-back { background: white; color: #374151; }
+    </style>
+</head>
+<body>
+
+    <div class="action-bar no-print">
+        <a href="@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = Model.DossierId })" class="btn btn-back">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+        <button onclick="window.print()" class="btn btn-print">
+            <i class="fas fa-print"></i> Imprimer / PDF
+        </button>
+    </div>
+
+    <div class="page-sheet">
+        
+        <div class="doc-header">
+            <div>
+                <div class="clinic-name">Cabinet Médical</div>
+                <div>Rapport Médical Complet</div>
+            </div>
+            <div class="doc-meta">
+                <div>Dossier N° : @Model.DossierId</div>
+                <div>Date : @DateTime.Now.ToString("dd/MM/yyyy")</div>
+            </div>
+        </div>
+
+        <div class="patient-box">
+            <div class="info-row"><span class="info-label">Patient</span> <span class="info-value">@Model.PatientInfo.Nom @Model.PatientInfo.Prenom</span></div>
+            <div class="info-row"><span class="info-label">Né(e) le</span> <span class="info-value">@Model.PatientInfo.DateNaissance.ToShortDateString()</span></div>
+            <div class="info-row"><span class="info-label">Contact</span> <span class="info-value">@Model.PatientInfo.Telephone</span></div>
+            <div class="info-row"><span class="info-label">Alertes</span> <span class="info-value" style="color: #EF4444;">@(string.IsNullOrEmpty(Model.PatientInfo.AntecedentsMedicaux) ? "RAS" : Model.PatientInfo.AntecedentsMedicaux)</span></div>
+        </div>
+
+        <!-- Consultations -->
+        <div class="section-title"><i class="fas fa-stethoscope"></i> Historique des Consultations</div>
+        @if (Model.Consultations.Any()) {
+            foreach(var c in Model.Consultations) {
+                <div class="timeline-item">
+                    <div class="item-date">@c.Date.ToString("dd MMMM yyyy à HH:mm")</div>
+                    <div class="item-sub">Dr. @(c.Doctor?.Nom ?? "Non spécifié") | Motif: @c.Motif</div>
+                    <div class="item-body">@c.Notes</div>
+                </div>
+            }
+        } else { <div style="color:#999">Aucune consultation.</div> }
+
+        <!-- Prescriptions -->
+        <div class="section-title"><i class="fas fa-pills"></i> Traitements Prescrits</div>
+        @if (Model.Prescriptions.Any()) {
+            <table style="width:100%; border-collapse: collapse;">
+                @foreach(var p in Model.Prescriptions) {
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 8px 0; vertical-align: top; width: 120px; font-weight: bold;">@p.DatePrescription.ToShortDateString()</td>
+                        <td style="padding: 8px 0; white-space: pre-wrap;">@p.Medicaments</td>
+                    </tr>
+                }
+            </table>
+        } else { <div style="color:#999">Aucun traitement.</div> }
+
+        <!-- Labo -->
+        <div class="section-title"><i class="fas fa-flask"></i> Résultats d'Analyses</div>
+        @if (Model.Examens.Any()) {
+             foreach(var e in Model.Examens) {
+                <div class="timeline-item">
+                    <div class="item-date">@e.DateExamen.ToShortDateString() - @e.TypeExamen</div>
+                    <div class="item-body">@e.Resultat</div>
+                </div>
+            }
+        } else { <div style="color:#999">Aucun résultat.</div> }
+
+    </div>
+</body>
+</html>

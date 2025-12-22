@@ -338,20 +338,7 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
         /// Deletes a medical record (confirmation action)
         /// </summary>
         /// <param name="id">Medical record ID</param>
-        /// <returns>Redirects to index</returns>
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var dossierMedical = await _context.Dossiers.FindAsync(id);
-            if (dossierMedical != null)
-            {
-                _context.Dossiers.Remove(dossierMedical);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+        /// <returns>Redirects to index</returns> 
 
         #endregion
 
@@ -366,7 +353,52 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
         {
             return _context.Dossiers.Any(e => e.Id == id);
         }
-
+        
         #endregion
+
+        // POST: Medical/DossierMedicals/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var dossierMedical = await _context.Dossiers.FindAsync(id);
+            if (dossierMedical != null)
+            {
+                _context.Dossiers.Remove(dossierMedical);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        // ====================================================================
+        // NOUVEAU : VUE COMPLETE POUR EXPORT PDF / IMPRESSION
+        // ====================================================================
+        public async Task<IActionResult> FullRecord(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var dossier = await _context.Dossiers
+                .Include(d => d.Patient)
+                .Include(d => d.Consultations).ThenInclude(c => c.Doctor)
+                .Include(d => d.Prescriptions).ThenInclude(p => p.Doctor)
+                .Include(d => d.ResultatExamens)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (dossier == null) return NotFound();
+
+            var viewModel = new DossierCompletViewModel
+            {
+                DossierId = dossier.Id,
+                PatientInfo = dossier.Patient,
+                Consultations = dossier.Consultations.OrderByDescending(c => c.Date).ToList(),
+                Prescriptions = dossier.Prescriptions.OrderByDescending(p => p.DatePrescription).ToList(),
+                Examens = dossier.ResultatExamens.OrderByDescending(e => e.DateExamen).ToList()
+            };
+
+            return View(viewModel);
+        }
+
     }
+
+    
 }
