@@ -2,158 +2,226 @@
 
 @{
     ViewData["Title"] = "Nouvelle Ordonnance";
-
-    // Palette Identique au Dashboard
-    var colorPrimary = "#7AA3D1";
-    var colorBg = "#E9EFF7";
-    var colorCard = "#FFFFFF";
-    var colorTextMain = "#666B72";
-    var borderSubtle = "#D4DEEC";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    
+    // Modern Professional Theme (Indigo/Slate)
+    var colorPrimary = "#4F46E5";
+    var colorSecondary = "#818CF8";
+    var colorBg = "#F3F4F6";
+    var colorText = "#1F2937";
 }
 
 <style>
-    body {
-        background-color: @colorBg;
-        font-family: 'Inter', system-ui, sans-serif;
+    body { background-color: @colorBg; font-family: 'Inter', system-ui, sans-serif; }
+
+    .main-container {
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+        min-height: 100vh;
     }
 
-    .glass-form-card {
-        background-color: @colorCard;
-        border-radius: 20px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-        border: 1px solid @borderSubtle;
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 24px;
+        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+        border: 1px solid rgba(255,255,255,0.6);
         overflow: hidden;
+        animation: slideUp 0.5s ease-out;
+    }
+
+    @@keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .form-header {
-        background: linear-gradient(135deg, @colorPrimary 0%, #91B3D9 100%);
+        background: linear-gradient(135deg, @colorPrimary 0%, @colorSecondary 100%);
         padding: 2.5rem;
         color: white;
-    }
-
-    .form-label-modern {
-        font-weight: 600;
-        color: #666B72;
-        margin-bottom: 0.5rem;
-        display: block;
-        font-size: 0.875rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .form-control-modern {
-        border: 1px solid #E5E7EB;
-        border-radius: 12px;
-        padding: 0.75rem 1rem;
-        font-size: 1rem;
-        width: 100%;
-        transition: all 0.2s;
-        background-color: #F9FAFB;
-        resize: vertical; /* Pour le textarea */
-    }
-
-        .form-control-modern:focus {
-            border-color: @colorPrimary;
-            outline: none;
-            background-color: #FFFFFF;
-            box-shadow: 0 0 0 4px rgba(145, 179, 217, 0.22);
-        }
-
-    .btn-action {
-        padding: 0.85rem 1.75rem;
-        border-radius: 12px;
-        font-weight: 600;
-        transition: all 0.2s;
-        border: none;
-        display: inline-flex;
+        display: flex;
         align-items: center;
-        gap: 0.5rem;
-        cursor: pointer;
-        text-decoration: none;
+        gap: 1.5rem;
+        position: relative;
     }
 
+    .form-header::after {
+        content: '';
+        position: absolute;
+        right: -20px;
+        top: -20px;
+        width: 150px;
+        height: 150px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+    }
+
+    .header-icon {
+        width: 64px;
+        height: 64px;
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(5px);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Floating Labels Styling */
+    .form-floating > .form-control {
+        border-radius: 12px;
+        border: 1px solid #E5E7EB;
+        background-color: #F9FAFB;
+        padding-top: 1.625rem;
+        padding-bottom: 0.625rem;
+    }
+
+    .form-floating > .form-control:focus {
+        border-color: @colorPrimary;
+        background-color: #fff;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    .form-floating > label {
+        color: #6B7280;
+        padding-left: 1rem;
+    }
+
+    .form-floating > .form-control:focus ~ label,
+    .form-floating > .form-control:not(:placeholder-shown) ~ label {
+        color: @colorPrimary;
+        font-weight: 600;
+        transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+    }
+
+    /* Buttons */
     .btn-save {
         background-color: @colorPrimary;
         color: white;
-        box-shadow: 0 4px 6px rgba(79, 70, 229, 0.25);
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        border: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
     }
 
-        .btn-save:hover {
-            background-color: #4338CA;
-            transform: translateY(-2px);
-            color: white;
-        }
+    .btn-save:hover {
+        background-color: #4338CA;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 12px rgba(79, 70, 229, 0.25);
+        color: white;
+    }
 
     .btn-cancel {
-        background-color: white;
-        color: #6B7280;
+        background: white;
+        color: #4B5563;
         border: 1px solid #E5E7EB;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
-        .btn-cancel:hover {
-            background-color: #F3F4F6;
-            color: #111827;
-        }
+    .btn-cancel:hover {
+        background-color: #F3F4F6;
+        color: #111827;
+    }
+
+    .info-box {
+        background-color: #EFF6FF;
+        border: 1px solid #DBEAFE;
+        border-radius: 12px;
+        padding: 1rem;
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        color: #1E40AF;
+        font-size: 0.9rem;
+    }
 </style>
 
-<div class="container py-5" style="min-height: 100vh;">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="glass-form-card">
-
-                <!-- En-tête Stylisé -->
-                <div class="form-header d-flex align-items-center gap-4">
-                    <div class="bg-white bg-opacity-20 rounded-circle p-3 d-flex justify-content-center align-items-center shadow-sm" style="width: 64px; height: 64px; backdrop-filter: blur(5px);">
-                        <i class="fas fa-file-prescription fa-2x text-white"></i>
+<div class="main-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                
+                <div class="glass-card">
+                    
+                    <!-- Header -->
+                    <div class="form-header">
+                        <div class="header-icon">
+                            <i class="fas fa-file-prescription text-white"></i>
+                        </div>
+                        <div>
+                            <h2 class="fw-bold mb-1" style="font-size: 1.75rem;">Nouvelle Ordonnance</h2>
+                            <p class="mb-0 opacity-90 font-monospace small">Dossier #@Model.DossierMedicalId</p>
+                        </div>
                     </div>
-                    <div>
-                        <h2 class="mb-1 fw-bold">Nouvelle Ordonnance</h2>
-                        <p class="mb-0 opacity-90 font-monospace small">Rédigez les prescriptions pour le dossier #@Model.DossierMedicalId</p>
-                    </div>
-                </div>
 
-                <div class="p-5">
-                    <form asp-action="Create">
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4 shadow-sm border-0"></div>
-                        <input type="hidden" asp-for="DossierMedicalId" />
+                    <div class="p-5">
+                        <form asp-action="Create">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4"></div>
+                            <input type="hidden" asp-for="DossierMedicalId" />
 
-                        <div class="row g-4">
-                            <!-- Date de prescription -->
-                            <div class="col-12">
-                                <label asp-for="DatePrescription" class="form-label-modern">
-                                    <i class="far fa-calendar-alt me-2 text-primary opacity-75"></i>Date
-                                </label>
-                                <input asp-for="DatePrescription" class="form-control-modern" type="datetime-local" />
-                                <span asp-validation-for="DatePrescription" class="text-danger small mt-1 d-block"></span>
-                            </div>
-
-                            <!-- Zone de texte Médicaments -->
-                            <div class="col-12">
-                                <label asp-for="Medicaments" class="form-label-modern">
-                                    <i class="fas fa-pills me-2 text-primary opacity-75"></i>Liste des Médicaments & Posologie
-                                </label>
-                                <textarea asp-for="Medicaments" class="form-control-modern" rows="12"
-                                          placeholder="Exemple :&#10;&#10;1. Doliprane 1000mg&#10;   - 1 comprimé 3 fois par jour si douleurs&#10;   - Pendant 5 jours&#10;&#10;2. Amoxicilline 1g&#10;   - 1 comprimé matin et soir&#10;   - Pendant 6 jours"></textarea>
-                                <span asp-validation-for="Medicaments" class="text-danger small mt-1 d-block"></span>
-                                <div class="mt-2 p-3 bg-light rounded-3 border border-light">
-                                    <small class="text-muted d-flex align-items-center gap-2">
-                                        <i class="fas fa-info-circle text-primary"></i>
-                                        Conseil : Utilisez un saut de ligne entre chaque médicament pour une meilleure lisibilité lors de l'impression PDF.
-                                    </small>
+                            <div class="row g-4">
+                                
+                                <!-- Date -->
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <input asp-for="DatePrescription" class="form-control" type="datetime-local" placeholder="Date" />
+                                        <label asp-for="DatePrescription">Date de la prescription</label>
+                                    </div>
+                                    <span asp-validation-for="DatePrescription" class="text-danger small ms-1"></span>
                                 </div>
-                            </div>
-                        </div>
 
-                        <!-- Boutons d'action -->
-                        <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
-                            <a asp-controller="DossierMedicals" asp-action="Details" asp-route-id="@Model.DossierMedicalId" class="btn-action btn-cancel">
-                                <i class="fas fa-arrow-left"></i> Annuler
-                            </a>
-                            <button type="submit" class="btn-action btn-save">
-                                <i class="fas fa-save"></i> Enregistrer l'Ordonnance
-                            </button>
-                        </div>
-                    </form>
+                                <!-- Médicaments -->
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <textarea asp-for="Medicaments" class="form-control" style="height: 300px" placeholder="Détails"></textarea>
+                                        <label asp-for="Medicaments">Liste des médicaments & Posologie</label>
+                                    </div>
+                                    <span asp-validation-for="Medicaments" class="text-danger small ms-1"></span>
+                                    
+                                    <!-- Tip Box -->
+                                    <div class="info-box mt-3">
+                                        <i class="fas fa-lightbulb mt-1"></i>
+                                        <div>
+                                            <strong>Conseil de formatage :</strong><br/>
+                                            Pour une meilleure lisibilité lors de l'impression PDF, sautez une ligne entre chaque médicament.
+                                            <div class="mt-1 font-monospace small opacity-75">
+                                                - Doliprane 1000mg (1 matin, 1 soir)<br/>
+                                                <br/>
+                                                - Spasfon (En cas de douleur)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                                <a href="@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = Model.DossierMedicalId })" 
+                                   class="btn-cancel">
+                                    <i class="fas fa-arrow-left"></i> Annuler
+                                </a>
+                                
+                                <button type="submit" class="btn-save">
+                                    <i class="fas fa-save"></i> Enregistrer l'Ordonnance
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -161,7 +229,5 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
