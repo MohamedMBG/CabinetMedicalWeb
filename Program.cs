@@ -1,5 +1,7 @@
+using CabinetMedicalWeb.Areas.Admin.Controllers;
 using CabinetMedicalWeb.Data;
-using CabinetMedicalWeb.Models; // <--- AJOUTER CE NAMESPACE pour ApplicationUser
+using CabinetMedicalWeb.Models;
+using CabinetMedicalWeb.Services; // <--- Namespace de nos nouveaux fichiers
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,12 +22,9 @@ namespace CabinetMedicalWeb
 
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            // --- CHANGEMENT 1 : UTILISER ApplicationUser ET ACTIVER LES ROLES ---
-            // On remplace <IdentityUser> par <ApplicationUser>
-            // On ajoute .AddRoles<IdentityRole>() sinon on ne pourra pas cr�er le r�le "Medecin"
             builder.Services.AddDefaultIdentity<ApplicationUser>(options => 
             {
-                options.SignIn.RequireConfirmedAccount = false; // Disable email confirmation for easier development
+                options.SignIn.RequireConfirmedAccount = false; 
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
                 options.Password.RequireUppercase = true;
@@ -34,6 +33,13 @@ namespace CabinetMedicalWeb
             })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            
+            // --- CONFIGURATION EMAIL CORRIGÉE ---
+            // On lie la section "Smtp" du fichier appsettings.json à la classe SmtpSettings
+            builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp")); 
+            
+            // On injecte le service. Maintenant ça marche car SmtpEmailService hérite bien de IEmailService
+            builder.Services.AddTransient<IEmailService, SmtpEmailService>();
 
             builder.Services.AddControllersWithViews();
 
@@ -54,13 +60,10 @@ namespace CabinetMedicalWeb
             app.UseRouting();
 
             app.UseAuthentication();
-
             app.UseAuthorization();
 
             app.MapStaticAssets();
 
-            // --- CHANGEMENT 2 : ACTIVER LES "AREAS" (SEPARATION FRONTDESK / MEDICAL) ---
-            // Ceci est obligatoire pour que ASP.NET trouve vos dossiers "Areas"
             app.MapControllerRoute(
                 name: "areas",
                 pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}")
@@ -74,8 +77,6 @@ namespace CabinetMedicalWeb
             app.MapRazorPages()
                .WithStaticAssets();
 
-            // --- CHANGEMENT 3 : LE SEEDER AUTOMATIQUE ---
-            // C'est ce bloc qui va remplir la base au d�marrage
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
@@ -84,9 +85,9 @@ namespace CabinetMedicalWeb
                     var context = services.GetRequiredService<ApplicationDbContext>();
                     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
                     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-
-                    // On lance l'initialisation (ATTENTION : DbInitializer doit exister dans Data/)
-                    DbInitializer.Initialize(context, userManager, roleManager).Wait();
+                    
+                    // Assurez-vous que DbInitializer est bien accessible ici
+                    // DbInitializer.Initialize(context, userManager, roleManager).Wait(); 
                 }
                 catch (Exception ex)
                 {
