@@ -1,167 +1,206 @@
 ﻿@model CabinetMedicalWeb.Models.Patient
 
 @{
-    ViewData["Title"] = "Edit Patient Information";
-    var colorPrimary = "#91B3D9";
-    var colorSecondary = "#7AA3D1";
-    var bgPage = "#E9EFF7";
-    var textDark = "#343A40";
+    ViewData["Title"] = "Modifier le Patient";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    
+    // Modern Theme Colors (Indigo/Slate)
+    var colorPrimary = "#4F46E5";
+    var colorBg = "#F3F4F6";
 }
 
 <style>
-    body {
-        background-color: @bgPage;
-        font-family: 'Inter', system-ui, sans-serif;
+    /* Scoped styles for Edit View */
+    .edit-container {
+        background-color: @colorBg;
+        min-height: 100vh;
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
-    .edit-card {
-        background-color: white;
-        border-radius: 20px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 24px;
+        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.5);
         overflow: hidden;
     }
 
-    .edit-header {
-        background: linear-gradient(135deg, @(colorPrimary), @(colorSecondary));
+    .form-header {
+        background: linear-gradient(135deg, @colorPrimary 0%, #818CF8 100%);
+        padding: 3rem;
         color: white;
-        padding: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
+        position: relative;
     }
     
-    .edit-header-icon {
-        font-size: 1.5rem;
+    .form-section-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-weight: 700;
+        color: #6B7280;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #E5E7EB;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
-    .edit-body {
-        padding: 2.5rem;
-    }
-
-    .form-control, .form-select {
+    .form-floating > .form-control {
         border-radius: 12px;
-        padding: 0.75rem 1rem;
-        border: 1px solid #DEE2E6;
-        transition: all 0.2s ease;
+        border: 1px solid #E5E7EB;
+        background-color: #F9FAFB;
     }
 
-    .form-control:focus, .form-select:focus {
+    .form-floating > .form-control:focus {
         border-color: @colorPrimary;
-        box-shadow: 0 0 0 3px rgba(145, 179, 217, 0.25);
+        background-color: #fff;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
     }
-
-    .form-label {
-        font-weight: 600;
-        color: @textDark;
-        margin-bottom: 0.5rem;
+    
+    .form-floating > label {
+        color: #6B7280;
     }
     
     .btn-save {
-        background: linear-gradient(135deg, @(colorPrimary), @(colorSecondary));
+        background-color: @colorPrimary;
         color: white;
-        border: none;
-        padding: 0.85rem 2rem;
         border-radius: 12px;
+        padding: 1rem 2rem;
         font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px rgba(145, 179, 217, 0.3);
+        border: none;
+        transition: all 0.2s;
+        box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
     }
-
+    
     .btn-save:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(145, 179, 217, 0.4);
+        background-color: #4338CA;
         color: white;
+        box-shadow: 0 8px 12px rgba(79, 70, 229, 0.25);
     }
 
     .btn-cancel {
-        border-radius: 12px;
-        padding: 0.85rem 2rem;
+        color: #4B5563;
         font-weight: 600;
-        border: 1px solid #DEE2E6;
+        text-decoration: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        border: 1px solid transparent;
+        transition: all 0.2s;
+    }
+    
+    .btn-cancel:hover {
+        background-color: #F3F4F6;
+        color: #111827;
     }
 </style>
 
-<div class="container py-5" style="max-width: 900px;">
-    <div class="edit-card">
-        <div class="edit-header">
-            <i class="fas fa-edit edit-header-icon"></i>
-            <div>
-                <h3 class="mb-0 fw-bold">Edit Patient Information</h3>
-                <p class="mb-0 opacity-75">Update the details for @Model.Nom @Model.Prenom</p>
-            </div>
-        </div>
-        <div class="edit-body">
-            <form asp-action="Edit" asp-route-id="@Model.Id">
-                @Html.AntiForgeryToken()
-                <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
-                <input type="hidden" asp-for="Id" />
-
-                <div class="row g-4">
-                    <!-- Personal Information -->
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label asp-for="Nom" class="form-label"></label>
-                            <input asp-for="Nom" class="form-control" />
-                            <span asp-validation-for="Nom" class="text-danger small"></span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label asp-for="Prenom" class="form-label"></label>
-                            <input asp-for="Prenom" class="form-control" />
-                            <span asp-validation-for="Prenom" class="text-danger small"></span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label asp-for="DateNaissance" class="form-label">Date of Birth</label>
-                            <input asp-for="DateNaissance" type="date" class="form-control" />
-                            <span asp-validation-for="DateNaissance" class="text-danger small"></span>
-                        </div>
-                    </div>
+<div class="edit-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <form asp-action="Edit" asp-route-id="@Model.Id">
+                    <input type="hidden" asp-for="Id" />
                     
-                    <!-- Contact Information -->
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label asp-for="Telephone" class="form-label"></label>
-                            <input asp-for="Telephone" class="form-control" />
-                            <span asp-validation-for="Telephone" class="text-danger small"></span>
+                    <div class="glass-card">
+                        <!-- Header -->
+                        <div class="form-header">
+                            <div class="d-flex align-items-center gap-4">
+                                <div class="bg-white bg-opacity-20 p-3 rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 64px; height: 64px; backdrop-filter: blur(5px);">
+                                    <i class="fas fa-user-edit fa-2x text-white"></i>
+                                </div>
+                                <div>
+                                    <h2 class="fw-bold mb-1">Mise à jour Patient</h2>
+                                    <p class="mb-0 opacity-90 font-monospace small">Modification du dossier de @Model.Nom @Model.Prenom</p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label asp-for="Email" class="form-label"></label>
-                            <input asp-for="Email" class="form-control" />
-                            <span asp-validation-for="Email" class="text-danger small"></span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label asp-for="Adresse" class="form-label"></label>
-                            <input asp-for="Adresse" class="form-control" />
-                            <span asp-validation-for="Adresse" class="text-danger small"></span>
-                        </div>
-                    </div>
 
-                    <!-- Medical History -->
-                    <div class="col-12">
-                        <div class="mb-3">
-                            <label asp-for="AntecedentsMedicaux" class="form-label">Medical History</label>
-                            <textarea asp-for="AntecedentsMedicaux" class="form-control" rows="4" placeholder="e.g., Allergies, chronic conditions, past surgeries..."></textarea>
-                            <span asp-validation-for="AntecedentsMedicaux" class="text-danger small"></span>
+                        <div class="p-5">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4"></div>
+
+                            <!-- Section 1: Identité -->
+                            <div class="mb-5">
+                                <h6 class="form-section-title"><i class="fas fa-id-card text-primary"></i> État Civil</h6>
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input asp-for="Nom" class="form-control" placeholder="Nom" />
+                                            <label asp-for="Nom">Nom</label>
+                                        </div>
+                                        <span asp-validation-for="Nom" class="text-danger small ms-1"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input asp-for="Prenom" class="form-control" placeholder="Prénom" />
+                                            <label asp-for="Prenom">Prénom</label>
+                                        </div>
+                                        <span asp-validation-for="Prenom" class="text-danger small ms-1"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input asp-for="DateNaissance" type="date" class="form-control" placeholder="Date de naissance" />
+                                            <label asp-for="DateNaissance">Date de naissance</label>
+                                        </div>
+                                        <span asp-validation-for="DateNaissance" class="text-danger small ms-1"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section 2: Contact -->
+                            <div class="mb-5">
+                                <h6 class="form-section-title"><i class="fas fa-address-book text-primary"></i> Coordonnées</h6>
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input asp-for="Telephone" class="form-control" placeholder="Téléphone" />
+                                            <label asp-for="Telephone">Téléphone</label>
+                                        </div>
+                                        <span asp-validation-for="Telephone" class="text-danger small ms-1"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input asp-for="Email" class="form-control" placeholder="Email" />
+                                            <label asp-for="Email">Email</label>
+                                        </div>
+                                        <span asp-validation-for="Email" class="text-danger small ms-1"></span>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <input asp-for="Adresse" class="form-control" placeholder="Adresse complète" />
+                                            <label asp-for="Adresse">Adresse complète</label>
+                                        </div>
+                                        <span asp-validation-for="Adresse" class="text-danger small ms-1"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section 3: Médical -->
+                            <div class="mb-4">
+                                <h6 class="form-section-title"><i class="fas fa-file-medical text-primary"></i> Informations Médicales</h6>
+                                <div class="form-floating">
+                                    <textarea asp-for="AntecedentsMedicaux" class="form-control" style="height: 120px" placeholder="Antécédents"></textarea>
+                                    <label asp-for="AntecedentsMedicaux">Antécédents, Allergies & Notes importantes</label>
+                                </div>
+                                <span asp-validation-for="AntecedentsMedicaux" class="text-danger small ms-1"></span>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="d-flex justify-content-between align-items-center pt-4 mt-4 border-top">
+                                <a asp-action="Details" asp-route-id="@ViewBag.DossierId" class="btn-cancel">
+                                    <i class="fas fa-arrow-left me-2"></i>Annuler
+                                </a>
+                                <button type="submit" class="btn-save">
+                                    <i class="fas fa-check-circle me-2"></i>Enregistrer
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="d-flex gap-3 mt-5 pt-4 border-top">
-                    <button type="submit" class="btn-save flex-grow-1">
-                        <i class="fas fa-save me-2"></i>Save Changes
-                    </button>
-                    <a asp-action="Details" asp-route-id="@ViewBag.DossierId" class="btn btn-light btn-cancel">
-                        <i class="fas fa-times me-2"></i>Cancel
-                    </a>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 </div>

@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="Areas\Admin\Views\Conges\" />
+    <Folder Include="Areas\Admin\Views\Horaires\" />
     <Folder Include="Areas\FrontDesk\Data\" />
     <Folder Include="Areas\Medical\Data\" />
   </ItemGroup>

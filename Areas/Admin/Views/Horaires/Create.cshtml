@@ -1,0 +1,63 @@
+﻿@model CabinetMedicalWeb.Models.Horaire
+
+@{
+    ViewData["Title"] = "Définir un Horaire";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var primaryColor = "#6366F1";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                
+                <div class="card-header text-white p-4" style="background: linear-gradient(135deg, @primaryColor 0%, #818CF8 100%);">
+                    <h3 class="mb-0 fw-bold"><i class="fas fa-user-clock me-2"></i>Nouveau Planning</h3>
+                    <p class="mb-0 opacity-75 small">Configurer les disponibilités hebdomadaires.</p>
+                </div>
+                
+                <div class="card-body p-5 bg-white">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <!-- Sélection Employé -->
+                        <div class="mb-4">
+                            <label asp-for="DoctorId" class="form-label fw-bold small text-uppercase text-muted">Personnel concerné</label>
+                            <select asp-for="DoctorId" class="form-select form-select-lg bg-light border-0" asp-items="ViewBag.DoctorId">
+                                <option value="">-- Sélectionner --</option>
+                            </select>
+                            <span asp-validation-for="DoctorId" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Jours -->
+                        <div class="mb-3">
+                            <label asp-for="JoursTravail" class="form-label fw-bold small text-uppercase text-muted">Jours travaillés</label>
+                            <input asp-for="JoursTravail" class="form-control form-control-lg bg-light border-0" placeholder="Ex: Lundi, Mardi, Jeudi" />
+                            <div class="form-text">Séparez les jours par des virgules.</div>
+                            <span asp-validation-for="JoursTravail" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Heures -->
+                        <div class="mb-4">
+                            <label asp-for="HeuresTravail" class="form-label fw-bold small text-uppercase text-muted">Plage Horaire</label>
+                            <input asp-for="HeuresTravail" class="form-control form-control-lg bg-light border-0" placeholder="Ex: 09:00 - 17:00" />
+                            <span asp-validation-for="HeuresTravail" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-grid gap-2 mt-5">
+                            <button type="submit" class="btn btn-lg text-white fw-bold shadow-sm" style="background-color: @primaryColor; border-radius: 12px;">
+                                <i class="fas fa-save me-2"></i>Enregistrer le Planning
+                            </button>
+                            <a asp-action="Index" class="btn btn-link text-muted text-decoration-none text-center">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
