@@ -1,0 +1,727 @@
+﻿@using CabinetMedicalWeb.Areas.Medical.Models
+
+@{
+    ViewData["Title"] = "Create Medical Record";
+
+    var availablePatients = ViewBag.AvailablePatients as List<PatientListItem> ?? new List<PatientListItem>();
+    var searchTerm = ViewBag.SearchTerm as string ?? string.Empty;
+    var patientCount = ViewBag.PatientCount as int? ?? 0;
+
+    var primaryColor = "#7AA3D1";
+    var primaryLight = "#A7CBED";
+    var successColor = "#989DA5";
+    var textDark = "#666B72";
+    var textMuted = "#7B8592";
+    var bgPage = "#E9EFF7";
+}
+
+<style>
+    body { background-color: @bgPage; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+    /* Layout */
+    .page-shell {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+    @@media (min-width: 768px) {
+        .page-shell { padding: 0 1.5rem; }
+    }
+
+    /* Header */
+    .page-header {
+        margin-bottom: 2.5rem;
+    }
+    
+    .page-title {
+        color: @textDark;
+        font-weight: 800;
+        line-height: 1.1;
+        font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+        letter-spacing: -0.02em;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+        color: @textMuted;
+        font-size: 1.05rem;
+        max-width: 720px;
+        margin: 0 auto;
+        line-height: 1.5;
+    }
+
+    /* Search */
+    .search-container {
+        background: white;
+        border-radius: 16px;
+        padding: .75rem 1rem;
+        border: 1px solid #E5E7EB;
+        box-shadow: 0 2px 8px rgba(0,0,0,.03);
+        transition: box-shadow .2s, border-color .2s;
+        margin-bottom: 2rem;
+    }
+    
+    .search-container:focus-within {
+        border-color: @primaryColor;
+        box-shadow: 0 8px 20px rgba(79, 70, 229, .1);
+    }
+
+    .search-form {
+        display: flex;
+        gap: .75rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .search-input-wrap {
+        flex: 1 1 300px;
+        min-width: 200px;
+        position: relative;
+    }
+    
+    .search-actions {
+        display: flex;
+        gap: .5rem;
+        flex: 0 0 auto;
+        align-items: center;
+    }
+
+    .search-input {
+        border: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        padding-left: 2.75rem !important;
+        padding: .75rem 0 .75rem 2.75rem !important;
+        font-size: 0.95rem;
+        width: 100%;
+        height: auto;
+        line-height: 1.5;
+    }
+
+    /* Patient Cards - Optimized */
+    .patient-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #F3F4F6;
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        outline: none;
+        user-select: none;
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        min-height: 0;
+    }
+
+    .patient-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(0,0,0,.05);
+        border-color: #E5E7EB;
+    }
+
+    .patient-card:focus-visible {
+        border-color: @primaryColor;
+        box-shadow: 0 0 0 3px @primaryLight;
+    }
+
+    .patient-card.selected {
+        border-color: @primaryColor;
+        box-shadow: 0 0 0 3px @primaryLight;
+        background-color: rgba(79, 70, 229, 0.02);
+    }
+
+    .patient-card.selected::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; bottom: 0;
+        width: 4px;
+        background: @primaryColor;
+    }
+
+    /* Card Content */
+    .card-content {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.25rem;
+        flex: 1;
+        min-height: 0;
+    }
+
+    /* Avatar */
+    .avatar-circle {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #6366F1, #818CF8);
+        color: white;
+        font-size: 1.125rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 6px 12px rgba(99,102,241,.15);
+    }
+
+    @@media (max-width: 576px) {
+        .avatar-circle { width: 48px; height: 48px; border-radius: 12px; font-size: 1rem; }
+    }
+
+    /* Patient Info */
+    .patient-info {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .patient-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .patient-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: @textDark;
+        line-height: 1.3;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+    }
+
+    .patient-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    /* Badges */
+    .info-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.375rem;
+    }
+
+    .info-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.375rem 0.625rem;
+        background: #F9FAFB;
+        border-radius: 10px;
+        font-size: 0.8125rem;
+        color: @textMuted;
+        font-weight: 600;
+        line-height: 1.2;
+        border: 1px solid #F3F4F6;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 180px;
+    }
+
+    .info-badge i {
+        margin-right: 0.375rem;
+        font-size: 0.75rem;
+        color: #9CA3AF;
+        flex-shrink: 0;
+    }
+
+    /* Email */
+    .patient-email {
+        font-size: 0.875rem;
+        color: @textMuted;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding-top: 0.25rem;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .patient-email i {
+        font-size: 0.8125rem;
+        color: #9CA3AF;
+        flex-shrink: 0;
+    }
+
+    /* Selection Check */
+    .selection-check {
+        width: 24px;
+        height: 24px;
+        border-radius: 999px;
+        background: #F3F4F6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all .2s;
+        flex-shrink: 0;
+        border: 2px solid transparent;
+    }
+
+    .selection-check i {
+        color: white;
+        font-size: 11px;
+        opacity: 0;
+        transform: scale(.9);
+        transition: all .2s;
+    }
+
+    .patient-card.selected .selection-check {
+        background: @successColor;
+        border-color: @successColor;
+    }
+
+    .patient-card.selected .selection-check i {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    /* Action Bar */
+    .action-bar {
+        position: fixed;
+        left: 50%;
+        bottom: 20px;
+        transform: translateX(-50%) translateY(100%);
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 16px;
+        width: min(600px, calc(100vw - 32px));
+        box-shadow: 0 -4px 32px rgba(0,0,0,.1), 0 16px 48px rgba(0,0,0,.12);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.25rem;
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        border: 1px solid #E5E7EB;
+    }
+
+    .action-bar.visible { transform: translateX(-50%) translateY(0); }
+
+    .action-info {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .action-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        background: @successColor;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .action-icon i {
+        color: white;
+        font-size: 0.875rem;
+    }
+
+    .action-text {
+        min-width: 0;
+    }
+
+    .action-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: @textDark;
+        line-height: 1.2;
+        margin-bottom: 0.125rem;
+    }
+
+    .action-subtitle {
+        font-size: 0.8125rem;
+        color: @textMuted;
+        line-height: 1.2;
+    }
+
+    .btn-create {
+        background: @primaryColor;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 700;
+        font-size: 0.9375rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+    .btn-create:hover {
+        background-color: #4338CA;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 12px rgba(79, 70, 229, 0.2);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #F3F4F6;
+    }
+
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #F3F4F6, #E5E7EB);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+
+    .empty-state-icon i {
+        font-size: 2rem;
+        color: #9CA3AF;
+    }
+
+    /* Responsive Grid */
+    .patients-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
+        margin-bottom: 4rem;
+    }
+
+    @@media (max-width: 768px) {
+        .patients-grid {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 0.875rem;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .patients-grid {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+        
+        .action-bar {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 1rem;
+            gap: 1rem;
+            border-radius: 12px;
+        }
+        
+        .btn-create {
+            width: 100%;
+        }
+    }
+
+    /* Accessibility */
+    @@media (prefers-reduced-motion: reduce) {
+        .patient-card, .action-bar, .btn-create, .selection-check {
+            transition: none !important;
+        }
+        
+        .patient-card:hover {
+            transform: none !important;
+        }
+    }
+    
+</style>
+
+<div class="container-fluid py-4 page-shell">
+
+    <!-- Header -->
+    <div class="page-header text-center">
+        <h1 class="page-title">New Medical Record</h1>
+        <p class="page-subtitle">Select a patient from the list below to initialize their folder</p>
+    </div>
+
+    <!-- Alert -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger rounded-3 mb-4 d-flex align-items-center justify-content-center"
+             style="max-width: 600px; margin: 0 auto; border: 0; background: #FEF2F2; color: #DC2626;">
+            <i class="fas fa-exclamation-circle me-2 fs-5"></i>
+            <div class="fw-medium">@TempData["ErrorMessage"]</div>
+        </div>
+    }
+
+    <!-- Search -->
+    <div class="search-container">
+        <form method="get" asp-area="Medical" asp-controller="DossierMedicals" asp-action="Create" class="search-form">
+            <div class="search-input-wrap">
+                <i class="fas fa-search position-absolute"
+                   style="left: 15px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
+                <input type="text" 
+                       name="searchTerm" 
+                       value="@searchTerm"
+                       class="form-control search-input"
+                       placeholder="Search by name, email, or phone number..." 
+                       aria-label="Search patients" />
+            </div>
+
+            <div class="search-actions">
+                @if(!string.IsNullOrEmpty(searchTerm))
+                {
+                    <a href="@Url.Action("Create", "DossierMedicals", new { area = "Medical" })"
+                       class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
+                       style="width: 40px; height: 40px;" 
+                       title="Clear Search"
+                       aria-label="Clear search">
+                        <i class="fas fa-times"></i>
+                    </a>
+                }
+
+                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold">
+                    <i class="fas fa-search me-2"></i>Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Patient List Form -->
+    <form method="post" asp-area="Medical" asp-controller="DossierMedicals" asp-action="Create" id="createForm">
+        @Html.AntiForgeryToken()
+
+        @if (availablePatients.Count == 0)
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-user-slash"></i>
+                </div>
+                <h4 class="text-dark fw-bold mb-2">No patients found</h4>
+                <p class="text-muted mb-4">
+                    @(string.IsNullOrEmpty(searchTerm)
+                        ? "All registered patients already have active medical records."
+                        : "No patients match your search criteria.")
+                </p>
+                @if(!string.IsNullOrEmpty(searchTerm))
+                {
+                    <a href="@Url.Action("Create", "DossierMedicals", new { area = "Medical" })"
+                       class="btn btn-outline-primary rounded-pill">
+                        <i class="fas fa-times me-2"></i>Clear search
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="d-flex justify-content-between align-items-center mb-3 px-1">
+                <h5 class="fw-bold m-0 text-dark d-flex align-items-center gap-2">
+                    <i class="fas fa-users text-primary"></i>
+                    Available Patients
+                    <span class="badge bg-light text-dark rounded-pill px-3 py-1 border">@patientCount</span>
+                </h5>
+            </div>
+
+            <!-- Responsive Grid -->
+            <div class="patients-grid" id="patientListContainer">
+                @foreach (var patient in availablePatients)
+                {
+                    <div class="patient-card"
+                         id="card_@patient.Id"
+                         tabindex="0"
+                         role="button"
+                         aria-pressed="false"
+                         data-patient-id="@patient.Id">
+
+                        <div class="card-content">
+                            <!-- Avatar -->
+                            <div class="avatar-circle">
+                                @{
+                                    var parts = patient.FullName?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+                                    var initials = (parts.Length > 0 ? parts[0][0].ToString() : "") +
+                                                   (parts.Length > 1 ? parts[1][0].ToString() : "");
+                                }
+                                @initials
+                            </div>
+
+                            <!-- Patient Info -->
+                            <div class="patient-info">
+                                <div class="patient-header">
+                                    <h6 class="patient-name">@patient.FullName</h6>
+                                    <div class="selection-check" aria-hidden="true">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                </div>
+
+                                <div class="patient-meta">
+                                    <!-- Phone Badge -->
+                                    @if(!string.IsNullOrEmpty(patient.Telephone))
+                                    {
+                                        <div class="info-badge" title="Phone: @patient.Telephone">
+                                            <i class="fas fa-phone-alt"></i>
+                                            <span>@patient.Telephone</span>
+                                        </div>
+                                    }
+
+                                    <!-- Date of Birth Badge -->
+                                    @if(!string.IsNullOrEmpty(patient.DateNaissance))
+                                    {
+                                        <div class="info-badge" title="Date of Birth: @patient.DateNaissance">
+                                            <i class="fas fa-birthday-cake"></i>
+                                            <span>@patient.DateNaissance</span>
+                                        </div>
+                                    }
+
+                                    <!-- Email -->
+                                    @if(!string.IsNullOrEmpty(patient.Email))
+                                    {
+                                        <div class="patient-email" title="Email: @patient.Email">
+                                            <i class="far fa-envelope"></i>
+                                            <span>@patient.Email</span>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Hidden Input -->
+                            <input type="radio" 
+                                   name="patientId" 
+                                   value="@patient.Id" 
+                                   class="d-none patient-radio"
+                                   id="radio_@patient.Id">
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- Floating Action Bar -->
+        <div class="action-bar" id="actionBar" aria-live="polite" aria-atomic="true">
+            <div class="action-info">
+                <div class="action-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="action-text">
+                    <div class="action-title" id="selectedPatientName">Patient Selected</div>
+                    <div class="action-subtitle" id="selectedPatientDetails">Ready to proceed</div>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn btn-create" disabled>
+                <i class="fas fa-file-medical me-2"></i>Create Record
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const cards = document.querySelectorAll('.patient-card');
+    const actionBar = document.getElementById('actionBar');
+    const submitBtn = document.getElementById('submitBtn');
+    const selectedPatientName = document.getElementById('selectedPatientName');
+    const selectedPatientDetails = document.getElementById('selectedPatientDetails');
+
+    let selectedPatient = null;
+
+    function clearSelection() {
+        cards.forEach(c => {
+            c.classList.remove('selected');
+            c.setAttribute('aria-pressed', 'false');
+            const radio = c.querySelector('input[type="radio"]');
+            if (radio) radio.checked = false;
+        });
+        
+        if (actionBar) actionBar.classList.remove('visible');
+        if (submitBtn) submitBtn.disabled = true;
+        selectedPatient = null;
+        
+        // Reset action bar text
+        if (selectedPatientName) selectedPatientName.textContent = 'Patient Selected';
+        if (selectedPatientDetails) selectedPatientDetails.textContent = 'Ready to proceed';
+    }
+
+    function selectPatient(card) {
+        const patientId = card.dataset.patientId;
+        
+        // If clicking already selected card, deselect it
+        if (card.classList.contains('selected')) {
+            clearSelection();
+            return;
+        }
+
+        // Clear previous selection
+        cards.forEach(c => {
+            c.classList.remove('selected');
+            c.setAttribute('aria-pressed', 'false');
+        });
+
+        // Select new card
+        card.classList.add('selected');
+        card.setAttribute('aria-pressed', 'true');
+        
+        const radio = card.querySelector('input[type="radio"]');
+        if (radio) radio.checked = true;
+
+        // Update selected patient info
+        const patientName = card.querySelector('.patient-name')?.textContent || 'Patient';
+        const patientPhone = card.querySelector('.info-badge span')?.textContent || '';
+        const patientEmail = card.querySelector('.patient-email span')?.textContent || '';
+        
+        selectedPatient = {
+            name: patientName,
+            phone: patientPhone,
+            email: patientEmail
+        };
+
+        // Update action bar
+        if (actionBar) actionBar.classList.add('visible');
+        if (submitBtn) submitBtn.disabled = false;
+        
+        if (selectedPatientName) selectedPatientName.textContent = selectedPatient.name;
+        if (selectedPatientDetails) {
+            selectedPatientDetails.textContent = selectedPatient.phone || selectedPatient.email || 'Ready to create medical record';
+        }
+    }
+
+    // Card click handlers
+    cards.forEach(card => {
+        card.addEventListener('click', () => selectPatient(card));
+        
+        card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                selectPatient(card);
+            }
+            if (e.key === 'Escape') {
+                clearSelection();
+            }
+        });
+    });
+
+    // Global ESC handler
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') clearSelection();
+    });
+
+    // Form submission
+    document.getElementById('createForm')?.addEventListener('submit', function(e) {
+        if (!selectedPatient) {
+            e.preventDefault();
+            alert('Please select a patient first.');
+            return;
+        }
+        
+        // Optional: Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating...';
+    });
+});
+</script>
