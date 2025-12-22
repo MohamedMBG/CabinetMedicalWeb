@@ -84,8 +84,8 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
             // Load medical record with all related entities
             var dossier = await _context.Dossiers
                 .Include(d => d.Patient)
-                .Include(d => d.Consultations)
-                .Include(d => d.Prescriptions)
+                .Include(d => d.Consultations).ThenInclude(c => c.Doctor)
+                .Include(d => d.Prescriptions).ThenInclude(p => p.Doctor)
                 .Include(d => d.ResultatExamens)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
