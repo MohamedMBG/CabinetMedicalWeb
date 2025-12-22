@@ -21,9 +21,25 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
         }
 
         // GET: FrontDesk/Patients
-        public async Task<IActionResult> Index()
+        // Ajout du paramètre de recherche
+        public async Task<IActionResult> Index(string searchString)
         {
-            return View(await _context.Patients.ToListAsync());
+            // Récupérer tous les patients
+            var patients = from p in _context.Patients
+                          select p;
+
+            // Filtrer si une recherche est effectuée
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                patients = patients.Where(p => p.Nom.Contains(searchString) 
+                                            || p.Prenom.Contains(searchString)
+                                            || p.Telephone.Contains(searchString));
+            }
+
+            // Passer la recherche à la vue pour la conserver dans le champ
+            ViewData["CurrentFilter"] = searchString;
+
+            return View(await patients.ToListAsync());
         }
 
         // GET: FrontDesk/Patients/Details/5
@@ -51,8 +67,6 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
         }
 
         // POST: FrontDesk/Patients/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Nom,Prenom,Adresse,Telephone,Email,DateNaissance,AntecedentsMedicaux")] Patient patient)
@@ -83,8 +97,6 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
         }
 
         // POST: FrontDesk/Patients/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Nom,Prenom,Adresse,Telephone,Email,DateNaissance,AntecedentsMedicaux")] Patient patient)
