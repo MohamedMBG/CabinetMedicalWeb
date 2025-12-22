@@ -281,12 +281,12 @@
     .text-dim { color: var(--secondary); font-size: 0.9rem; }
     .truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-    @media (max-width: 992px) {
+    @@media (max-width: 992px) {
         .content-layout { grid-template-columns: 1fr; }
         .stats-row { grid-template-columns: repeat(2, 1fr); }
     }
 
-    @media (max-width: 768px) {
+    @@media (max-width: 768px) {
         .header-grid { grid-template-columns: 1fr; text-align: center; gap: 1.5rem; }
         .patient-avatar { margin: 0 auto; }
         .patient-badges, .patient-contact { justify-content: center; }
@@ -306,8 +306,7 @@
             <div class="patient-identity">
                 <h1>@Model.PatientInfo.Nom @Model.PatientInfo.Prenom</h1>
                 <div class="patient-badges">
-                    <span class="p-badge"><i class="fas fa-birthday-cake"></i> @age ans</span>
-                    <span class="p-badge"><i class="fas fa-venus-mars"></i> @Model.PatientInfo.Sexe</span>
+                    <span class="p-badge"><i class="fas fa-birthday-cake"></i> @age ans</span> 
                     <span class="p-badge"><i class="fas fa-map-marker-alt"></i> @Model.PatientInfo.Adresse</span>
                 </div>
                 <div class="patient-contact">
@@ -532,7 +531,7 @@
                                 <div class="t-body">@consult.Notes</div>
                                 <div class="t-footer">
                                     <span class="doctor-pill">Dr. @(consult.Doctor?.Nom ?? consult.DoctorId)</span>
-                                    <span class="text-muted">Heure : @consult.Date.ToString("HH\hmm")</span>
+                                    <span class="text-muted">Heure : @consult.Date.ToString("HH\\hmm")</span>
                                 </div>
                             </div>
                         </div>
