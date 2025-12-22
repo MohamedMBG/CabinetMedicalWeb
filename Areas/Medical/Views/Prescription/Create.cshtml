@@ -1,0 +1,233 @@
+﻿@model CabinetMedicalWeb.Models.Prescription
+
+@{
+    ViewData["Title"] = "Nouvelle Ordonnance";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    
+    // Modern Professional Theme (Indigo/Slate)
+    var colorPrimary = "#4F46E5";
+    var colorSecondary = "#818CF8";
+    var colorBg = "#F3F4F6";
+    var colorText = "#1F2937";
+}
+
+<style>
+    body { background-color: @colorBg; font-family: 'Inter', system-ui, sans-serif; }
+
+    .main-container {
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+        min-height: 100vh;
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 24px;
+        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+        border: 1px solid rgba(255,255,255,0.6);
+        overflow: hidden;
+        animation: slideUp 0.5s ease-out;
+    }
+
+    @@keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, @colorPrimary 0%, @colorSecondary 100%);
+        padding: 2.5rem;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        position: relative;
+    }
+
+    .form-header::after {
+        content: '';
+        position: absolute;
+        right: -20px;
+        top: -20px;
+        width: 150px;
+        height: 150px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+    }
+
+    .header-icon {
+        width: 64px;
+        height: 64px;
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(5px);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Floating Labels Styling */
+    .form-floating > .form-control {
+        border-radius: 12px;
+        border: 1px solid #E5E7EB;
+        background-color: #F9FAFB;
+        padding-top: 1.625rem;
+        padding-bottom: 0.625rem;
+    }
+
+    .form-floating > .form-control:focus {
+        border-color: @colorPrimary;
+        background-color: #fff;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    .form-floating > label {
+        color: #6B7280;
+        padding-left: 1rem;
+    }
+
+    .form-floating > .form-control:focus ~ label,
+    .form-floating > .form-control:not(:placeholder-shown) ~ label {
+        color: @colorPrimary;
+        font-weight: 600;
+        transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+    }
+
+    /* Buttons */
+    .btn-save {
+        background-color: @colorPrimary;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        border: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+    }
+
+    .btn-save:hover {
+        background-color: #4338CA;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 12px rgba(79, 70, 229, 0.25);
+        color: white;
+    }
+
+    .btn-cancel {
+        background: white;
+        color: #4B5563;
+        border: 1px solid #E5E7EB;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-cancel:hover {
+        background-color: #F3F4F6;
+        color: #111827;
+    }
+
+    .info-box {
+        background-color: #EFF6FF;
+        border: 1px solid #DBEAFE;
+        border-radius: 12px;
+        padding: 1rem;
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        color: #1E40AF;
+        font-size: 0.9rem;
+    }
+</style>
+
+<div class="main-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                
+                <div class="glass-card">
+                    
+                    <!-- Header -->
+                    <div class="form-header">
+                        <div class="header-icon">
+                            <i class="fas fa-file-prescription text-white"></i>
+                        </div>
+                        <div>
+                            <h2 class="fw-bold mb-1" style="font-size: 1.75rem;">Nouvelle Ordonnance</h2>
+                            <p class="mb-0 opacity-90 font-monospace small">Dossier #@Model.DossierMedicalId</p>
+                        </div>
+                    </div>
+
+                    <div class="p-5">
+                        <form asp-action="Create">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4"></div>
+                            <input type="hidden" asp-for="DossierMedicalId" />
+
+                            <div class="row g-4">
+                                
+                                <!-- Date -->
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <input asp-for="DatePrescription" class="form-control" type="datetime-local" placeholder="Date" />
+                                        <label asp-for="DatePrescription">Date de la prescription</label>
+                                    </div>
+                                    <span asp-validation-for="DatePrescription" class="text-danger small ms-1"></span>
+                                </div>
+
+                                <!-- Médicaments -->
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <textarea asp-for="Medicaments" class="form-control" style="height: 300px" placeholder="Détails"></textarea>
+                                        <label asp-for="Medicaments">Liste des médicaments & Posologie</label>
+                                    </div>
+                                    <span asp-validation-for="Medicaments" class="text-danger small ms-1"></span>
+                                    
+                                    <!-- Tip Box -->
+                                    <div class="info-box mt-3">
+                                        <i class="fas fa-lightbulb mt-1"></i>
+                                        <div>
+                                            <strong>Conseil de formatage :</strong><br/>
+                                            Pour une meilleure lisibilité lors de l'impression PDF, sautez une ligne entre chaque médicament.
+                                            <div class="mt-1 font-monospace small opacity-75">
+                                                - Doliprane 1000mg (1 matin, 1 soir)<br/>
+                                                <br/>
+                                                - Spasfon (En cas de douleur)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                                <a href="@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = Model.DossierMedicalId })" 
+                                   class="btn-cancel">
+                                    <i class="fas fa-arrow-left"></i> Annuler
+                                </a>
+                                
+                                <button type="submit" class="btn-save">
+                                    <i class="fas fa-save"></i> Enregistrer l'Ordonnance
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,76 @@
+@model IEnumerable<CabinetMedicalWeb.Areas.Admin.Models.UserViewModel>
+
+@{
+    ViewData["Title"] = "Gestion du Personnel";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var primaryColor = "#6366F1";
+}
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1" style="color: #1F2937;">Personnel du Cabinet</h2>
+            <p class="text-muted">Gérez les comptes d'accès à l'application.</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary fw-bold shadow-sm px-4 py-2" style="background-color: @primaryColor; border: none; border-radius: 10px;">
+            <i class="fas fa-user-plus me-2"></i>Ajouter
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="py-3 ps-4 text-uppercase small fw-bold text-muted">Utilisateur</th>
+                        <th class="py-3 text-uppercase small fw-bold text-muted">Rôle</th>
+                        <th class="py-3 text-uppercase small fw-bold text-muted">Spécialité</th>
+                        <th class="py-3 text-end pe-4 text-uppercase small fw-bold text-muted">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3 text-primary fw-bold" style="width: 40px; height: 40px;">
+                                        @(user.Nom?.Length > 0 ? user.Nom.Substring(0,1) : "U")
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">@user.Nom @user.Prenom</div>
+                                        <div class="small text-muted">@user.Email</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                @if(user.Role == "Medecin") { <span class="badge bg-indigo-soft text-indigo border border-indigo-200" style="background:#E0E7FF; color:#4338CA;">Médecin</span> }
+                                else if(user.Role == "Secretaire") { <span class="badge bg-green-soft text-green border border-green-200" style="background:#D1FAE5; color:#065F46;">Secrétaire</span> }
+                                else if(user.Role == "Admin") { <span class="badge bg-red-soft text-red border border-red-200" style="background:#FEE2E2; color:#991B1B;">Admin</span> }
+                                else { <span class="badge bg-secondary">Aucun</span> }
+                            </td>
+                            <td>
+                                @if(!string.IsNullOrEmpty(user.Specialite))
+                                {
+                                    <span class="text-dark"><i class="fas fa-stethoscope me-1 text-muted"></i> @user.Specialite</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">—</span>
+                                }
+                            </td>
+                            <td class="text-end pe-4">
+                                @if(user.Role != "Admin") 
+                                {
+                                    <form asp-action="Delete" asp-route-id="@user.Id" method="post" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce compte ?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger border-0"><i class="fas fa-trash-alt"></i></button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

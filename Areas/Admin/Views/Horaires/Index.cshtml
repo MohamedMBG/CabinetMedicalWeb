@@ -1,0 +1,83 @@
+﻿@model IEnumerable<CabinetMedicalWeb.Models.Horaire>
+
+@{
+    ViewData["Title"] = "Gestion des Horaires";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var primaryColor = "#6366F1"; // Indigo Admin
+}
+
+<div class="container py-5">
+    
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1" style="color: #1F2937;">Planning du Personnel</h2>
+            <p class="text-muted">Définissez les jours et heures de travail pour chaque employé.</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary fw-bold shadow-sm px-4 py-2" style="background-color: @primaryColor; border: none; border-radius: 10px;">
+            <i class="fas fa-clock me-2"></i>Ajouter un Horaire
+        </a>
+    </div>
+
+    <!-- Tableau -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="py-3 ps-4 text-uppercase small fw-bold text-muted">Employé</th>
+                        <th class="py-3 text-uppercase small fw-bold text-muted">Jours Travaillés</th>
+                        <th class="py-3 text-uppercase small fw-bold text-muted">Créneaux Horaires</th>
+                        <th class="py-3 text-end pe-4 text-uppercase small fw-bold text-muted">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center py-5 text-muted">
+                                <i class="far fa-calendar-times fa-3x mb-3 opacity-25"></i>
+                                <p>Aucun planning défini pour le moment.</p>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 py-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-indigo-50 d-flex align-items-center justify-content-center me-3 text-primary fw-bold" 
+                                             style="width: 40px; height: 40px; background-color: #E0E7FF; color: #4338CA;">
+                                            @(item.Doctor?.Nom?.Substring(0,1) ?? "?")
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark">@item.Doctor?.Nom @item.Doctor?.Prenom</div>
+                                            <div class="small text-muted">@(item.Doctor?.Specialite ?? "Secrétariat")</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">@item.JoursTravail</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center text-secondary">
+                                        <i class="far fa-clock me-2"></i> @item.HeuresTravail
+                                    </div>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <form asp-action="Delete" asp-route-id="@item.IdHoraire" method="post" class="d-inline" onsubmit="return confirm('Supprimer ce planning ?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger border-0 rounded-circle" title="Supprimer">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
