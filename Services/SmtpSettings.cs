@@ -8,5 +8,6 @@ namespace CabinetMedicalWeb.Services
         public string Username { get; set; }
         public string Password { get; set; }
         public string From { get; set; }
+        public bool Enabled { get; set; } = true;
     }
 }
