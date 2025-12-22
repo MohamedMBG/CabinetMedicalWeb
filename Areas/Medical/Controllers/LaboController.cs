@@ -68,13 +68,14 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
                     if (sendEmail && dossier.Patient is not null && !string.IsNullOrWhiteSpace(dossier.Patient.Email))
                     {
                         var subject = $"Nouveau résultat d'examen ({resultatExamen.TypeExamen})";
-                        var body =
-                            $"Bonjour {dossier.Patient.Prenom} {dossier.Patient.Nom},\n\n" +
-                            $"Votre résultat d'examen est disponible.\n" +
-                            $"Date de l'examen : {resultatExamen.DateExamen:dd/MM/yyyy HH:mm}.\n" +
-                            $"Type d'examen : {resultatExamen.TypeExamen}.\n\n" +
-                            "Résultats :\n" + resultatExamen.Resultat + "\n\n" +
-                            "Merci de vous connecter à votre espace patient ou de contacter le cabinet pour plus de détails.";
+                        var body = $@"<p>Bonjour {dossier.Patient.Prenom} {dossier.Patient.Nom},</p>
+<p>Votre résultat d'examen est disponible.</p>
+<ul>
+    <li><strong>Date de l'examen :</strong> {resultatExamen.DateExamen:dd/MM/yyyy HH:mm}</li>
+    <li><strong>Type d'examen :</strong> {resultatExamen.TypeExamen}</li>
+</ul>
+<p><strong>Résultats :</strong><br/>{resultatExamen.Resultat?.Replace("\n", "<br/>")}</p>
+<p>Merci de vous connecter à votre espace patient ou de contacter le cabinet pour plus de détails.</p>";
 
                         try
                         {

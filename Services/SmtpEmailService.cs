@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Mail;
+using System.Text;
 using Microsoft.Extensions.Options; // Nécessaire pour IOptions
 using System.Threading.Tasks;
 
@@ -18,17 +19,25 @@ namespace CabinetMedicalWeb.Services
 
         public async Task SendEmailAsync(string to, string subject, string body)
         {
+            var from = string.IsNullOrWhiteSpace(_settings.From)
+                ? _settings.Username
+                : _settings.From;
+
             using var client = new SmtpClient(_settings.Host, _settings.Port)
             {
                 EnableSsl = _settings.EnableSsl,
+                UseDefaultCredentials = false,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
                 Credentials = new NetworkCredential(_settings.Username, _settings.Password)
             };
 
-            using var message = new MailMessage(_settings.From, to)
+            using var message = new MailMessage(from, to)
             {
                 Subject = subject,
                 Body = body,
-                IsBodyHtml = true // Mieux pour les emails modernes (HTML)
+                IsBodyHtml = true, // Mieux pour les emails modernes (HTML)
+                BodyEncoding = Encoding.UTF8,
+                SubjectEncoding = Encoding.UTF8
             };
 
             await client.SendMailAsync(message);
