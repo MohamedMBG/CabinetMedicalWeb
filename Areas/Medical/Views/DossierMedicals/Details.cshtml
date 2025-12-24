@@ -1,4 +1,4 @@
-@model CabinetMedicalWeb.Areas.Medical.Models.DossierCompletViewModel
+﻿@model CabinetMedicalWeb.Areas.Medical.Models.DossierCompletViewModel
 
 @{
     ViewData["Title"] = $"{Model.PatientInfo.Nom} {Model.PatientInfo.Prenom} - Medical Record";
@@ -317,18 +317,20 @@
             </div>
 
             <div class="header-actions">
-                <a class="btn-action-primary" href="@Url.Action("Create", "Consultations", new { area = "Medical", patientId = Model.PatientInfo.Id })">
+                <a class="btn-action-primary" href="@Url.Action("Create", "Consultation", new { area = "Medical", dossierId = Model.DossierId })">
                     <i class="fas fa-plus"></i> Nouvelle consultation
                 </a>
-                <a class="btn-action-secondary" href="@Url.Action("Create", "Prescription", new { area = "Medical", patientId = Model.PatientInfo.Id })">
-                    <i class="fas fa-prescription"></i> Ajouter ordonnance
-                </a>
-                <a class="btn-action-secondary" href="@Url.Action("FullRecord", "DossierMedicals", new { area = "Medical", id = Model.DossierId })" target="_blank">
-                    <i class="fas fa-folder-open"></i> Voir dossier complet
-                </a>
-                <div class="btn-action-secondary" onclick="exportFullRecord()">
-                    <i class="fas fa-file-export"></i> Exporter en PDF
+                <div class="d-flex gap-2">
+                    <a class="btn-action-secondary flex-grow-1" href="@Url.Action("Create", "Prescription", new { area = "Medical", dossierId = Model.DossierId })">
+                        <i class="fas fa-prescription"></i> Ordonnance
+                    </a>
+                    <a class="btn-action-secondary flex-grow-1" href="@Url.Action("Create", "Labo", new { area = "Medical", dossierId = Model.DossierId })">
+                        <i class="fas fa-flask"></i> Labo
+                    </a>
                 </div>
+                <a class="btn-action-secondary w-100 mt-2" href="@Url.Action("FullRecord", "DossierMedicals", new { area = "Medical", id = Model.DossierId })" target="_blank">
+                    <i class="fas fa-print"></i> Dossier Complet (PDF)
+                </a>
             </div>
         </div>
     </div>
@@ -554,11 +556,11 @@
                 </div>
 
                 <div class="quick-actions-grid">
-                    <a class="btn-quick text-decoration-none" href="@Url.Action("Create", "Consultations", new { area = "Medical", patientId = Model.PatientInfo.Id })">
+                    <a class="btn-quick text-decoration-none" href="@Url.Action("Create", "Consultation", new { area = "Medical", dossierId = Model.DossierId })">
                         <i class="fas fa-stethoscope"></i>
                         <span>Nouvelle consultation</span>
                     </a>
-                    <a class="btn-quick text-decoration-none" href="@Url.Action("Create", "Prescription", new { area = "Medical", patientId = Model.PatientInfo.Id })">
+                    <a class="btn-quick text-decoration-none" href="@Url.Action("Create", "Prescription", new { area = "Medical", dossierId = Model.DossierId })">
                         <i class="fas fa-pills"></i>
                         <span>Ordonnance</span>
                     </a>
