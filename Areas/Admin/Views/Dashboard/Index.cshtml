@@ -6,227 +6,313 @@
 }
 
 <style>
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 1.25rem;
+    :root {
+        --ink: #0f172a;
+        --muted: #6b7280;
+        --surface: rgba(255, 255, 255, 0.9);
+        --border: rgba(122, 165, 255, 0.18);
+        --glow: 0 15px 50px rgba(99, 102, 241, 0.18);
     }
 
-    .stat-card {
-        background: rgba(255, 255, 255, 0.92);
-        border-radius: 16px;
-        box-shadow: 0 12px 30px rgba(108, 140, 255, 0.12);
-        padding: 1.5rem;
-        border: 1px solid rgba(122, 165, 255, 0.15);
+    .dashboard-shell {
+        background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.12), transparent 35%),
+            radial-gradient(circle at 80% 0%, rgba(14, 165, 233, 0.14), transparent 30%),
+            linear-gradient(135deg, #f8fbff, #eef2ff);
+        min-height: 100vh;
+        padding: 2.5rem 0 3rem;
+    }
+
+    .panel {
+        background: var(--surface);
+        border-radius: 22px;
+        border: 1px solid var(--border);
+        box-shadow: var(--glow);
+    }
+
+    .topline {
         display: flex;
-        flex-direction: column;
-        gap: 0.35rem;
-        transition: transform 0.2s ease;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-5px);
-    }
-
-    .stat-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        display: grid;
-        place-items: center;
-        background: linear-gradient(135deg, #8eb9ff, #7aa5ff);
-        color: #fff;
-        box-shadow: 0 10px 20px rgba(122, 165, 255, 0.25);
-        margin-bottom: 0.5rem;
-    }
-
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 800;
-        color: #1f2a44;
-        margin: 0;
-    }
-
-    .stat-label {
-        color: #6b7280;
-        margin: 0;
-        font-weight: 600;
-    }
-
-    .stat-delta {
-        color: #16a34a;
-        font-size: 0.9rem;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        font-weight: 700;
-    }
-
-    .prescriptions-card {
-        background: rgba(255, 255, 255, 0.92);
-        border-radius: 16px;
-        box-shadow: 0 12px 30px rgba(108, 140, 255, 0.12);
-        border: 1px solid rgba(122, 165, 255, 0.15);
-        padding: 1.5rem;
-        margin-top: 1.25rem;
-    }
-
-    .prescriptions-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 0.75rem;
-    }
-
-    .prescriptions-list li {
-        display: flex;
-        align-items: center;
         justify-content: space-between;
-        background: #f3f6ff;
-        border-radius: 12px;
-        padding: 0.75rem 1rem;
-        color: #1f2a44;
-        border: 1px solid rgba(122, 165, 255, 0.2);
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        align-items: center;
     }
 
-    .pill-date {
+    .topline h1 {
+        font-weight: 800;
+        color: var(--ink);
+        margin-bottom: 0.2rem;
+        letter-spacing: -0.02em;
+    }
+
+    .eyebrow {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        background: #fff;
-        padding: 0.35rem 0.75rem;
+        padding: 0.55rem 0.9rem;
         border-radius: 999px;
-        font-weight: 600;
-        color: #4b5563;
-        border: 1px solid rgba(122, 165, 255, 0.25);
+        background: rgba(99, 102, 241, 0.12);
+        color: #4338ca;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
     }
 
-    /* Styles pour les boutons d'action rapide */
     .quick-actions {
         display: flex;
         gap: 0.75rem;
-        margin-top: 1rem;
+        flex-wrap: wrap;
     }
 
     .btn-quick {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        padding: 0.6rem 1.2rem;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 0.9rem;
+        padding: 0.65rem 1.25rem;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 0.95rem;
         text-decoration: none;
-        transition: all 0.2s;
-        border: none;
+        border: 1px solid transparent;
+        transition: all 0.2s ease;
     }
 
     .btn-quick-primary {
-        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        background: linear-gradient(120deg, #6366f1, #4f46e5);
         color: white;
-        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        box-shadow: 0 12px 32px rgba(79, 70, 229, 0.25);
     }
 
-    .btn-quick-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
-        color: white;
-    }
+    .btn-quick-primary:hover { transform: translateY(-2px); color: white; }
 
     .btn-quick-secondary {
         background: white;
-        color: #4b5563;
+        color: var(--ink);
         border: 1px solid #e5e7eb;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
-    .btn-quick-secondary:hover {
-        background: #f9fafb;
-        color: #111827;
-        border-color: #d1d5db;
+    .btn-quick-secondary:hover { background: #f8fafc; }
+
+    .snapshot {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+        margin-top: 1.25rem;
     }
+
+    .snapshot-card {
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 18px;
+        padding: 1rem 1.1rem;
+        border: 1px solid var(--border);
+        box-shadow: var(--glow);
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+    }
+
+    .snapshot-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        color: white;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+        flex-shrink: 0;
+    }
+
+    .snapshot h6 { margin: 0; color: var(--muted); font-weight: 700; font-size: 0.95rem; }
+    .snapshot p { margin: 0; font-size: 1.6rem; font-weight: 800; color: var(--ink); }
+
+    .grid-balanced {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 1.25rem;
+        margin-top: 1.5rem;
+    }
+
+    @media (max-width: 992px) { .grid-balanced { grid-template-columns: 1fr; } }
+
+    .prescriptions-card {
+        padding: 1.5rem;
+    }
+
+    .chart-bars {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        gap: 0.85rem;
+        margin-top: 1rem;
+    }
+
+    .bar-item {
+        background: #f8fafc;
+        border-radius: 14px;
+        padding: 0.75rem 0.8rem;
+        border: 1px solid #e5e7eb;
+        display: grid;
+        gap: 0.35rem;
+    }
+
+    .bar-track {
+        height: 8px;
+        border-radius: 999px;
+        background: #e5e7eb;
+        overflow: hidden;
+    }
+
+    .bar-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(120deg, #6366f1, #22d3ee);
+        transition: width 0.3s ease;
+    }
+
+    .badge-soft {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.45rem 0.75rem;
+        border-radius: 999px;
+        background: rgba(99, 102, 241, 0.1);
+        color: #4338ca;
+        font-weight: 700;
+    }
+
+    .tasks-card {
+        padding: 1.4rem;
+    }
+
+    .task-item {
+        display: flex;
+        gap: 0.75rem;
+        padding: 0.75rem 0.6rem;
+        border-radius: 12px;
+        border: 1px dashed #e2e8f0;
+        background: #f8fafc;
+        align-items: center;
+    }
+
+    .task-item + .task-item { margin-top: 0.65rem; }
+    .task-icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: #eef2ff; color: #4f46e5; }
+    .task-item h6 { margin: 0; color: var(--ink); font-weight: 700; }
+    .task-item p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+    .pill-date { border: 1px solid var(--border); padding: 0.5rem 0.9rem; border-radius: 999px; font-weight: 700; color: var(--ink); background: white; }
 </style>
 
-<div class="container py-4" style="max-width: 1200px;">
-    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-5">
-        <div>
-            <p class="mb-1 text-secondary fw-semibold text-uppercase" style="letter-spacing: 0.08em;">Administration</p>
-            <h1 class="fw-bold mb-2">Tableau de bord</h1>
-            <p class="text-muted mb-3">Vue d'ensemble de l'activité de la clinique.</p>
-            
-            <!-- BOUTONS D'ACTION RAPIDE AJOUTÉS ICI -->
-            <div class="quick-actions">
-                <a asp-controller="Users" asp-action="Create" asp-area="Admin" class="btn-quick btn-quick-primary">
-                    <i class="fas fa-user-plus"></i> Nouvel Utilisateur
-                </a>
-                <a asp-controller="Users" asp-action="Index" asp-area="Admin" class="btn-quick btn-quick-secondary">
-                    <i class="fas fa-users-cog"></i> Gérer le Personnel
-                </a>
-            </div>
-        </div>
+@{
+    var maxPrescriptions = Model.PrescriptionsByDay.Any() ? Model.PrescriptionsByDay.Max(p => p.Count) : 0;
+}
 
-        <div class="bg-white rounded-4 px-4 py-3 shadow-sm border border-1 border-light" style="min-width: 260px;">
-            <p class="text-secondary mb-1 small">Prescriptions aujourd'hui</p>
-            <div class="d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #34d399, #10b981);">
-                    <i class="fas fa-file-prescription"></i>
-                </div>
+<div class="dashboard-shell">
+    <div class="container" style="max-width: 1200px;">
+        <div class="panel p-4 mb-4">
+            <div class="topline">
                 <div>
-                    <p class="stat-value mb-0">@Model.PrescriptionsToday</p>
-                    <p class="mb-0 text-muted">enregistrées</p>
+                    <span class="eyebrow"><i class="fas fa-heartbeat"></i> Espace médecin</span>
+                    <h1>Tableau de bord</h1>
+                    <p class="text-muted mb-0">Une vue claire de l'activité du cabinet en un coup d'œil.</p>
+                </div>
+                <div class="d-flex flex-column gap-2 align-items-start align-items-md-end">
+                    <div class="badge-soft"><i class="fas fa-file-prescription"></i> @Model.PrescriptionsToday prescriptions aujourd'hui</div>
+                    <div class="quick-actions">
+                        <a asp-controller="Users" asp-action="Create" asp-area="Admin" class="btn-quick btn-quick-primary">
+                            <i class="fas fa-user-plus"></i> Nouvel utilisateur
+                        </a>
+                        <a asp-controller="Users" asp-action="Index" asp-area="Admin" class="btn-quick btn-quick-secondary">
+                            <i class="fas fa-users-cog"></i> Gérer le personnel
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="snapshot">
+                <div class="snapshot-card">
+                    <div class="snapshot-icon" style="background: linear-gradient(135deg, #22c55e, #16a34a);"><i class="fas fa-users"></i></div>
+                    <div>
+                        <h6>Patients suivis</h6>
+                        <p>@Model.PatientsCount</p>
+                    </div>
+                </div>
+                <div class="snapshot-card">
+                    <div class="snapshot-icon" style="background: linear-gradient(135deg, #f59e0b, #f97316);"><i class="fas fa-user-md"></i></div>
+                    <div>
+                        <h6>Médecins actifs</h6>
+                        <p>@Model.DoctorsCount</p>
+                    </div>
+                </div>
+                <div class="snapshot-card">
+                    <div class="snapshot-icon" style="background: linear-gradient(135deg, #6366f1, #4f46e5);"><i class="fas fa-folder-open"></i></div>
+                    <div>
+                        <h6>Dossiers médicaux</h6>
+                        <p>@Model.MedicalFoldersCount</p>
+                    </div>
+                </div>
+                <div class="snapshot-card">
+                    <div class="snapshot-icon" style="background: linear-gradient(135deg, #22d3ee, #0ea5e9);"><i class="fas fa-prescription"></i></div>
+                    <div>
+                        <h6>Prescriptions (7 jours)</h6>
+                        <p>@Model.PrescriptionsByDay.Sum(p => p.Count)</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="dashboard-grid">
-        <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-users"></i></div>
-            <p class="stat-label">Patients suivis</p>
-            <p class="stat-value">@Model.PatientsCount</p>
-            <span class="text-muted">Dossiers patients actifs dans la base.</span>
-        </div>
+        <div class="grid-balanced">
+            <div class="panel prescriptions-card">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <h5 class="mb-1 fw-bold">Tendance des prescriptions</h5>
+                        <p class="text-muted mb-0">Répartition sur les 7 derniers jours</p>
+                    </div>
+                    <span class="pill-date"><i class="far fa-calendar"></i> Semaine en cours</span>
+                </div>
 
-        <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #f97316);"><i class="fas fa-user-md"></i></div>
-            <p class="stat-label">Médecins</p>
-            <p class="stat-value">@Model.DoctorsCount</p>
-            <span class="text-muted">Comptes associés au rôle Médecin.</span>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #6366f1, #4f46e5);"><i class="fas fa-folder-open"></i></div>
-            <p class="stat-label">Dossiers médicaux</p>
-            <p class="stat-value">@Model.MedicalFoldersCount</p>
-            <span class="text-muted">Total des dossiers enregistrés.</span>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #22d3ee, #06b6d4);"><i class="fas fa-prescription"></i></div>
-            <p class="stat-label">Prescriptions (7 jours)</p>
-            <p class="stat-value">@Model.PrescriptionsByDay.Sum(p => p.Count)</p>
-            <span class="text-muted">Activité hebdomadaire consolidée.</span>
-        </div>
-    </div>
-
-    <div class="prescriptions-card">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <div>
-                <h5 class="mb-1">Prescriptions par jour</h5>
-                <p class="text-muted mb-0">Répartition sur les 7 derniers jours</p>
+                <div class="chart-bars">
+                    @foreach (var stat in Model.PrescriptionsByDay)
+                    {
+                        var fill = maxPrescriptions > 0 ? (int)Math.Round((double)stat.Count / maxPrescriptions * 100) : 0;
+                        <div class="bar-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-semibold text-capitalize">@stat.Date.ToString("ddd dd", System.Globalization.CultureInfo.GetCultureInfo("fr-FR"))</span>
+                                <span class="badge bg-primary rounded-pill" style="min-width: 48px;">@stat.Count</span>
+                            </div>
+                            <div class="bar-track">
+                                <div class="bar-fill" style="width: @fill%;"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
             </div>
-            <span class="pill-date"><i class="far fa-calendar"></i> Semaine en cours</span>
+
+            <div class="panel tasks-card">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="fw-bold mb-0">Actions rapides du jour</h5>
+                    <i class="fas fa-bolt text-warning"></i>
+                </div>
+                <p class="text-muted">Gardez les tâches médicales essentielles à portée de main.</p>
+                <div class="task-item">
+                    <div class="task-icon"><i class="fas fa-stethoscope"></i></div>
+                    <div>
+                        <h6>Suivre les patients prioritaires</h6>
+                        <p>Vérifiez les dossiers en attente de validation clinique.</p>
+                    </div>
+                </div>
+                <div class="task-item">
+                    <div class="task-icon" style="background:#dcfce7; color:#15803d;"><i class="fas fa-pills"></i></div>
+                    <div>
+                        <h6>Finaliser les prescriptions</h6>
+                        <p>Confirmez les ordonnances du jour avant 18h.</p>
+                    </div>
+                </div>
+                <div class="task-item">
+                    <div class="task-icon" style="background:#e0f2fe; color:#0369a1;"><i class="fas fa-calendar-check"></i></div>
+                    <div>
+                        <h6>Coordonner les rendez-vous</h6>
+                        <p>Synchronisez avec l'accueil pour les créneaux libres.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <ul class="prescriptions-list">
-            @foreach (var stat in Model.PrescriptionsByDay)
-            {
-                <li>
-                    <span class="fw-semibold">@stat.Date.ToString("dddd dd MMM", System.Globalization.CultureInfo.GetCultureInfo("fr-FR"))</span>
-                    <span class="badge bg-primary rounded-pill" style="font-size: 0.95rem; min-width: 48px;">@stat.Count</span>
-                </li>
-            }
-        </ul>
     </div>
 </div>
