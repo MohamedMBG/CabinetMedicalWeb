@@ -1,4 +1,5 @@
 @using System.Globalization
+@using System.Linq
 @model CabinetMedicalWeb.Areas.Medical.Models.MedicalDashboardViewModel
 
 @{
@@ -6,7 +7,19 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 
     // Modern Palette (Indigo/Blue for Doctors)
-    var primaryColor = "#4F46E5"; 
+    var primaryColor = "#4F46E5";
+
+    var todayCount = Model.AppointmentsToday.Count;
+    var weekCount = Model.WeekCalendar.Values.Sum(l => l.Count);
+    var nextAppointment = Model.AppointmentsToday
+        .OrderBy(r => r.DateHeure)
+        .FirstOrDefault();
+    var upcomingWeek = Model.WeekCalendar.Values
+        .SelectMany(l => l)
+        .Where(r => r.DateHeure >= DateTime.Now)
+        .OrderBy(r => r.DateHeure)
+        .Take(4)
+        .ToList();
 }
 
 <style>
@@ -24,7 +37,9 @@
     }
 
     body {
-        background-color: #f1f5f9;
+        background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.06), transparent 30%),
+            radial-gradient(circle at 80% 0%, rgba(56, 189, 248, 0.05), transparent 30%),
+            #f5f7fb;
         font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
@@ -89,18 +104,63 @@
         align-items: center;
         gap: 1rem;
         height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(120deg, transparent 40%, rgba(79, 70, 229, 0.07));
+        pointer-events: none;
     }
 
     .stat-icon {
-        width: 50px; height: 50px;
-        border-radius: 12px;
+        width: 52px; height: 52px;
+        border-radius: 14px;
         display: grid;
         place-items: center;
         font-size: 1.5rem;
         color: white;
+        box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.5);
     }
     .bg-indigo { background: linear-gradient(135deg, #6366F1, #4338CA); }
     .bg-green { background: linear-gradient(135deg, #34D399, #10B981); }
+    .bg-amber { background: linear-gradient(135deg, #FBBF24, #F59E0B); }
+
+    .progress-bar-soft {
+        height: 8px;
+        border-radius: 999px;
+        background: #e0e7ff;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .progress-bar-soft > span {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #6366F1, #4338CA);
+        box-shadow: 0 6px 18px -8px rgba(79, 70, 229, 0.7);
+    }
+
+    /* Action Pills */
+    .action-pill {
+        background: rgba(255, 255, 255, 0.22);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 0.55rem 1.1rem;
+        border-radius: 999px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        backdrop-filter: blur(4px);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .action-pill:hover { transform: translateY(-2px); box-shadow: 0 10px 18px -8px rgba(0,0,0,0.25); }
 
     /* Appointment List */
     .app-item {
@@ -132,21 +192,21 @@
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
         gap: 1rem;
     }
-    
+
     .day-col {
         background: var(--surface);
         border-radius: 12px;
         border: 1px solid var(--border);
         overflow: hidden;
     }
-    
+
     .day-header {
         padding: 0.75rem;
         text-align: center;
         border-bottom: 1px solid var(--border);
         background: #F8FAFC;
     }
-    
+
     .day-col.is-today {
         border: 2px solid var(--primary);
         box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
@@ -174,13 +234,35 @@
 
     <!-- 1. Hero Header -->
     <div class="doctor-hero animate-entry">
-        <div class="d-flex align-items-center justify-content-between position-relative" style="z-index: 2;">
+        <div class="d-flex flex-wrap align-items-center justify-content-between position-relative gap-3" style="z-index: 2;">
             <div>
-                <h1 class="fw-bold mb-1">Bonjour, Dr. @Model.DoctorProfile.Nom</h1>
-                <p class="mb-0 opacity-90">Voici votre planning pour la semaine du @Model.WeekStartDate.ToString("dd MMM").</p>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-white text-primary fw-bold">Espace médecin</span>
+                    <span class="badge bg-light text-dark">Semaine du @Model.WeekStartDate.ToString("dd MMM")</span>
+                </div>
+                <h1 class="fw-bold mb-2">Bonjour, Dr. @Model.DoctorProfile.Nom</h1>
+                <p class="mb-0 opacity-90">Visualisez vos consultations, préparez vos dossiers et restez informé(e) d'un coup d'œil.</p>
+
+                @if (nextAppointment != null)
+                {
+                    <div class="mt-3 d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 bg-white bg-opacity-15" style="backdrop-filter: blur(2px);">
+                        <span class="badge bg-white text-primary fw-bold">Prochain RDV</span>
+                        <div>
+                            <div class="fw-bold">@nextAppointment.Patient.Nom @nextAppointment.Patient.Prenom</div>
+                            <small class="opacity-75">@nextAppointment.DateHeure.ToString("HH:mm") • @nextAppointment.Motif</small>
+                        </div>
+                    </div>
+                }
             </div>
-            <div class="bg-white bg-opacity-25 p-3 rounded-circle">
-                <i class="fas fa-user-md fa-2x"></i>
+            <div class="text-end">
+                <div class="bg-white bg-opacity-25 p-3 rounded-circle d-inline-flex align-items-center justify-content-center" style="width:64px;height:64px;">
+                    <i class="fas fa-user-md fa-2x"></i>
+                </div>
+                <div class="mt-3 d-flex flex-wrap justify-content-end gap-2">
+                    <a href="@Url.Action("Create", "Consultation", new { area = "Medical" })" class="action-pill"><i class="fas fa-stethoscope"></i> Nouvelle consultation</a>
+                    <a href="@Url.Action("Create", "Prescription", new { area = "Medical" })" class="action-pill"><i class="fas fa-prescription"></i> Nouvelle ordonnance</a>
+                    <a href="@Url.Action("Create", "DossierMedicals", new { area = "Medical" })" class="action-pill"><i class="fas fa-folder-plus"></i> Nouveau dossier</a>
+                </div>
             </div>
         </div>
     </div>
@@ -191,8 +273,10 @@
             <div class="stat-card">
                 <div class="stat-icon bg-indigo"><i class="fas fa-calendar-day"></i></div>
                 <div>
-                    <h2 class="fw-bold mb-0 text-dark">@Model.AppointmentsToday.Count</h2>
+                    <h2 class="fw-bold mb-0 text-dark">@todayCount</h2>
                     <small class="text-muted fw-bold">Rendez-vous Aujourd'hui</small>
+                    <div class="progress-bar-soft mt-2"><span style="width: @(weekCount == 0 ? 0 : Math.Min(100, Math.Round(((double)todayCount / weekCount) * 100)))%;"></span></div>
+                    <small class="text-muted">@((weekCount == 0 ? 0 : Math.Round(((double)todayCount / weekCount) * 100)))% de la semaine</small>
                 </div>
             </div>
         </div>
@@ -200,8 +284,12 @@
             <div class="stat-card">
                 <div class="stat-icon bg-green"><i class="fas fa-calendar-week"></i></div>
                 <div>
-                    <h2 class="fw-bold mb-0 text-dark">@Model.WeekCalendar.Values.Sum(l => l.Count)</h2>
+                    <h2 class="fw-bold mb-0 text-dark">@weekCount</h2>
                     <small class="text-muted fw-bold">Total Semaine</small>
+                    <div class="d-flex align-items-center gap-2 text-muted mt-1">
+                        <i class="fas fa-chart-line text-success"></i>
+                        <small>Planning équilibré</small>
+                    </div>
                 </div>
             </div>
         </div>
@@ -209,14 +297,15 @@
              <div class="stat-card justify-content-center bg-white">
                  <div class="text-center">
                      <p class="mb-0 text-muted small fw-bold text-uppercase">Date du jour</p>
-                     <h4 class="fw-bold text-primary mb-0">@DateTime.Now.ToString("dddd dd MMMM")</h4>
+                     <h4 class="fw-bold text-primary mb-1">@DateTime.Now.ToString("dddd dd MMMM")</h4>
+                     <span class="badge bg-light text-dark">@DateTime.Now.ToString("HH:mm")</span>
                  </div>
              </div>
         </div>
     </div>
 
     <div class="row g-4 animate-entry delay-200">
-        
+
         <!-- 3. Today's Agenda (Left) -->
         <div class="col-lg-4">
             <div class="glass-card h-100">
@@ -224,7 +313,7 @@
                     <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-clock me-2 text-primary"></i>Aujourd'hui</h5>
                     <span class="badge bg-light text-dark border">@DateTime.Now.ToString("dd/MM")</span>
                 </div>
-                
+
                 @if (Model.AppointmentsToday.Any())
                 {
                     <div class="list-group list-group-flush">
@@ -236,7 +325,7 @@
                                     <div class="fw-bold text-dark text-truncate">@rdv.Patient.Nom @rdv.Patient.Prenom</div>
                                     <div class="small text-muted text-truncate">@rdv.Motif</div>
                                 </div>
-                                <a href="@Url.Action("Index", "DossierMedicals", new { area = "Medical", searchTerm = rdv.Patient.Nom })" 
+                                <a href="@Url.Action("Index", "DossierMedicals", new { area = "Medical", searchTerm = rdv.Patient.Nom })"
                                    class="btn btn-sm btn-outline-primary rounded-circle" title="Ouvrir Dossier">
                                     <i class="fas fa-folder-open"></i>
                                 </a>
@@ -258,20 +347,23 @@
 
         <!-- 4. Weekly Calendar (Right) -->
         <div class="col-lg-8">
-            <div class="glass-card p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="fw-bold text-dark mb-0">Vue Hebdomadaire</h4>
+            <div class="glass-card p-4 h-100">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+                    <div>
+                        <p class="text-muted small mb-1">Vue Hebdomadaire</p>
+                        <h4 class="fw-bold text-dark mb-0">@Model.WeekStartDate.ToString("dd MMM") - @Model.WeekStartDate.AddDays(6).ToString("dd MMM")</h4>
+                    </div>
                     <!-- Legend -->
                     <div class="d-flex gap-3 small text-muted">
                         <div class="d-flex align-items-center gap-1"><div class="rounded-circle bg-primary" style="width:8px;height:8px;"></div> RDV Confirmé</div>
                     </div>
                 </div>
 
-                <div class="calendar-grid">
+                <div class="calendar-grid mb-4">
                     @foreach (var day in Model.WeekCalendar)
                     {
                         var isToday = day.Key.Date == DateTime.Today;
-                        
+
                         <div class="day-col @(isToday ? "is-today" : "")">
                             <div class="day-header">
                                 <div class="small text-uppercase opacity-75">@day.Key.ToString("ddd", new CultureInfo("fr-FR"))</div>
@@ -283,7 +375,7 @@
                                     @foreach (var rdv in day.Value)
                                     {
                                         <div class="mini-event" title="@rdv.DateHeure.ToString("HH:mm") - @rdv.Patient.Nom">
-                                            <span class="fw-bold">@rdv.DateHeure.ToString("HH:mm")</span> 
+                                            <span class="fw-bold">@rdv.DateHeure.ToString("HH:mm")</span>
                                             @rdv.Patient.Nom
                                         </div>
                                     }
@@ -295,6 +387,35 @@
                             </div>
                         </div>
                     }
+                </div>
+
+                <div class="glass-card border-0" style="background: #F8FAFF;">
+                    <div class="p-3 border-bottom d-flex align-items-center gap-2">
+                        <i class="fas fa-bell text-primary"></i>
+                        <span class="fw-bold">Rappels rapides</span>
+                    </div>
+                    <div class="p-3">
+                        @if (upcomingWeek.Any())
+                        {
+                            <div class="d-flex flex-wrap gap-3">
+                                @foreach (var rdv in upcomingWeek)
+                                {
+                                    <div class="border rounded-4 px-3 py-2 bg-white shadow-sm" style="min-width: 220px;">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="badge bg-primary bg-opacity-10 text-primary">@rdv.DateHeure.ToString("ddd", new CultureInfo("fr-FR"))</span>
+                                            <span class="fw-bold text-dark">@rdv.DateHeure.ToString("HH:mm")</span>
+                                        </div>
+                                        <div class="fw-bold text-dark text-truncate">@rdv.Patient.Nom @rdv.Patient.Prenom</div>
+                                        <small class="text-muted text-truncate d-block">@rdv.Motif</small>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted mb-0">Aucun rappel pour le moment. Bonne journée !</p>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
