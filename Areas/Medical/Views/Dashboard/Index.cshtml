@@ -1,0 +1,302 @@
+@using System.Globalization
+@model CabinetMedicalWeb.Areas.Medical.Models.MedicalDashboardViewModel
+
+@{
+    ViewData["Title"] = "Mon Planning";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Modern Palette (Indigo/Blue for Doctors)
+    var primaryColor = "#4F46E5"; 
+}
+
+<style>
+    :root {
+        --primary: #4F46E5;
+        --primary-dark: #4338ca;
+        --secondary: #64748b;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --dark: #1e293b;
+        --light: #f8fafc;
+        --surface: #ffffff;
+        --border: rgba(226, 232, 240, 0.8);
+    }
+
+    body {
+        background-color: #f1f5f9;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    /* Animations */
+    @@keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-entry {
+        opacity: 0;
+        animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+
+    /* Cards */
+    .glass-card {
+        background: var(--surface);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .glass-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Hero Header */
+    .doctor-hero {
+        background: linear-gradient(135deg, var(--primary) 0%, #818CF8 100%);
+        border-radius: 20px;
+        padding: 2.5rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .doctor-hero::after {
+        content: '';
+        position: absolute;
+        right: -10%; top: -50%;
+        width: 300px; height: 300px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    /* Stats Row */
+    .stat-card {
+        background: var(--surface);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        height: 100%;
+    }
+
+    .stat-icon {
+        width: 50px; height: 50px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+    .bg-indigo { background: linear-gradient(135deg, #6366F1, #4338CA); }
+    .bg-green { background: linear-gradient(135deg, #34D399, #10B981); }
+
+    /* Appointment List */
+    .app-item {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        transition: background 0.2s;
+        text-decoration: none;
+        color: inherit;
+    }
+    .app-item:hover { background-color: #F8FAFC; }
+    .app-item:last-child { border-bottom: none; }
+
+    .time-badge {
+        background: #EEF2FF;
+        color: var(--primary);
+        font-weight: 700;
+        padding: 0.5rem 0.8rem;
+        border-radius: 10px;
+        min-width: 75px;
+        text-align: center;
+    }
+
+    /* Calendar Grid */
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+    }
+    
+    .day-col {
+        background: var(--surface);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+    }
+    
+    .day-header {
+        padding: 0.75rem;
+        text-align: center;
+        border-bottom: 1px solid var(--border);
+        background: #F8FAFC;
+    }
+    
+    .day-col.is-today {
+        border: 2px solid var(--primary);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+    .day-col.is-today .day-header {
+        background: #EEF2FF;
+        color: var(--primary);
+        font-weight: 700;
+    }
+
+    .mini-event {
+        background: #EFF6FF;
+        border-left: 3px solid var(--primary);
+        padding: 0.5rem;
+        margin: 0.5rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+
+<div class="container-fluid py-4" style="max-width: 1400px;">
+
+    <!-- 1. Hero Header -->
+    <div class="doctor-hero animate-entry">
+        <div class="d-flex align-items-center justify-content-between position-relative" style="z-index: 2;">
+            <div>
+                <h1 class="fw-bold mb-1">Bonjour, Dr. @Model.DoctorProfile.Nom</h1>
+                <p class="mb-0 opacity-90">Voici votre planning pour la semaine du @Model.WeekStartDate.ToString("dd MMM").</p>
+            </div>
+            <div class="bg-white bg-opacity-25 p-3 rounded-circle">
+                <i class="fas fa-user-md fa-2x"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Stats Row -->
+    <div class="row g-4 mb-4 animate-entry delay-100">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon bg-indigo"><i class="fas fa-calendar-day"></i></div>
+                <div>
+                    <h2 class="fw-bold mb-0 text-dark">@Model.AppointmentsToday.Count</h2>
+                    <small class="text-muted fw-bold">Rendez-vous Aujourd'hui</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon bg-green"><i class="fas fa-calendar-week"></i></div>
+                <div>
+                    <h2 class="fw-bold mb-0 text-dark">@Model.WeekCalendar.Values.Sum(l => l.Count)</h2>
+                    <small class="text-muted fw-bold">Total Semaine</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+             <div class="stat-card justify-content-center bg-white">
+                 <div class="text-center">
+                     <p class="mb-0 text-muted small fw-bold text-uppercase">Date du jour</p>
+                     <h4 class="fw-bold text-primary mb-0">@DateTime.Now.ToString("dddd dd MMMM")</h4>
+                 </div>
+             </div>
+        </div>
+    </div>
+
+    <div class="row g-4 animate-entry delay-200">
+        
+        <!-- 3. Today's Agenda (Left) -->
+        <div class="col-lg-4">
+            <div class="glass-card h-100">
+                <div class="p-3 border-bottom bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-clock me-2 text-primary"></i>Aujourd'hui</h5>
+                    <span class="badge bg-light text-dark border">@DateTime.Now.ToString("dd/MM")</span>
+                </div>
+                
+                @if (Model.AppointmentsToday.Any())
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var rdv in Model.AppointmentsToday)
+                        {
+                            <div class="app-item">
+                                <div class="time-badge">@rdv.DateHeure.ToString("HH:mm")</div>
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <div class="fw-bold text-dark text-truncate">@rdv.Patient.Nom @rdv.Patient.Prenom</div>
+                                    <div class="small text-muted text-truncate">@rdv.Motif</div>
+                                </div>
+                                <a href="@Url.Action("Index", "DossierMedicals", new { area = "Medical", searchTerm = rdv.Patient.Nom })" 
+                                   class="btn btn-sm btn-outline-primary rounded-circle" title="Ouvrir Dossier">
+                                    <i class="fas fa-folder-open"></i>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <div class="mb-3 text-muted opacity-25">
+                            <i class="fas fa-mug-hot fa-3x"></i>
+                        </div>
+                        <h6 class="text-muted">Aucun rendez-vous aujourd'hui.</h6>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- 4. Weekly Calendar (Right) -->
+        <div class="col-lg-8">
+            <div class="glass-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark mb-0">Vue Hebdomadaire</h4>
+                    <!-- Legend -->
+                    <div class="d-flex gap-3 small text-muted">
+                        <div class="d-flex align-items-center gap-1"><div class="rounded-circle bg-primary" style="width:8px;height:8px;"></div> RDV Confirmé</div>
+                    </div>
+                </div>
+
+                <div class="calendar-grid">
+                    @foreach (var day in Model.WeekCalendar)
+                    {
+                        var isToday = day.Key.Date == DateTime.Today;
+                        
+                        <div class="day-col @(isToday ? "is-today" : "")">
+                            <div class="day-header">
+                                <div class="small text-uppercase opacity-75">@day.Key.ToString("ddd", new CultureInfo("fr-FR"))</div>
+                                <div class="fs-4 fw-bold">@day.Key.Day</div>
+                            </div>
+                            <div class="p-2" style="min-height: 120px;">
+                                @if (day.Value.Any())
+                                {
+                                    @foreach (var rdv in day.Value)
+                                    {
+                                        <div class="mini-event" title="@rdv.DateHeure.ToString("HH:mm") - @rdv.Patient.Nom">
+                                            <span class="fw-bold">@rdv.DateHeure.ToString("HH:mm")</span> 
+                                            @rdv.Patient.Nom
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="text-center text-muted small opacity-25 mt-4">-</div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

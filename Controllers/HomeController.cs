@@ -1,8 +1,8 @@
-using System.Diagnostics;
 using CabinetMedicalWeb.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity; // Required for UserManager
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace CabinetMedicalWeb.Controllers
 {
@@ -19,29 +19,30 @@ namespace CabinetMedicalWeb.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // If user is logged in, check their role and redirect accordingly
-            if (User.Identity?.IsAuthenticated == true)
+            // 1. Automatic Redirection based on Role
+            if (User.Identity.IsAuthenticated)
             {
-                var user = await _userManager.GetUserAsync(User);
-                if (user != null)
+                if (User.IsInRole("Admin"))
                 {
-                    var roles = await _userManager.GetRolesAsync(user);
-                    
-                    // Redirect doctors to Medical area
-                    if (roles.Contains("Medecin"))
-                    {
-                        return RedirectToAction("Index", "DossierMedicals", new { area = "Medical" });
-                    }
-                    
-                    // Redirect secretaries to FrontDesk area
-                    if (roles.Contains("Secretaire"))
-                    {
-                        return RedirectToAction("Index", "Agenda", new { area = "FrontDesk" });
-                    }
+                    // Admins go to their Admin Dashboard
+                    return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+                }
+                
+                if (User.IsInRole("Medecin"))
+                {
+                    // UPDATE: Doctors now go to their specific Medical Dashboard (Calendar/Today)
+                    // Instead of the dossier list
+                    return RedirectToAction("Index", "Dashboard", new { area = "Medical" });
+                }
+
+                if (User.IsInRole("Secretaire"))
+                {
+                    // Secretaries go to the FrontDesk Agenda
+                    return RedirectToAction("Index", "RendezVous", new { area = "FrontDesk" });
                 }
             }
-            
-            // Public homepage for non-authenticated users
+
+            // If not logged in (or unknown role), show the public landing page
             return View();
         }
 
