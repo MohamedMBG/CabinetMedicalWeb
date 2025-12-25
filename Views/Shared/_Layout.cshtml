@@ -51,19 +51,6 @@
             box-shadow: 0 12px 28px rgba(108, 140, 255, 0.12);
         }
 
-        .navbar-toggler {
-            border: none;
-            box-shadow: none !important;
-        }
-
-        .navbar-toggler:focus {
-            outline: none;
-        }
-
-        .navbar-toggler-icon {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(31,42,68,0.8)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-        }
-
         .navbar-brand {
             font-weight: 700;
             font-size: 1.25rem;
@@ -199,6 +186,12 @@
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Horaires" ? "active" : "")" 
+                                   asp-area="Admin" asp-controller="Horaires" asp-action="Index">
+                                    <i class="fas fa-clock"></i>Horaires
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Conges" ? "active" : "")"
                                    asp-area="Admin" asp-controller="Conges" asp-action="Index">
                                     <i class="fas fa-plane-departure"></i>Absences
@@ -206,13 +199,13 @@
                             </li>
                         }
 
-                        <!-- Role: Medecin & Admin -->
-                        @if (User.IsInRole("Medecin") || User.IsInRole("Admin"))
+                        <!-- Role: Medecin  -->
+                        @if (User.IsInRole("Medecin"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "active" : "")" 
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" && ViewContext.RouteData.Values["Area"]?.ToString() == "Medical" ? "active" : "")" 
                                    asp-area="Medical" asp-controller="Dashboard" asp-action="Index">
-                                    <i class="fas fa-folder-medical"></i>Dashboard
+                                    <i class="fas fa-columns"></i>Dashboard
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -229,8 +222,8 @@
                             </li>
                         }
 
-                        <!-- Role: Secretaire & Admin -->
-                        @if (User.IsInRole("Secretaire") || User.IsInRole("Admin"))
+                        <!-- Role: Secretaire  -->
+                        @if (User.IsInRole("Secretaire"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="FrontDesk" asp-controller="Agenda" asp-action="Index">
