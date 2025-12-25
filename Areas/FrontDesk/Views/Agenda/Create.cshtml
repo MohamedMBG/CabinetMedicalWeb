@@ -16,15 +16,15 @@
 
     <div class="form-group mb-3">
         <label asp-for="DoctorId" class="control-label" style="color: #666B72;"></label>
-        <select asp-for="DoctorId" asp-items="(IEnumerable<SelectListItem>)ViewData[\"DoctorId\"]" class="form-control">
-            <option value="">-- Choisir un médecin --</option>
+        <select asp-for="DoctorId" asp-items="ViewBag.DoctorId" class="form-control">
+                        <option value="">-- Choisir un médecin --</option>
         </select>
         <span asp-validation-for="DoctorId" class="text-danger"></span>
     </div>
 
     <div class="form-group mb-3">
         <label asp-for="PatientId" class="control-label" style="color: #666B72;"></label>
-        <select asp-for="PatientId" asp-items="(IEnumerable<SelectListItem>)ViewData[\"PatientId\"]" class="form-control">
+        <select asp-for="PatientId" asp-items="ViewBag.PatientId" class="form-control">
             <option value="">-- Choisir un patient --</option>
         </select>
         <span asp-validation-for="PatientId" class="text-danger"></span>
