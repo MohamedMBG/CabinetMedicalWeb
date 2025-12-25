@@ -67,6 +67,7 @@ namespace CabinetMedicalWeb.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
+                conge.IsApproved = true;
                 _context.Add(conge);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -106,6 +107,20 @@ namespace CabinetMedicalWeb.Areas.Admin.Controllers
                 _context.Conges.Remove(conge);
                 await _context.SaveChangesAsync();
             }
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Approve(int id)
+        {
+            var conge = await _context.Conges.FindAsync(id);
+            if (conge == null) return NotFound();
+
+            conge.IsApproved = true;
+            _context.Update(conge);
+            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
     }

@@ -21,6 +21,9 @@ namespace CabinetMedicalWeb.Models
         [Display(Name = "Motif (Optionnel)")]
         public string? Motif { get; set; } // Ex: Vacances, Maladie, Formation
 
+        [Display(Name = "Approuvé")]
+        public bool IsApproved  { get; set; }
+
         // Lien avec l'employé (Médecin ou Secrétaire)
         [Required]
         [Display(Name = "Employé")]

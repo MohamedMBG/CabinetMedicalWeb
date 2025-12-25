@@ -4,6 +4,7 @@ using CabinetMedicalWeb.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CabinetMedicalWeb.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251225114551_AddAdminFeatures")]
+    partial class AddAdminFeatures
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -115,9 +118,6 @@ namespace CabinetMedicalWeb.Data.Migrations
                     b.Property<bool>("IsApproved")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("bit");
-                        
                     b.Property<string>("Motif")
                         .HasColumnType("nvarchar(max)");
 
