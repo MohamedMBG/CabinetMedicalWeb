@@ -1,77 +1,68 @@
-using CabinetMedicalWeb.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CabinetMedicalWeb.Data;
 using CabinetMedicalWeb.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
 {
     [Area("FrontDesk")]
-    public class AgendaController : Controller
+    public class RendezVousController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public AgendaController(ApplicationDbContext context)
+        public RendezVousController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // Ton action Index existe déjà (l'agenda visuel)
-
-        // GET: /FrontDesk/Agenda/Create
+        // GET: FrontDesk/RendezVous/Create
         public IActionResult Create()
         {
-            var model = new RendezVous();
-            ChargerListes(model);
+            var model = new RendezVous
+            {
+                DateHeure = DateTime.Now.AddHours(1),
+                Statut = "Planifié"
+            };
+
+            ChargerListes();
             return View(model);
         }
 
-        // POST: /FrontDesk/Agenda/Create
+        // POST: FrontDesk/RendezVous/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(RendezVous model)
+        public async Task<IActionResult> Create([Bind("DateHeure,Motif,PatientId,DoctorId,Statut")] RendezVous rendezVous)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                // Vérification conflit : même docteur + même date/heure
-                var conflit = await _context.RendezVous
-                    .AnyAsync(r => r.DoctorId == model.DoctorId && r.DateHeure == model.DateSouhaitee);
-
-                if (conflit)
-                {
-                    ModelState.AddModelError("", "⚠ Ce médecin a déjà un rendez-vous à cette date et heure. Veuillez choisir un autre créneau.");
-                }
-                else
-                {
-                    var rdv = new RendezVous
-                    {
-                        DoctorId = model.DoctorId,
-                        PatientId = model.PatientId,
-                        DateHeure = model.DateHeure,
-                        Motif = model.Motif
-                    };
-
-                    _context.RendezVous.Add(rdv);
-                    await _context.SaveChangesAsync();
-
-                    TempData["Success"] = "Rendez-vous créé avec succès !";
-                    return RedirectToAction("Index");
-                }
+                ChargerListes();
+                return View(rendezVous);
             }
 
-            // En cas d'erreur → on recharge les listes
-            ChargerListes(model);
-            return View(model);
+            var conflit = await _context.RendezVous
+                .AnyAsync(r => r.DoctorId == rendezVous.DoctorId && r.DateHeure == rendezVous.DateHeure);
+
+            if (conflit)
+            {
+                ModelState.AddModelError(string.Empty, "Ce médecin a déjà un rendez-vous à cette date et heure.");
+                ChargerListes();
+                return View(rendezVous);
+            }
+
+            _context.RendezVous.Add(rendezVous);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Rendez-vous créé avec succès !";
+            return RedirectToAction("Index", "Agenda", new { area = "FrontDesk" });
         }
 
-        private void ChargerListes(RendezVous model)
+        private void ChargerListes()
         {
-            // Liste des médecins (ApplicationUser avec rôle Doctor ou Specialite non vide)
-            model.DoctorsDisponibles = _context.Users
+            ViewData["DoctorId"] = _context.Users
                 .Where(u => u.Role == "Doctor" || !string.IsNullOrEmpty(u.Specialite))
                 .Select(u => new SelectListItem
                 {
@@ -81,18 +72,14 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
                 .OrderBy(x => x.Text)
                 .ToList();
 
-            // Liste des patients
-            model.PatientsDisponibles = _context.Users
-                .Where(u => u.Role == "Patient")
-                .Select(u => new SelectListItem
+            ViewData["PatientId"] = _context.Patients
+                .Select(p => new SelectListItem
                 {
-                    Value = u.Id,
-                    Text = $"{u.Prenom} {u.Nom}"
+                    Value = p.Id.ToString(),
+                    Text = $"{p.Prenom} {p.Nom}"
                 })
                 .OrderBy(x => x.Text)
                 .ToList();
         }
-
-        // Autres actions (Index, etc.) restent inchangées
     }
 }
