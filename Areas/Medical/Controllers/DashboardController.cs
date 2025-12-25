@@ -26,43 +26,113 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
         }
 
         // GET: Medical/Dashboard
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(DateTime? weekStart)
         {
-            // 1. Identify the Doctor
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Index", "Home", new { area = "" });
 
-            // 2. Calculate Date Ranges (Monday to Sunday)
-            DateTime today = DateTime.Today;
-            int currentDayOfWeek = (int)today.DayOfWeek; // 0 = Sunday
-            // Adjust to make Monday (1) the start of the week. If Sunday(0), go back 6 days.
-            DateTime startOfWeek = today.AddDays(currentDayOfWeek == 0 ? -6 : 1 - currentDayOfWeek);
-            DateTime endOfWeek = startOfWeek.AddDays(7);
+            var referenceDate = weekStart ?? DateTime.Today;
+            var model = await BuildDashboardModel(user, referenceDate);
 
-            // 3. Fetch Appointments (RendezVous)
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RequestConge(DateTime dateDebut, DateTime dateFin, string? motif)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Index", "Home", new { area = "" });
+
+            if (dateFin < dateDebut)
+            {
+                ModelState.AddModelError("CongeDate", "La date de fin ne peut pas être avant la date de début.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var modelWithErrors = await BuildDashboardModel(user, dateDebut);
+                modelWithErrors.NewCongeRequest = new Conge
+                {
+                    DateDebut = dateDebut,
+                    DateFin = dateFin,
+                    Motif = motif,
+                    PersonnelId = user.Id
+                };
+
+                return View("Index", modelWithErrors);
+            }
+
+            var conge = new Conge
+            {
+                DateDebut = dateDebut.Date,
+                DateFin = dateFin.Date,
+                Motif = motif,
+                PersonnelId = user.Id,
+                Status = CongeStatus.Pending
+            };
+
+            _context.Conges.Add(conge);
+            await _context.SaveChangesAsync();
+            TempData["CongeSuccess"] = "Votre demande de congé a été envoyée à l'administrateur.";
+
+            return RedirectToAction(nameof(Index), new { weekStart = GetStartOfWeek(dateDebut).ToString("yyyy-MM-dd") });
+        }
+
+        private async Task<MedicalDashboardViewModel> BuildDashboardModel(ApplicationUser user, DateTime referenceDate)
+        {
+            DateTime today = DateTime.Today;
+            var startOfWeek = GetStartOfWeek(referenceDate);
+            var endOfWeek = startOfWeek.AddDays(6);
+            var startBoundary = startOfWeek;
+            var endBoundary = endOfWeek.AddDays(1);
+
             var appointments = await _context.RendezVous
                 .Include(r => r.Patient)
-                .Where(r => r.DoctorId == user.Id && 
-                            r.DateHeure >= startOfWeek && 
-                            r.DateHeure <= endOfWeek)
+                .Where(r => r.DoctorId == user.Id &&
+                            r.DateHeure >= startBoundary &&
+                            r.DateHeure < endBoundary)
                 .OrderBy(r => r.DateHeure)
                 .ToListAsync();
 
-            // 4. Prepare the ViewModel
+            var weeklyConges = await _context.Conges
+                .Where(c => c.PersonnelId == user.Id &&
+                            c.Status == CongeStatus.Approved &&
+                            c.DateFin >= startOfWeek &&
+                            c.DateDebut <= endOfWeek)
+                .OrderBy(c => c.DateDebut)
+                .ToListAsync();
+
+            var upcomingConges = await _context.Conges
+                .Where(c => c.PersonnelId == user.Id &&
+                            c.Status == CongeStatus.Approved &&
+                            c.DateFin >= today)
+                .OrderBy(c => c.DateDebut)
+                .Take(3)
+                .ToListAsync();
+
             var model = new MedicalDashboardViewModel
             {
                 DoctorProfile = user,
                 WeekStartDate = startOfWeek,
-                // Filter for "Today" section
+                WeekEndDate = endOfWeek,
+                PreviousWeekStart = startOfWeek.AddDays(-7),
+                NextWeekStart = startOfWeek.AddDays(7),
                 AppointmentsToday = appointments
                     .Where(r => r.DateHeure.Date == today)
                     .OrderBy(r => r.DateHeure)
                     .ToList(),
-                // Initialize the calendar dictionary
-                WeekCalendar = new Dictionary<DateTime, List<RendezVous>>()
+                WeekCalendar = new Dictionary<DateTime, List<RendezVous>>(),
+                WeeklyConges = weeklyConges,
+                UpcomingConges = upcomingConges,
+                NewCongeRequest = new Conge
+                {
+                    DateDebut = today,
+                    DateFin = today.AddDays(1),
+                    PersonnelId = user.Id
+                }
             };
 
-            // 5. Populate the Weekly Calendar (Day by Day)
             for (int i = 0; i < 7; i++)
             {
                 var currentDay = startOfWeek.AddDays(i);
@@ -71,7 +141,13 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
                     .ToList();
             }
 
-            return View(model);
+            return model;
+        }
+
+        private static DateTime GetStartOfWeek(DateTime date)
+        {
+            int currentDayOfWeek = (int)date.DayOfWeek; // 0 = Sunday
+            return date.Date.AddDays(currentDayOfWeek == 0 ? -6 : 1 - currentDayOfWeek);
         }
     }
 }

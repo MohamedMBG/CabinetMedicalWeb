@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -67,6 +68,7 @@ namespace CabinetMedicalWeb.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
+                conge.Status = CongeStatus.Approved;
                 _context.Add(conge);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -79,6 +81,32 @@ namespace CabinetMedicalWeb.Areas.Admin.Controllers
             ViewData["PersonnelId"] = new SelectList(employees, "Id", "FullName", conge.PersonnelId);
             
             return View(conge);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Approve(int id)
+        {
+            var conge = await _context.Conges.FindAsync(id);
+            if (conge == null) return NotFound();
+
+            conge.Status = CongeStatus.Approved;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reject(int id)
+        {
+            var conge = await _context.Conges.FindAsync(id);
+            if (conge == null) return NotFound();
+
+            conge.Status = CongeStatus.Rejected;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Admin/Conges/Delete/5
