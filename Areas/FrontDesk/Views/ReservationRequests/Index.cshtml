@@ -1,0 +1,81 @@
+@model IEnumerable<CabinetMedicalWeb.Models.ReservationRequest>
+@{
+    ViewData["Title"] = "Demandes de rendez-vous";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var statutActuel = ViewData["FiltreStatut"] as string;
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="h4 mb-1">Demandes en ligne</h2>
+            <p class="text-muted mb-0">Validez ou refusez les demandes envoyées par les patients.</p>
+        </div>
+        <a class="btn btn-outline-secondary" asp-area="FrontDesk" asp-controller="Agenda" asp-action="Index">
+            <i class="fas fa-calendar-alt me-2"></i>Retour à l'agenda
+        </a>
+    </div>
+
+    <div class="mb-3">
+        <div class="btn-group" role="group">
+            <a class="btn btn-@(string.IsNullOrEmpty(statutActuel) ? "primary" : "outline-primary")" asp-route-statut="">Toutes</a>
+            <a class="btn btn-@(statutActuel == "En attente" ? "primary" : "outline-primary")" asp-route-statut="En attente">En attente</a>
+            <a class="btn btn-@(statutActuel == "Approuvé" ? "primary" : "outline-primary")" asp-route-statut="Approuvé">Approuvées</a>
+            <a class="btn btn-@(statutActuel == "Refusé" ? "primary" : "outline-primary")" asp-route-statut="Refusé">Refusées</a>
+        </div>
+    </div>
+
+    @if (TempData["ReservationApprouvee"] != null)
+    {
+        <div class="alert alert-success">@TempData["ReservationApprouvee"]</div>
+    }
+    @if (TempData["ReservationRefusee"] != null)
+    {
+        <div class="alert alert-warning">@TempData["ReservationRefusee"]</div>
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Patient</th>
+                        <th>Coordonnées</th>
+                        <th>Date souhaitée</th>
+                        <th>Motif</th>
+                        <th>Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var reservation in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">@reservation.Prenom @reservation.Nom</div>
+                            <div class="text-muted small">@reservation.DateNaissance.ToString("dd/MM/yyyy")</div>
+                        </td>
+                        <td>
+                            <div>@reservation.Telephone</div>
+                            <div class="text-muted small">@reservation.Email</div>
+                        </td>
+                        <td>@reservation.DateSouhaitee.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@reservation.Motif</td>
+                        <td>
+                            <span class="badge bg-@(reservation.Statut == "Approuvé" ? "success" : reservation.Statut == "Refusé" ? "danger" : "warning text-dark")">@reservation.Statut</span>
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group" role="group">
+                                <a class="btn btn-sm btn-primary" asp-action="Review" asp-route-id="@reservation.Id">Gérer</a>
+                                <form asp-action="Refuser" asp-route-id="@reservation.Id" method="post" class="ms-1">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Refuser cette demande ?');">Refuser</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
