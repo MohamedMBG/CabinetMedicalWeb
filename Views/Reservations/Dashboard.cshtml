@@ -1,0 +1,130 @@
+@model CabinetMedicalWeb.Models.ReservationDashboardViewModel
+@{
+    ViewData["Title"] = "Prendre un rendez-vous";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5" style="max-width: 1100px;">
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body p-4">
+                    <h2 class="h4 mb-3">Réserver une consultation</h2>
+                    <p class="text-muted">Complétez ce formulaire pour envoyer votre demande à notre secrétariat.</p>
+
+                    @if (TempData["ReservationSuccess"] != null)
+                    {
+                        <div class="alert alert-success" role="alert">
+                            @TempData["ReservationSuccess"]
+                        </div>
+                    }
+
+                    <form asp-action="Submit" method="post">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="Form.Nom" class="form-label"></label>
+                                <input asp-for="Form.Nom" class="form-control" />
+                                <span class="text-danger" asp-validation-for="Form.Nom"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Form.Prenom" class="form-label"></label>
+                                <input asp-for="Form.Prenom" class="form-control" />
+                                <span class="text-danger" asp-validation-for="Form.Prenom"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Form.Telephone" class="form-label"></label>
+                                <input asp-for="Form.Telephone" class="form-control" />
+                                <span class="text-danger" asp-validation-for="Form.Telephone"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Form.Email" class="form-label"></label>
+                                <input asp-for="Form.Email" class="form-control" />
+                                <span class="text-danger" asp-validation-for="Form.Email"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Form.DateNaissance" class="form-label"></label>
+                                <input asp-for="Form.DateNaissance" class="form-control" />
+                                <span class="text-danger" asp-validation-for="Form.DateNaissance"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Form.DateSouhaitee" class="form-label">Date souhaitée</label>
+                                <input asp-for="Form.DateSouhaitee" class="form-control" />
+                                <span class="text-danger" asp-validation-for="Form.DateSouhaitee"></span>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="Form.Adresse" class="form-label"></label>
+                                <input asp-for="Form.Adresse" class="form-control" />
+                                <span class="text-danger" asp-validation-for="Form.Adresse"></span>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="Form.Motif" class="form-label"></label>
+                                <textarea asp-for="Form.Motif" rows="3" class="form-control"></textarea>
+                                <span class="text-danger" asp-validation-for="Form.Motif"></span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary mt-4">Envoyer ma demande</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body p-4">
+                    <h2 class="h5 mb-3">Suivi de vos demandes</h2>
+                    <p class="text-muted small">Utilisez le même email pour retrouver l'historique de vos demandes.</p>
+
+                    @if (Model.Reservations.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Date souhaitée</th>
+                                        <th>Motif</th>
+                                        <th>Statut</th>
+                                        <th>Assigné à</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var reservation in Model.Reservations)
+                                    {
+                                        <tr>
+                                            <td>@reservation.DateSouhaitee.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>@reservation.Motif</td>
+                                            <td>
+                                                <span class="badge bg-@(reservation.Statut == "Approuvé" ? "success" : reservation.Statut == "Refusé" ? "danger" : "warning text-dark")">@reservation.Statut</span>
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(reservation.DoctorId) && reservation.Doctor != null)
+                                                {
+                                                    <span>Dr. @reservation.Doctor.Prenom @reservation.Doctor.Nom</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">En attente</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-5">
+                            <p class="mb-1">Aucune demande trouvée.</p>
+                            <p class="small">Soumettez une demande ou indiquez votre email pour consulter les statuts existants.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
