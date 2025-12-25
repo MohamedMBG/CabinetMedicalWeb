@@ -19,5 +19,14 @@ namespace CabinetMedicalWeb.Data
         public DbSet<ResultatExamen> ResultatExamens { get; set; }
         public DbSet<Horaire> Horaires { get; set; }
         public DbSet<Conge> Conges { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<Conge>()
+                .Property(c => c.Status)
+                .HasDefaultValue(CongeStatus.Pending);
+        }
     }
 }
