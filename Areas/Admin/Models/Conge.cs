@@ -28,5 +28,8 @@ namespace CabinetMedicalWeb.Models
 
         [ForeignKey("PersonnelId")]
         public virtual ApplicationUser Personnel { get; set; }
+
+        [Display(Name = "Approuvé")]
+        public bool IsApproved { get; set; }
     }
 }
