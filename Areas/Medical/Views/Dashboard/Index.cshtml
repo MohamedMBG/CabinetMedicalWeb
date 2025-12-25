@@ -20,6 +20,11 @@
         .OrderBy(r => r.DateHeure)
         .Take(4)
         .ToList();
+
+    var congeDays = Model.WeeklyConges
+        .SelectMany(c => Enumerable.Range(0, (c.DateFin.Date - c.DateDebut.Date).Days + 1)
+            .Select(offset => c.DateDebut.Date.AddDays(offset)))
+        .ToHashSet();
 }
 
 <style>
@@ -162,6 +167,21 @@
 
     .action-pill:hover { transform: translateY(-2px); box-shadow: 0 10px 18px -8px rgba(0,0,0,0.25); }
 
+    .nav-chip {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 0.65rem 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--dark);
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .nav-chip:hover { border-color: var(--primary); color: var(--primary); box-shadow: 0 8px 16px -8px rgba(79,70,229,0.2); }
+
     /* Appointment List */
     .app-item {
         padding: 1rem 1.5rem;
@@ -227,6 +247,62 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+
+    .conge-badge {
+        background: linear-gradient(120deg, #fee2e2, #fecdd3);
+        color: #b91c1c;
+        padding: 0.35rem 0.75rem;
+        border-radius: 10px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.85rem;
+    }
+
+    .conge-pill {
+        border: 1px dashed #fca5a5;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        background: #fff5f5;
+    }
+
+    .conge-timeline {
+        position: relative;
+        padding-left: 1.5rem;
+    }
+
+    .conge-timeline::before {
+        content: '';
+        position: absolute;
+        left: 8px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(var(--primary), transparent);
+        opacity: 0.3;
+    }
+
+    .conge-node {
+        position: relative;
+        padding: 0.75rem 1rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 4px 10px -6px rgba(0,0,0,0.15);
+    }
+
+    .conge-node::before {
+        content: '';
+        position: absolute;
+        left: -1.1rem;
+        top: 1rem;
+        width: 12px;
+        height: 12px;
+        background: var(--primary);
+        border-radius: 50%;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
     }
 </style>
 
@@ -348,14 +424,19 @@
         <!-- 4. Weekly Calendar (Right) -->
         <div class="col-lg-8">
             <div class="glass-card p-4 h-100">
-                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
                     <div>
                         <p class="text-muted small mb-1">Vue Hebdomadaire</p>
-                        <h4 class="fw-bold text-dark mb-0">@Model.WeekStartDate.ToString("dd MMM") - @Model.WeekStartDate.AddDays(6).ToString("dd MMM")</h4>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <a class="nav-chip" href="@Url.Action("Index", new { area = "Medical", weekStart = Model.PreviousWeekStart.ToString("yyyy-MM-dd") })"><i class="fas fa-chevron-left"></i> Semaine précédente</a>
+                            <h4 class="fw-bold text-dark mb-0">@Model.WeekStartDate.ToString("dd MMM") - @Model.WeekEndDate.ToString("dd MMM")</h4>
+                            <a class="nav-chip" href="@Url.Action("Index", new { area = "Medical", weekStart = Model.NextWeekStart.ToString("yyyy-MM-dd") })">Semaine suivante <i class="fas fa-chevron-right"></i></a>
+                        </div>
                     </div>
                     <!-- Legend -->
-                    <div class="d-flex gap-3 small text-muted">
+                    <div class="d-flex flex-wrap gap-3 small text-muted">
                         <div class="d-flex align-items-center gap-1"><div class="rounded-circle bg-primary" style="width:8px;height:8px;"></div> RDV Confirmé</div>
+                        <div class="d-flex align-items-center gap-1"><div class="rounded-circle" style="width:8px;height:8px;background:#fca5a5;"></div> Congé</div>
                     </div>
                 </div>
 
@@ -367,7 +448,13 @@
                         <div class="day-col @(isToday ? "is-today" : "")">
                             <div class="day-header">
                                 <div class="small text-uppercase opacity-75">@day.Key.ToString("ddd", new CultureInfo("fr-FR"))</div>
-                                <div class="fs-4 fw-bold">@day.Key.Day</div>
+                                <div class="d-flex justify-content-center align-items-center gap-2">
+                                    <div class="fs-4 fw-bold mb-0">@day.Key.Day</div>
+                                    @if (congeDays.Contains(day.Key.Date))
+                                    {
+                                        <span class="conge-badge"><i class="fas fa-umbrella-beach"></i> Congé</span>
+                                    }
+                                </div>
                             </div>
                             <div class="p-2" style="min-height: 120px;">
                                 @if (day.Value.Any())
@@ -417,6 +504,89 @@
                         }
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-1 animate-entry delay-200">
+        <div class="col-lg-6">
+            <div class="glass-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <p class="text-muted small mb-1">Visibilité</p>
+                        <h4 class="fw-bold text-dark mb-0">Mes congés</h4>
+                    </div>
+                    <span class="badge bg-light text-dark">Synchronisé</span>
+                </div>
+
+                @if (Model.UpcomingConges.Any())
+                {
+                    <div class="conge-timeline d-flex flex-column gap-3">
+                        @foreach (var conge in Model.UpcomingConges)
+                        {
+                            <div class="conge-node">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <div class="fw-bold text-dark"><i class="fas fa-umbrella-beach text-primary me-2"></i>@conge.DateDebut.ToString("dd MMM", new CultureInfo("fr-FR")) - @conge.DateFin.ToString("dd MMM", new CultureInfo("fr-FR"))</div>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">@((conge.DateFin - conge.DateDebut).Days + 1) j</span>
+                                </div>
+                                <div class="text-muted small">@(!string.IsNullOrWhiteSpace(conge.Motif) ? conge.Motif : "Congé planifié")</div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-umbrella-beach fa-2x mb-2 opacity-50"></i>
+                        <p class="mb-0">Aucun congé prévu. Vous pouvez en demander un ci-dessous.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="glass-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <p class="text-muted small mb-1">Demande</p>
+                        <h4 class="fw-bold text-dark mb-0">Demander un congé</h4>
+                    </div>
+                    <i class="fas fa-paper-plane text-primary"></i>
+                </div>
+
+                @if (TempData["CongeSuccess"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>@TempData["CongeSuccess"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <form asp-area="Medical" asp-controller="Dashboard" asp-action="RequestConge" method="post" class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Date de début</label>
+                        <input type="date" name="dateDebut" class="form-control" value="@Model.NewCongeRequest.DateDebut.ToString("yyyy-MM-dd")" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Date de fin</label>
+                        <input type="date" name="dateFin" class="form-control" value="@Model.NewCongeRequest.DateFin.ToString("yyyy-MM-dd")" required />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Motif (optionnel)</label>
+                        <textarea name="motif" class="form-control" rows="2" placeholder="Ex: Congé annuel, formation, repos ...">@Model.NewCongeRequest.Motif</textarea>
+                    </div>
+                    @if (ViewData.ModelState.ContainsKey("CongeDate") && ViewData.ModelState["CongeDate"].Errors.Any())
+                    {
+                        <div class="col-12">
+                            <div class="alert alert-danger py-2">
+                                @ViewData.ModelState["CongeDate"].Errors.First().ErrorMessage
+                            </div>
+                        </div>
+                    }
+                    <div class="col-12 d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary px-4"><i class="fas fa-paper-plane me-2"></i>Envoyer à l'admin</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
