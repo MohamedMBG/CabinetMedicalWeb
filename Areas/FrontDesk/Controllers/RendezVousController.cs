@@ -62,15 +62,20 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
 
         private void ChargerListes()
         {
-            ViewData["DoctorId"] = _context.Users
-                .Where(u => u.Role == "Doctor" || !string.IsNullOrEmpty(u.Specialite))
-                .Select(u => new SelectListItem
+            var medecins = _context.Users
+                .Where(u => !string.IsNullOrEmpty(u.Specialite))
+                .Join(_context.UserRoles, u => u.Id, ur => ur.UserId, (u, ur) => new { u, ur })
+                .Join(_context.Roles, combined => combined.ur.RoleId, r => r.Id, (combined, r) => new { combined.u, RoleName = r.Name })
+                .Where(x => x.RoleName == "Medecin")
+                .Select(x => new SelectListItem
                 {
-                    Value = u.Id,
-                    Text = $"Dr. {u.Prenom} {u.Nom} ({u.Specialite ?? "Généraliste"})"
+                    Value = x.u.Id,
+                    Text = $"Dr. {x.u.Prenom} {x.u.Nom} ({x.u.Specialite ?? "Généraliste"})"
                 })
                 .OrderBy(x => x.Text)
                 .ToList();
+
+            ViewData["DoctorId"] = medecins;
 
             ViewData["PatientId"] = _context.Patients
                 .Select(p => new SelectListItem
