@@ -4,20 +4,156 @@
     ViewData["Title"] = "Gestion du Personnel";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var primaryColor = "#6366F1";
+    var totalUsers = Model.Count();
+    var medecinsCount = Model.Count(u => u.Role == "Medecin");
+    var secretairesCount = Model.Count(u => u.Role == "Secretaire");
+    var adminCount = Model.Count(u => u.Role == "Admin");
 }
 
+<style>
+    .admin-toolbar {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(129, 140, 248, 0.12));
+        border: 1px solid rgba(99, 102, 241, 0.15);
+        border-radius: 18px;
+        padding: 1.25rem;
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.12);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .stat-pill {
+        background: #fff;
+        border-radius: 14px;
+        padding: 0.85rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        border: 1px solid rgba(31, 41, 55, 0.06);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    }
+
+    .stat-pill .icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        font-size: 1.1rem;
+        box-shadow: 0 6px 16px rgba(99, 102, 241, 0.18);
+    }
+
+    .table-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+    }
+
+    .search-input {
+        position: relative;
+        flex: 1 1 280px;
+    }
+
+    .search-input input {
+        border-radius: 12px;
+        padding-left: 2.8rem;
+    }
+
+    .search-input i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9CA3AF;
+    }
+
+    .filter-badge {
+        border-radius: 999px;
+        padding: 0.45rem 0.9rem;
+        background: #f3f4f6;
+        color: #4b5563;
+        border: 1px solid #e5e7eb;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .filter-badge.active {
+        background: #e0e7ff;
+        color: #4338CA;
+        border-color: rgba(99, 102, 241, 0.4);
+        box-shadow: 0 8px 18px rgba(99, 102, 241, 0.18);
+    }
+</style>
+
 <div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold mb-1" style="color: #1F2937;">Personnel du Cabinet</h2>
-            <p class="text-muted">Gérez les comptes d'accès à l'application.</p>
+    <div class="admin-toolbar mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+            <div>
+                <p class="mb-1 text-secondary fw-semibold text-uppercase small" style="letter-spacing: 0.08em;">Administration</p>
+                <h2 class="fw-bold mb-1" style="color: #1F2937;">Personnel du Cabinet</h2>
+                <p class="text-muted mb-0">Gérez les comptes d'accès, les rôles et les spécialités en un coup d'œil.</p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <a asp-action="Create" class="btn btn-primary fw-bold shadow-sm px-4 py-2" style="background-color: @primaryColor; border: none; border-radius: 10px;">
+                    <i class="fas fa-user-plus me-2"></i>Ajouter un compte
+                </a>
+                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-light border fw-semibold px-3">
+                    <i class="fas fa-arrow-left me-2"></i>Retour au tableau de bord
+                </a>
+            </div>
         </div>
-        <a asp-action="Create" class="btn btn-primary fw-bold shadow-sm px-4 py-2" style="background-color: @primaryColor; border: none; border-radius: 10px;">
-            <i class="fas fa-user-plus me-2"></i>Ajouter
-        </a>
+        <div class="stats-grid">
+            <div class="stat-pill">
+                <div class="icon" style="background: linear-gradient(135deg, #6366f1, #4f46e5);"><i class="fas fa-users"></i></div>
+                <div>
+                    <p class="mb-0 text-muted small text-uppercase">Comptes actifs</p>
+                    <h5 class="mb-0 fw-bold">@totalUsers utilisateurs</h5>
+                </div>
+            </div>
+            <div class="stat-pill">
+                <div class="icon" style="background: linear-gradient(135deg, #10b981, #059669);"><i class="fas fa-user-md"></i></div>
+                <div>
+                    <p class="mb-0 text-muted small text-uppercase">Médecins</p>
+                    <h5 class="mb-0 fw-bold">@medecinsCount</h5>
+                </div>
+            </div>
+            <div class="stat-pill">
+                <div class="icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);"><i class="fas fa-headset"></i></div>
+                <div>
+                    <p class="mb-0 text-muted small text-uppercase">Secrétariat</p>
+                    <h5 class="mb-0 fw-bold">@secretairesCount</h5>
+                </div>
+            </div>
+            <div class="stat-pill">
+                <div class="icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);"><i class="fas fa-shield-alt"></i></div>
+                <div>
+                    <p class="mb-0 text-muted small text-uppercase">Administrateurs</p>
+                    <h5 class="mb-0 fw-bold">@adminCount</h5>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-toolbar">
+            <div class="search-input">
+                <i class="fas fa-search"></i>
+                <input id="userSearch" class="form-control" type="search" placeholder="Rechercher un nom, un email ou une spécialité..." />
+            </div>
+            <div class="d-flex gap-2 flex-wrap" id="roleFilters">
+                <button type="button" class="filter-badge active" data-role="">Tous</button>
+                <button type="button" class="filter-badge" data-role="Medecin">Médecins</button>
+                <button type="button" class="filter-badge" data-role="Secretaire">Secrétaires</button>
+                <button type="button" class="filter-badge" data-role="Admin">Admins</button>
+            </div>
+        </div>
         <div class="table-responsive">
             <table class="table table-hover mb-0 align-middle">
                 <thead class="bg-light">
@@ -28,10 +164,10 @@
                         <th class="py-3 text-end pe-4 text-uppercase small fw-bold text-muted">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="usersTable">
                     @foreach (var user in Model)
                     {
-                        <tr>
+                        <tr data-role="@user.Role" data-searchable="@(($"{user.Nom} {user.Prenom} {user.Email} {user.Specialite}").ToLower())">
                             <td class="ps-4 py-3">
                                 <div class="d-flex align-items-center">
                                     <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3 text-primary fw-bold" style="width: 40px; height: 40px;">
@@ -44,9 +180,9 @@
                                 </div>
                             </td>
                             <td>
-                                @if(user.Role == "Medecin") { <span class="badge bg-indigo-soft text-indigo border border-indigo-200" style="background:#E0E7FF; color:#4338CA;">Médecin</span> }
-                                else if(user.Role == "Secretaire") { <span class="badge bg-green-soft text-green border border-green-200" style="background:#D1FAE5; color:#065F46;">Secrétaire</span> }
-                                else if(user.Role == "Admin") { <span class="badge bg-red-soft text-red border border-red-200" style="background:#FEE2E2; color:#991B1B;">Admin</span> }
+                                @if(user.Role == "Medecin") { <span class="badge" style="background:#E0E7FF; color:#4338CA;">Médecin</span> }
+                                else if(user.Role == "Secretaire") { <span class="badge" style="background:#D1FAE5; color:#065F46;">Secrétaire</span> }
+                                else if(user.Role == "Admin") { <span class="badge" style="background:#FEE2E2; color:#991B1B;">Admin</span> }
                                 else { <span class="badge bg-secondary">Aucun</span> }
                             </td>
                             <td>
@@ -60,17 +196,67 @@
                                 }
                             </td>
                             <td class="text-end pe-4">
-                                @if(user.Role != "Admin") 
+                                @if(user.Role != "Admin")
                                 {
-                                    <form asp-action="Delete" asp-route-id="@user.Id" method="post" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce compte ?');">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger border-0"><i class="fas fa-trash-alt"></i></button>
-                                    </form>
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-outline-primary border-0" title="Modifier">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+                                        <form asp-action="Delete" asp-route-id="@user.Id" method="post" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce compte ?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Supprimer"><i class="fas fa-trash-alt"></i></button>
+                                        </form>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-muted">Compte protégé</span>
                                 }
                             </td>
                         </tr>
                     }
+                    <tr id="noResultsRow" style="display: none;">
+                        <td colspan="4" class="text-center py-4 text-muted">
+                            <i class="fas fa-search-minus me-2"></i> Aucun résultat ne correspond à votre recherche.
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById("userSearch");
+            const roleButtons = document.querySelectorAll("#roleFilters .filter-badge");
+            const rows = Array.from(document.querySelectorAll("#usersTable tr[data-role]"));
+            const noResultsRow = document.getElementById("noResultsRow");
+
+            function filterRows() {
+                const term = searchInput.value.trim().toLowerCase();
+                const activeRole = document.querySelector("#roleFilters .filter-badge.active")?.dataset.role || "";
+                let visibleCount = 0;
+
+                rows.forEach(row => {
+                    const matchesRole = !activeRole || row.dataset.role === activeRole;
+                    const matchesSearch = !term || row.dataset.searchable.includes(term);
+                    const shouldShow = matchesRole && matchesSearch;
+                    row.style.display = shouldShow ? "" : "none";
+                    if (shouldShow) visibleCount++;
+                });
+
+                noResultsRow.style.display = visibleCount === 0 ? "table-row" : "none";
+            }
+
+            roleButtons.forEach(btn => btn.addEventListener("click", () => {
+                roleButtons.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                filterRows();
+            }));
+
+            searchInput.addEventListener("input", filterRows);
+        });
+    </script>
+}
