@@ -1,4 +1,4 @@
-@model CabinetMedicalWeb.Models.PriseRendezVousViewModel
+@model CabinetMedicalWeb.Models.RendezVous
 
 @{
     ViewData["Title"] = "Nouveau rendez-vous";
@@ -16,7 +16,7 @@
 
     <div class="form-group mb-3">
         <label asp-for="DoctorId" class="control-label" style="color: #666B72;"></label>
-        <select asp-for="DoctorId" asp-items="Model.DoctorsDisponibles" class="form-control">
+        <select asp-for="DoctorId" asp-items="(IEnumerable<SelectListItem>)ViewData[\"DoctorId\"]" class="form-control">
             <option value="">-- Choisir un médecin --</option>
         </select>
         <span asp-validation-for="DoctorId" class="text-danger"></span>
@@ -24,7 +24,7 @@
 
     <div class="form-group mb-3">
         <label asp-for="PatientId" class="control-label" style="color: #666B72;"></label>
-        <select asp-for="PatientId" asp-items="Model.PatientsDisponibles" class="form-control">
+        <select asp-for="PatientId" asp-items="(IEnumerable<SelectListItem>)ViewData[\"PatientId\"]" class="form-control">
             <option value="">-- Choisir un patient --</option>
         </select>
         <span asp-validation-for="PatientId" class="text-danger"></span>
@@ -44,7 +44,7 @@
     <button type="submit" class="btn btn-primary" style="background-color: #91B3D9; border: none;">
         Créer le rendez-vous
     </button>
-    <a asp-action="Index" class="btn btn-secondary ms-2">Annuler</a>
+    <a asp-action="Index" asp-controller="Agenda" class="btn btn-secondary ms-2">Annuler</a>
 </form>
 
 @section Scripts {
