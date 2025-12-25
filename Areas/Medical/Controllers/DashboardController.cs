@@ -67,9 +67,9 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
             {
                 DateDebut = dateDebut.Date,
                 DateFin = dateFin.Date,
-                Motif = motif, 
+                Motif = motif,
                 PersonnelId = user.Id,
-                IsApproved = false
+                Status = CongeStatus.Pending
             };
 
             _context.Conges.Add(conge);
@@ -97,13 +97,14 @@ namespace CabinetMedicalWeb.Areas.Medical.Controllers
 
             var weeklyConges = await _context.Conges
                 .Where(c => c.PersonnelId == user.Id &&
+                            c.Status == CongeStatus.Approved &&
                             c.DateFin >= startOfWeek &&
                             c.DateDebut <= endOfWeek)
                 .OrderBy(c => c.DateDebut)
                 .ToListAsync();
 
             var upcomingConges = await _context.Conges
-                .Where(c => c.PersonnelId == user.Id && c.IsApproved && c.DateFin >= today) 
+                .Where(c => c.PersonnelId == user.Id && c.Status == CongeStatus.Approved && c.DateFin >= today)
                 .OrderBy(c => c.DateDebut)
                 .Take(3)
                 .ToListAsync();

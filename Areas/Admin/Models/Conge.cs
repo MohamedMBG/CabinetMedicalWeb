@@ -21,8 +21,8 @@ namespace CabinetMedicalWeb.Models
         [Display(Name = "Motif (Optionnel)")]
         public string? Motif { get; set; } // Ex: Vacances, Maladie, Formation
 
-        [Display(Name = "Approuvé")]
-        public bool IsApproved  { get; set; }
+        [Display(Name = "Statut")]
+        public CongeStatus Status { get; set; } = CongeStatus.Pending;
 
         // Lien avec l'employé (Médecin ou Secrétaire)
         [Required]
@@ -31,5 +31,11 @@ namespace CabinetMedicalWeb.Models
 
         [ForeignKey("PersonnelId")]
         public virtual ApplicationUser Personnel { get; set; }
+    }
+    public enum CongeStatus
+    {
+        Pending = 0,
+        Approved = 1,
+        Rejected = 2
     }
 }
