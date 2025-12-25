@@ -62,22 +62,30 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
 
         private void ChargerListes()
         {
-            var medecins = _context.Users
+            var medecinsData = _context.Users
                 .Where(u => !string.IsNullOrEmpty(u.Specialite))
                 .Join(_context.UserRoles, u => u.Id, ur => ur.UserId, (u, ur) => new { u, ur })
                 .Join(_context.Roles, combined => combined.ur.RoleId, r => r.Id, (combined, r) => new { combined.u, RoleName = r.Name })
                 .Where(x => x.RoleName == "Medecin")
-                .Select(x => new SelectListItem
+                .Select(x => new { x.u.Id, x.u.Prenom, x.u.Nom, x.u.Specialite })
+                .ToList();
+
+            var medecins = medecinsData
+                .Select(m => new SelectListItem
                 {
-                    Value = x.u.Id,
-                    Text = $"Dr. {x.u.Prenom} {x.u.Nom} ({x.u.Specialite ?? "Généraliste"})"
+                    Value = m.Id,
+                    Text = $"Dr. {m.Prenom} {m.Nom} ({m.Specialite ?? "Généraliste"})"
                 })
                 .OrderBy(x => x.Text)
                 .ToList();
 
             ViewData["DoctorId"] = medecins;
 
-            ViewData["PatientId"] = _context.Patients
+            var patientsData = _context.Patients
+                .Select(p => new { p.Id, p.Prenom, p.Nom })
+                .ToList();
+
+            ViewData["PatientId"] = patientsData
                 .Select(p => new SelectListItem
                 {
                     Value = p.Id.ToString(),
