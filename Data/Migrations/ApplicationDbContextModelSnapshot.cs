@@ -128,7 +128,7 @@ namespace CabinetMedicalWeb.Data.Migrations
 
                     b.HasIndex("PersonnelId");
 
-                    b.ToTable("Conges");
+                    b.ToTable("Conges", (string)null);
                 });
 
             modelBuilder.Entity("CabinetMedicalWeb.Models.Consultation", b =>
@@ -162,7 +162,7 @@ namespace CabinetMedicalWeb.Data.Migrations
 
                     b.HasIndex("DossierMedicalId");
 
-                    b.ToTable("Consultation");
+                    b.ToTable("Consultation", (string)null);
                 });
 
             modelBuilder.Entity("CabinetMedicalWeb.Models.DossierMedical", b =>
@@ -181,7 +181,7 @@ namespace CabinetMedicalWeb.Data.Migrations
                     b.HasIndex("PatientId")
                         .IsUnique();
 
-                    b.ToTable("Dossiers");
+                    b.ToTable("Dossiers", (string)null);
                 });
 
             modelBuilder.Entity("CabinetMedicalWeb.Models.Horaire", b =>
@@ -208,7 +208,7 @@ namespace CabinetMedicalWeb.Data.Migrations
 
                     b.HasIndex("DoctorId");
 
-                    b.ToTable("Horaires");
+                    b.ToTable("Horaires", (string)null);
                 });
 
             modelBuilder.Entity("CabinetMedicalWeb.Models.Patient", b =>
@@ -252,7 +252,7 @@ namespace CabinetMedicalWeb.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Patients");
+                    b.ToTable("Patients", (string)null);
                 });
 
             modelBuilder.Entity("CabinetMedicalWeb.Models.Prescription", b =>
@@ -283,7 +283,7 @@ namespace CabinetMedicalWeb.Data.Migrations
 
                     b.HasIndex("DossierMedicalId");
 
-                    b.ToTable("Prescriptions");
+                    b.ToTable("Prescriptions", (string)null);
                 });
 
             modelBuilder.Entity("CabinetMedicalWeb.Models.RendezVous", b =>
@@ -318,7 +318,7 @@ namespace CabinetMedicalWeb.Data.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("RendezVous");
+                    b.ToTable("RendezVous", (string)null);
                 });
 
             modelBuilder.Entity("CabinetMedicalWeb.Models.ResultatExamen", b =>
@@ -353,7 +353,7 @@ namespace CabinetMedicalWeb.Data.Migrations
 
                     b.HasIndex("DossierMedicalId");
 
-                    b.ToTable("ResultatExamens");
+                    b.ToTable("ResultatExamens", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

@@ -9,28 +9,21 @@ namespace CabinetMedicalWeb.Data.Migrations
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.AlterColumn<int>(
-                name: "Status",
-                table: "Conges",
-                type: "int",
-                nullable: false,
-                defaultValue: 0,
-                oldClrType: typeof(int),
-                oldType: "int");
-        }
+{
+    migrationBuilder.AddColumn<int>(
+        name: "Status",
+        table: "Conges",
+        type: "int",
+        nullable: false,
+        defaultValue: 0);
+}
 
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.AlterColumn<int>(
-                name: "Status",
-                table: "Conges",
-                type: "int",
-                nullable: false,
-                oldClrType: typeof(int),
-                oldType: "int",
-                oldDefaultValue: 0);
-        }
+protected override void Down(MigrationBuilder migrationBuilder)
+{
+    migrationBuilder.DropColumn(
+        name: "Status",
+        table: "Conges");
+}
+
     }
 }
