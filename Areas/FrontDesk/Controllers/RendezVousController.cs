@@ -19,6 +19,12 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
             _context = context;
         }
 
+        // GET: FrontDesk/RendezVous
+        public IActionResult Index()
+        {
+            return RedirectToAction("Index", "Agenda", new { area = "FrontDesk" });
+        }
+
         // GET: FrontDesk/RendezVous/Create
         public IActionResult Create()
         {
