@@ -1,27 +1,120 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using CabinetMedicalWeb.Models
+@using Microsoft.AspNetCore.Authorization
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
-<ul class="navbar-nav">
+@inject IAuthorizationService AuthorizationService
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var userRoles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();
+    var isDoctor = userRoles.Contains("Medecin");
+    var isSecretary = userRoles.Contains("Secretaire");
+    var userDisplayName = user != null ? $"{user.Prenom} {user.Nom}" : User.Identity?.Name ?? "User";
+}
+
 @if (SignInManager.IsSignedIn(User))
 {
-    <li class="nav-item">
-        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
-    </li>
-    <li class="nav-item">
-        <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button  type="submit" class="nav-link btn btn-link text-dark">Logout</button>
-        </form>
-    </li>
+    <div class="dropdown">
+        <button class="btn btn-link nav-link dropdown-toggle d-flex align-items-center gap-2" 
+                type="button" id="userDropdown" data-bs-toggle="dropdown" 
+                aria-expanded="false" style="color: var(--text-main); text-decoration: none;">
+            <div class="user-avatar-small">
+                @{
+                    var initials = (user?.Prenom?.FirstOrDefault().ToString() ?? "") + (user?.Nom?.FirstOrDefault().ToString() ?? "");
+                }
+                @initials
+            </div>
+            <div class="d-none d-md-block text-start">
+                <div class="fw-semibold small" style="line-height: 1.2;">@userDisplayName</div>
+                @if (isDoctor && !string.IsNullOrEmpty(user?.Specialite))
+                {
+                    <div class="text-muted" style="font-size: 0.75rem; line-height: 1.2;">@user.Specialite</div>
+                }
+                else if (isSecretary)
+                {
+                    <div class="text-muted" style="font-size: 0.75rem; line-height: 1.2;">@("Secretary")</div>
+                }
+            </div>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown" style="min-width: 250px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); margin-top: 0.5rem;">
+            <li>
+                <div class="dropdown-header px-3 py-2" style="background-color: #E9EFF7; border-radius: 12px 12px 0 0;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="user-avatar-medium">
+                            @initials
+                        </div>
+                        <div>
+                            <div class="fw-bold small">@userDisplayName</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">
+                                @if (isDoctor && !string.IsNullOrEmpty(user?.Specialite))
+                                {
+                                    <i class="fas fa-stethoscope me-1"></i>@user.Specialite
+                                }
+                                else if (isSecretary)
+                                {
+                                    <i class="fas fa-calendar-alt me-1"></i>@("Secretary")
+                                }
+                                else
+                                {
+                                    <i class="fas fa-user me-1"></i>@User.Identity?.Name
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            <li><hr class="dropdown-divider my-2"></li>
+            <li>
+                <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
+                    <i class="fas fa-user me-2"></i>My Profile
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
+                    <i class="fas fa-edit me-2"></i>Edit Profile
+                </a>
+            </li>
+            @if (isDoctor)
+            {
+                <li>
+                    <a class="dropdown-item" asp-area="Medical" asp-controller="DossierMedicals" asp-action="Index">
+                        <i class="fas fa-folder-medical me-2"></i>Medical Records
+                    </a>
+                </li>
+            }
+            @if (isSecretary)
+            {
+                <li>
+                    <a class="dropdown-item" asp-area="FrontDesk" asp-controller="Agenda" asp-action="Index">
+                        <i class="fas fa-calendar-alt me-2"></i>Appointments
+                    </a>
+                </li>
+            }
+            <li><hr class="dropdown-divider my-2"></li>
+            <li>
+                <form class="d-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                    <button type="submit" class="dropdown-item text-danger">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </div>
 }
 else
 {
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
-    </li>
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">
+                <i class="fas fa-user-plus me-1"></i>Register
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">
+                <i class="fas fa-sign-in-alt me-1"></i>Login
+            </a>
+        </li>
+    </ul>
 }
-</ul>

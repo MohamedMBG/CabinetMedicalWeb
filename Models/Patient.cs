@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace CabinetMedicalWeb.Models
 {
@@ -32,7 +33,8 @@ namespace CabinetMedicalWeb.Models
 
         public string? AntecedentsMedicaux { get; set; }
 
-        // Liens
+        // Navigation Property: Lien vers le Dossier Médical (One-to-One)
+        // Un patient a un seul dossier médical
         public virtual DossierMedical? Dossier { get; set; }
     }
 }

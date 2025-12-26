@@ -1,5 +1,222 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<CabinetMedicalWeb.Models.RendezVous>
+
 @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Agenda Hebdomadaire";
+
+    // Data Preparation
+    var startOfWeek = (DateTime)ViewData["StartOfWeek"];
+    var rendezVousList = Model.ToList();
+    var daysOfWeek = new[] { "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi" };
+
+    // Theme Variables
+    var primaryColor = "#7AA3D1";
+    var bgPage = "#E9EFF7";
+    var textDark = "#1F2937";
 }
+
+<style>
+    body { background-color: @bgPage; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+    /* --- Header Section --- */
+    .agenda-header {
+        background: linear-gradient(135deg, @primaryColor 0%, #91B3D9 100%);
+        border-radius: 20px;
+        padding: 2rem 2.5rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px -5px rgba(122, 163, 209, 0.4);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .agenda-header::after {
+        content: '';
+        position: absolute;
+        top: -50px; right: -50px;
+        width: 200px; height: 200px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .header-content h1 { font-weight: 800; font-size: 1.75rem; margin: 0; letter-spacing: -0.02em; }
+    .header-content p { margin: 0.25rem 0 0; opacity: 0.9; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; }
+
+    .btn-create {
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255,255,255,0.4);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        text-decoration: none;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+    .btn-create:hover { background: white; color: @primaryColor; transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+
+    /* --- Calendar Grid --- */
+    .calendar-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        border: 1px solid #E5E7EB;
+        overflow: hidden;
+    }
+
+    .agenda-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+
+    .agenda-table thead th {
+        padding: 1.25rem 1rem;
+        text-align: center;
+        border-bottom: 1px solid #E5E7EB;
+        background: #F9FAFB;
+        color: #6B7280;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 700;
+    }
+
+    .agenda-table thead th.time-col { width: 80px; border-right: 1px solid #E5E7EB; background: white; }
+    .agenda-table thead th.today-col { color: @primaryColor; background: #F0F9FF; }
+
+    .agenda-table tbody td {
+        border-bottom: 1px solid #F3F4F6;
+        border-right: 1px solid #F3F4F6;
+        padding: 8px;
+        height: 100px;
+        vertical-align: top;
+        transition: background 0.1s;
+    }
+    
+    .agenda-table tbody td:last-child { border-right: none; }
+    .agenda-table tbody td:not(.time-slot):hover { background-color: #FAFAFA; }
+
+    .time-slot {
+        text-align: center;
+        vertical-align: middle !important;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #9CA3AF;
+        background: white;
+        border-right: 1px solid #E5E7EB;
+    }
+
+    /* --- Appointment Cards --- */
+    .appt-card {
+        background: white;
+        border-left: 4px solid @primaryColor;
+        padding: 8px 12px;
+        border-radius: 8px;
+        margin-bottom: 6px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        border: 1px solid #F1F5F9;
+        border-left-width: 4px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        position: relative;
+    }
+    
+    .appt-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.08);
+        border-color: #E2E8F0;
+        z-index: 10;
+    }
+
+    .appt-time { font-size: 0.75rem; font-weight: 700; color: @primaryColor; margin-bottom: 2px; display: block; }
+    .appt-name { font-weight: 700; font-size: 0.9rem; color: @textDark; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+    .appt-doc { font-size: 0.8rem; color: #6B7280; display: block; margin-top: 2px; }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem;
+        color: #9CA3AF;
+    }
+</style>
+
+<div class="container-fluid py-5" style="max-width: 1600px;">
+    
+    <!-- 1. Header -->
+    <div class="agenda-header animate__animated animate__fadeInDown">
+        <div class="header-content">
+            <h1>Agenda Hebdomadaire</h1>
+            <p>
+                <i class="far fa-calendar-alt"></i> 
+                Semaine du @startOfWeek.ToString("dd MMMM") au @startOfWeek.AddDays(4).ToString("dd MMMM yyyy")
+            </p>
+        </div>
+        <a asp-area="FrontDesk" asp-controller="RendezVous" asp-action="Create" class="btn-create">
+            <i class="fas fa-plus-circle"></i> Nouveau Rendez-vous
+        </a>
+    </div>
+
+    <!-- 2. Calendar Grid -->
+    <div class="calendar-container animate__animated animate__fadeInUp">
+        <div class="table-responsive">
+            <table class="agenda-table">
+                <thead>
+                    <tr>
+                        <th class="time-col"></th>
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            var date = startOfWeek.AddDays(i);
+                            var isToday = date.Date == DateTime.Today;
+                            <th class="@(isToday ? "today-col" : "")">
+                                <div class="d-flex flex-column align-items-center">
+                                    <span class="small opacity-75">@daysOfWeek[i]</span>
+                                    <span class="fs-5">@date.Day</span>
+                                </div>
+                            </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int hour = 8; hour <= 18; hour++)
+                    {
+                        <tr>
+                            <td class="time-slot">@hour:00</td>
+                            @for (int day = 0; day < 5; day++)
+                            {
+                                var currentDate = startOfWeek.AddDays(day);
+                                var rdvsForCell = rendezVousList
+                                    .Where(r => r.DateHeure.Date == currentDate.Date && r.DateHeure.Hour == hour)
+                                    .OrderBy(r => r.DateHeure)
+                                    .ToList();
+
+                                <td>
+                                    @foreach (var rdv in rdvsForCell)
+                                    {
+                                        <div class="appt-card" title="@rdv.Motif">
+                                            <span class="appt-time"><i class="far fa-clock me-1"></i>@rdv.DateHeure.ToString("HH:mm")</span>
+                                            <span class="appt-name">@rdv.Patient.Nom @rdv.Patient.Prenom</span>
+                                            <span class="appt-doc"><i class="fas fa-user-md me-1"></i>Dr. @rdv.Doctor.Nom</span>
+                                        </div>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (!rendezVousList.Any())
+        {
+            <div class="empty-state">
+                <i class="far fa-calendar-check fa-3x mb-3"></i>
+                <h5>Aucun rendez-vous cette semaine</h5>
+                <p>Utilisez le bouton ci-dessus pour planifier une consultation.</p>
+            </div>
+        }
+    </div>
+</div>

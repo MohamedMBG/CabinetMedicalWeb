@@ -3,46 +3,280 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - CabinetMedicalWeb</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - Aurora Dental Clinic</title>
+
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <!-- Bootstrap 5 -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    
+    <!-- Custom Styles -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/CabinetMedicalWeb.styles.css" asp-append-version="true" />
+
+    <style>
+        :root {
+            --primary-color: #7AA5FF;
+            --primary-dark: #6C8CFF;
+            --secondary-color: #4B5563;
+            --bg-light: #EEF3FF;
+            --text-main: #1F2A44;
+            --nav-height: 70px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #dcefff, #c5d9ff, #b3c7ff);
+            color: var(--text-main);
+            padding-top: var(--nav-height); /* Space for fixed navbar */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navbar Styling */
+        .navbar-custom {
+            background-color: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(108, 140, 255, 0.14);
+            height: var(--nav-height);
+            box-shadow: 0 12px 28px rgba(108, 140, 255, 0.12);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--text-main) !important;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        /* Navigation Links */
+        .nav-link {
+            font-weight: 500;
+            color: var(--secondary-color) !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            margin: 0 4px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-color) !important;
+            background-color: rgba(145, 179, 217, 0.2);
+        }
+
+        .nav-link i {
+            margin-right: 6px;
+            opacity: 0.8;
+        }
+
+        /* Footer */
+        .footer-custom {
+            background: white;
+            border-top: 1px solid rgba(102, 107, 114, 0.14);
+            padding: 1.5rem 0;
+            margin-top: auto;
+            font-size: 0.875rem;
+            color: var(--secondary-color);
+        }
+        
+        /* Dropdown Styling */
+        .dropdown-menu {
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 0.5rem;
+        }
+        
+        .dropdown-item {
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #F1F5F9;
+            color: var(--primary-color);
+        }
+        
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            margin-right: 8px;
+            color: #94A3B8;
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white !important;
+            padding: 0.55rem 1.15rem !important;
+            border-radius: 12px;
+            font-weight: 700;
+            box-shadow: 0 12px 28px rgba(108, 140, 255, 0.18);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: none;
+        }
+
+        .nav-cta:hover {
+            color: white !important;
+            transform: translateY(-1px);
+            box-shadow: 0 14px 30px rgba(108, 140, 255, 0.24);
+        }
+    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CabinetMedicalWeb</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-lg fixed-top navbar-custom">
+            <div class="container-fluid px-4" style="max-width: 1600px;">
+                
+                <!-- Brand -->
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <div class="brand-icon">
+                        <i class="fas fa-tooth"></i>
+                    </div>
+                    <span>Aurora Dental</span>
+                </a>
+
+                <!-- Mobile Toggle -->
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <!-- Navigation Content -->
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    
+                    <!-- Left Side: Main Navigation -->
+                    <ul class="navbar-nav me-auto ms-lg-4 mb-2 mb-lg-0">
+
+                        <!-- Role: Admin -->
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "active" : "")"
+                                   asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                                    <i class="fas fa-chart-line"></i>Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Users" ? "active" : "")"
+                                   asp-area="Admin" asp-controller="Users" asp-action="Index">
+                                    <i class="fas fa-users-cog"></i>Personnel
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Conges" ? "active" : "")"
+                                   asp-area="Admin" asp-controller="Conges" asp-action="Index">
+                                    <i class="fas fa-plane-departure"></i>Absences
+                                </a>
+                            </li>
+                        }
+
+                        <!-- Role: Medecin & Admin -->
+                        @if (User.IsInRole("Medecin") || User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "DossierMedicals" ? "active" : "")" 
+                                   asp-area="Medical" asp-controller="DossierMedicals" asp-action="Index">
+                                    <i class="fas fa-folder-medical"></i>Records
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Consultation" ? "active" : "")" 
+                                   asp-area="Medical" asp-controller="Consultation" asp-action="Index">
+                                    <i class="fas fa-stethoscope"></i>Consultations
+                                </a>
+                            </li>
+                        }
+
+                        <!-- Role: Secretaire & Admin -->
+                        @if (User.IsInRole("Secretaire") || User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="FrontDesk" asp-controller="Agenda" asp-action="Index">
+                                    <i class="fas fa-calendar-alt"></i>Agenda
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="FrontDesk" asp-controller="Patients" asp-action="Index">
+                                    <i class="fas fa-users"></i>Patients
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="FrontDesk" asp-controller="ReservationRequests" asp-action="Index">
+                                    <i class="fas fa-inbox"></i>Demandes en ligne
+                                </a>
+                            </li>
+                        }
+
+                        <!-- Public Links (if not logged in or general) -->
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/#services">Services</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/#appointment">Appointments</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/#faq">FAQ</a>
+                            </li>
+                        }
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" asp-controller="Reservations" asp-action="Dashboard">
+                                <i class="fas fa-calendar-check"></i>Prendre rendez-vous
+                            </a>
                         </li>
                     </ul>
-                    <partial name="_LoginPartial" />
+
+                    <!-- Right Side: User Profile & Logout -->
+                    <div class="d-flex align-items-center gap-3">
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <a class="nav-cta d-none d-lg-inline-flex" asp-controller="Reservations" asp-action="Dashboard"><i class="fas fa-bolt me-2"></i>Book now</a>
+                        }
+                        <partial name="_LoginPartial" />
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+        
+    <main role="main">
+        @RenderBody()
+    </main>
 
-    <footer class="border-top footer text-muted">
+    <footer class="footer-custom text-center">
         <div class="container">
-            &copy; 2025 - CabinetMedicalWeb - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2025 <strong>Cabinet Medical</strong> &bull; Secure Health Management System
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

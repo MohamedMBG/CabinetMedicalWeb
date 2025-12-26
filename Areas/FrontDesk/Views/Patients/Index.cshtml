@@ -2,188 +2,350 @@
 
 @{
     ViewData["Title"] = "Gestion des Patients";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var primaryColor = "#7AA3D1";
+    var bgPage = "#E9EFF7";
+    var textDark = "#1F2937";
+    var textMuted = "#6B7280";
+    var surfaceColor = "#FFFFFF";
+    var borderColor = "#D4DEEC";
 }
 
 <style>
-    body {
-        background-color: #E9EFF7;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: #666B72;
+    body { background-color: @bgPage; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+    /* --- Page Container with Glassmorphism --- */
+    .page-container {
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.6);
     }
 
-    .page-header {
-        background: linear-gradient(135deg, #91B3D9 0%, #A7CBED 100%);
-        padding: 30px;
-        border-radius: 8px;
-        margin-bottom: 30px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    }
-
-    .page-header h1 {
-        color: white;
-        margin: 0;
-        font-size: 28px;
-        font-weight: 300;
-    }
-
-    .toolbar {
+    /* --- Header Section --- */
+    .header-section {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
-        gap: 15px;
+        margin-bottom: 2.5rem;
+        flex-wrap: wrap;
+        gap: 1.5rem;
     }
 
-    .search-box {
-        flex: 1;
+    .header-title h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: @textDark;
+        margin: 0;
+        letter-spacing: -0.02em;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .header-title h1 i { color: @primaryColor; }
+
+    .header-subtitle {
+        color: @textMuted;
+        font-size: 1rem;
+        margin-top: 0.25rem;
+    }
+
+    /* --- Toolbar & Search --- */
+    .toolbar {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-grow: 1;
+        justify-content: flex-end;
+    }
+
+    .search-wrapper {
+        position: relative;
+        flex-grow: 1;
         max-width: 400px;
     }
 
-    .search-box input {
+    .search-wrapper i {
+        position: absolute;
+        left: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: @textMuted;
+        pointer-events: none;
+    }
+
+    .search-input {
         width: 100%;
-        padding: 12px 20px;
-        border: 1px solid #989DA5;
-        border-radius: 25px;
-        font-size: 14px;
-        transition: all 0.3s;
+        padding: 0.875rem 1rem 0.875rem 3rem;
+        border: 2px solid transparent;
+        border-radius: 16px;
+        background: #F3F4F6;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
     }
 
-    .search-box input:focus {
+    .search-input:focus {
         outline: none;
-        border-color: #91B3D9;
-        box-shadow: 0 0 0 3px rgba(145, 179, 217, 0.1);
+        background: white;
+        border-color: @primaryColor;
+        box-shadow: 0 0 0 4px rgba(122, 163, 209, 0.15);
     }
 
+    /* --- Primary Action Button --- */
     .btn-primary-custom {
-        background-color: #91B3D9;
+        background: linear-gradient(135deg, @primaryColor 0%, #6C8CFF 100%);
         color: white;
-        padding: 12px 30px;
-        border: none;
-        border-radius: 25px;
+        padding: 0.875rem 1.75rem;
+        border-radius: 16px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
         text-decoration: none;
-        font-weight: 500;
-        transition: all 0.3s;
-        display: inline-block;
+        box-shadow: 0 4px 12px rgba(122, 163, 209, 0.3);
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: none;
     }
 
     .btn-primary-custom:hover {
-        background-color: #7AA3D1;
-        color: white;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(122, 163, 209, 0.3);
-    }
-
-    .patients-table {
-        background: white;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-
-    .patients-table table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .patients-table thead {
-        background-color: #A7CBED;
-    }
-
-    .patients-table thead th {
-        padding: 15px;
-        text-align: left;
+        box-shadow: 0 8px 20px rgba(122, 163, 209, 0.4);
         color: white;
-        font-weight: 500;
-        text-transform: uppercase;
-        font-size: 12px;
-        letter-spacing: 0.5px;
     }
 
-    .patients-table tbody tr {
-        border-bottom: 1px solid #E9EFF7;
+    /* --- Table Styles --- */
+    .table-container {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid @borderColor;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .custom-table thead th {
+        background: #F8FAFC;
+        padding: 1.25rem 1.5rem;
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: @textMuted;
+        border-bottom: 1px solid @borderColor;
+    }
+
+    .custom-table tbody tr {
         transition: background-color 0.2s;
     }
 
-    .patients-table tbody tr:hover {
-        background-color: #F8FBFF;
+    .custom-table tbody tr:hover {
+        background-color: #F8FAFC;
     }
 
-    .patients-table tbody td {
-        padding: 15px;
-        color: #666B72;
+    .custom-table td {
+        padding: 1.25rem 1.5rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #F1F5F9;
+        color: @textDark;
+        font-size: 0.95rem;
     }
 
-    .action-links a {
-        color: #91B3D9;
+    .custom-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* --- Patient Avatar & Info --- */
+    .patient-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .avatar-circle {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #A7CBED, #7AA3D1);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+        box-shadow: 0 4px 6px rgba(122, 163, 209, 0.2);
+    }
+
+    .patient-name {
+        font-weight: 600;
+        color: @textDark;
+        display: block;
+    }
+    
+    .patient-email {
+        font-size: 0.85rem;
+        color: @textMuted;
+    }
+
+    /* --- Action Buttons (Icons) --- */
+    .action-group {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+    }
+
+    .btn-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: @textMuted;
+        background: transparent;
+        transition: all 0.2s;
+        border: 1px solid transparent;
         text-decoration: none;
-        margin-right: 15px;
-        font-size: 14px;
-        transition: color 0.2s;
     }
 
-    .action-links a:hover {
-        color: #7AA3D1;
-        text-decoration: underline;
+    .btn-icon:hover {
+        background: #F3F4F6;
+        color: @primaryColor;
+        border-color: @borderColor;
+    }
+    
+    .btn-icon.delete:hover {
+        background: #FEF2F2;
+        color: #EF4444;
+        border-color: #FECACA;
     }
 
-    .no-results {
+    /* --- Empty State --- */
+    .empty-state {
         text-align: center;
-        padding: 50px;
-        color: #989DA5;
-        font-style: italic;
+        padding: 5rem 2rem;
+        color: @textMuted;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+        color: @primaryColor;
     }
 </style>
 
-<div class="page-header">
-    <h1>📋 Gestion des Patients</h1>
-</div>
-
-<div class="toolbar">
-    <form method="get" class="search-box">
-        <input type="text" name="searchString" value="@ViewData["CurrentFilter"]"
-            placeholder="🔍 Rechercher un patient (nom, prénom, téléphone)..." />
-    </form>
-    <a asp-area="FrontDesk" asp-controller="Patients" asp-action="Create" class="btn-primary-custom">+ Nouveau
-        Patient</a>
-</div>
-
-<div class="patients-table">
-    @if (Model.Any())
-    {
-        <table>
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Téléphone</th>
-                    <th>Email</th>
-                    <th>Date de Naissance</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td><strong>@item.Nom</strong></td>
-                        <td>@item.Prenom</td>
-                        <td>@item.Telephone</td>
-                        <td>@item.Email</td>
-                        <td>@item.DateNaissance.ToString("dd/MM/yyyy")</td>
-                        <td class="action-links">
-                            <a asp-action="Edit" asp-route-id="@item.Id">✏️ Modifier</a>
-                            <a asp-action="Details" asp-route-id="@item.Id">👁️ Détails</a>
-                            <a asp-action="Delete" asp-route-id="@item.Id" style="color: #d9918b;">🗑️ Supprimer</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
-    else
-    {
-        <div class="no-results">
-            <p>Aucun patient trouvé. @(ViewData["CurrentFilter"] != null ? "Essayez une autre recherche." : "Commencez par            ajouter un nouveau patient.")</p>
+<div class="container-fluid page-container">
+    
+    <!-- Header -->
+    <div class="header-section">
+        <div class="header-title">
+            <h1><i class="fas fa-users"></i> Gestion des Patients</h1>
+            <p class="header-subtitle">Consultez et gérez la base de données patients.</p>
         </div>
-    }
+
+        <div class="toolbar">
+            <form method="get" class="search-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" name="searchString" value="@ViewData["CurrentFilter"]"
+                       class="search-input"
+                       placeholder="Rechercher par nom, prénom, téléphone..." 
+                       autocomplete="off" />
+            </form>
+            <a asp-area="FrontDesk" asp-controller="Patients" asp-action="Create" class="btn-primary-custom">
+                <i class="fas fa-user-plus"></i> Nouveau
+            </a>
+        </div>
+    </div>
+
+    <!-- Table Content -->
+    <div class="table-container">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Coordonnées</th>
+                            <th>Date de Naissance</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var initial = (!string.IsNullOrEmpty(item.Nom) ? item.Nom[0].ToString() : "") + 
+                                          (!string.IsNullOrEmpty(item.Prenom) ? item.Prenom[0].ToString() : "");
+                            
+                            <tr>
+                                <td>
+                                    <div class="patient-info">
+                                        <div class="avatar-circle">@initial</div>
+                                        <div>
+                                            <span class="patient-name">@item.Nom.ToUpper() @item.Prenom</span>
+                                            <span class="patient-email">ID: #@item.Id</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column gap-1">
+                                        <span style="font-weight: 500; color: #374151;">
+                                            <i class="fas fa-phone-alt me-2 text-muted" style="width: 16px;"></i> @item.Telephone
+                                        </span>
+                                        @if(!string.IsNullOrEmpty(item.Email)) {
+                                            <span style="font-size: 0.9rem; color: #6B7280;">
+                                                <i class="fas fa-envelope me-2 text-muted" style="width: 16px;"></i> @item.Email
+                                            </span>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <span style="background: #F1F5F9; padding: 0.35rem 0.75rem; border-radius: 8px; font-weight: 500; color: #4B5563; font-size: 0.9rem;">
+                                        <i class="far fa-calendar-alt me-2"></i> @item.DateNaissance.ToString("dd MMM yyyy")
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn-icon" title="Voir les détails">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn-icon" title="Modifier">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn-icon delete" title="Supprimer">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-search"></i>
+                <h3 class="h5 fw-bold text-dark mt-3">Aucun patient trouvé</h3>
+                <p>Essayez une autre recherche ou ajoutez un nouveau patient pour commencer.</p>
+                @if (ViewData["CurrentFilter"] != null)
+                {
+                    <a asp-action="Index" class="btn btn-link text-decoration-none mt-2">Effacer la recherche</a>
+                }
+            </div>
+        }
+    </div>
 </div>

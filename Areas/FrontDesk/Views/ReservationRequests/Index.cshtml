@@ -1,0 +1,330 @@
+@model IEnumerable<CabinetMedicalWeb.Models.ReservationRequest>
+@{
+    ViewData["Title"] = "Demandes de rendez-vous";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var statutActuel = ViewData["FiltreStatut"] as string;
+    
+    // Theme Colors
+    var primaryColor = "#7AA3D1";
+    var successColor = "#10B981";
+    var warningColor = "#F59E0B";
+    var dangerColor = "#EF4444";
+    var textDark = "#1F2937";
+    var textMuted = "#6B7280";
+    var bgPage = "#F3F4F6";
+}
+
+<style>
+    body { background-color: @bgPage; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+    /* Header */
+    .page-header-modern {
+        background: linear-gradient(135deg, @primaryColor 0%, #6C8CFF 100%);
+        border-radius: 20px;
+        padding: 2.5rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px -5px rgba(122, 163, 209, 0.4);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .header-content h2 { font-weight: 800; margin: 0; font-size: 2rem; letter-spacing: -0.02em; }
+    .header-content p { opacity: 0.9; margin: 0.5rem 0 0 0; font-size: 1rem; }
+
+    .btn-glass {
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .btn-glass:hover { background: rgba(255,255,255,0.3); color: white; transform: translateY(-2px); }
+
+    /* Filter Tabs */
+    .filter-bar {
+        display: flex;
+        gap: 0.5rem;
+        background: white;
+        padding: 0.5rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+        width: fit-content;
+    }
+
+    .filter-tab {
+        padding: 0.6rem 1.2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        color: @textMuted;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+    }
+
+    .filter-tab:hover { background: #F9FAFB; color: @textDark; }
+    
+    .filter-tab.active {
+        background: #EFF6FF;
+        color: @primaryColor;
+        border-color: #DBEAFE;
+    }
+
+    /* Card & Table */
+    .glass-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        border: 1px solid #E5E7EB;
+        overflow: hidden;
+    }
+
+    .modern-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    
+    .modern-table thead th {
+        background: #F8FAFC;
+        padding: 1rem 1.5rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: @textMuted;
+        font-weight: 700;
+        border-bottom: 1px solid #E5E7EB;
+    }
+
+    .modern-table tbody td {
+        padding: 1.25rem 1.5rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #F3F4F6;
+        color: @textDark;
+    }
+
+    .modern-table tbody tr:last-child td { border-bottom: none; }
+    .modern-table tbody tr:hover { background-color: #FAFAFA; }
+
+    /* Avatars & Badges */
+    .avatar-circle {
+        width: 42px; height: 42px;
+        background: linear-gradient(135deg, #A7CBED, #7AA3D1);
+        color: white;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700;
+        font-size: 1rem;
+        margin-right: 1rem;
+    }
+
+    .status-badge {
+        padding: 0.35rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex; align-items: center; gap: 0.35rem;
+    }
+    .status-pending { background: #FEF3C7; color: #D97706; }
+    .status-confirmed { background: #D1FAE5; color: #059669; }
+    .status-rejected { background: #FEE2E2; color: #DC2626; }
+
+    .info-sub { font-size: 0.85rem; color: @textMuted; display: block; margin-top: 2px; }
+    
+    .contact-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: @textMuted; margin-bottom: 2px; }
+    .contact-item i { color: #9CA3AF; width: 16px; }
+
+    /* Action Buttons */
+    .btn-action-sm {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex; align-items: center; gap: 0.4rem;
+    }
+    .btn-approve { background: @primaryColor; color: white; }
+    .btn-approve:hover { background: #6C8CFF; transform: translateY(-1px); box-shadow: 0 4px 6px rgba(108, 140, 255, 0.2); }
+    
+    .btn-reject { background: white; border: 1px solid #FCA5A5; color: #EF4444; }
+    .btn-reject:hover { background: #FEF2F2; border-color: #EF4444; }
+
+    .empty-state { padding: 4rem; text-align: center; color: @textMuted; }
+</style>
+
+<div class="container-fluid px-4 py-5" style="max-width: 1400px;">
+    
+    <!-- 1. HEADER -->
+    <div class="page-header-modern animate-entry">
+        <div class="header-content">
+            <h2><i class="fas fa-inbox me-2"></i> Demandes en ligne</h2>
+            <p>Gérez les demandes de rendez-vous reçues depuis le portail patient.</p>
+        </div>
+        <a href="@Url.Action("Index", "Agenda", new { area = "FrontDesk" })" class="btn-glass">
+            <i class="fas fa-calendar-alt"></i> Retour à l'Agenda
+        </a>
+    </div>
+
+    <!-- 2. ALERTS -->
+    @if (TempData["ReservationApprouvee"] != null)
+    {
+        <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4 d-flex align-items-center">
+            <i class="fas fa-check-circle fs-4 me-3"></i> @TempData["ReservationApprouvee"]
+        </div>
+    }
+    @if (TempData["ReservationRefusee"] != null)
+    {
+        <div class="alert alert-warning border-0 shadow-sm rounded-3 mb-4 d-flex align-items-center">
+            <i class="fas fa-times-circle fs-4 me-3"></i> @TempData["ReservationRefusee"]
+        </div>
+    }
+
+    <!-- 3. FILTERS -->
+    <div class="filter-bar">
+        <a class="filter-tab @(string.IsNullOrEmpty(statutActuel) ? "active" : "")" asp-route-statut="">
+            Tout voir <span class="badge bg-secondary ms-1" style="font-size:0.7em;">@Model.Count()</span>
+        </a>
+        <a class="filter-tab @(statutActuel == ReservationStatus.Pending ? "active" : "")" asp-route-statut="@ReservationStatus.Pending">
+            <i class="fas fa-clock me-1 text-warning"></i> En attente
+        </a>
+        <a class="filter-tab @(statutActuel == ReservationStatus.Confirmed ? "active" : "")" asp-route-statut="@ReservationStatus.Confirmed">
+            <i class="fas fa-check me-1 text-success"></i> Confirmées
+        </a>
+        <a class="filter-tab @(statutActuel == ReservationStatus.Rejected ? "active" : "")" asp-route-statut="@ReservationStatus.Rejected">
+            <i class="fas fa-times me-1 text-danger"></i> Refusées
+        </a>
+    </div>
+
+    <!-- 4. TABLE -->
+    <div class="glass-card">
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <div class="mb-3">
+                    <i class="fas fa-folder-open fa-3x" style="color: #D1D5DB;"></i>
+                </div>
+                <h5 class="fw-bold" style="color: @textDark;">Aucune demande trouvée</h5>
+                <p class="mb-0">Il n'y a pas de demande correspondant à ce filtre pour le moment.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Contact</th>
+                            <th>Détails du RDV</th>
+                            <th>Médecin</th>
+                            <th>Statut</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model)
+                        {
+                            var initial = (!string.IsNullOrEmpty(r.Nom) ? r.Nom[0].ToString() : "") + (!string.IsNullOrEmpty(r.Prenom) ? r.Prenom[0].ToString() : "");
+                            
+                            <tr>
+                                <!-- Patient Info -->
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle">@initial</div>
+                                        <div>
+                                            <div class="fw-bold">@r.Nom @r.Prenom</div>
+                                            <span class="info-sub">Né(e) le @r.DateNaissance.ToShortDateString()</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Contact -->
+                                <td>
+                                    <div class="contact-item"><i class="fas fa-phone"></i> @r.Telephone</div>
+                                    <div class="contact-item"><i class="fas fa-envelope"></i> @r.Email</div>
+                                </td>
+
+                                <!-- Date & Motif -->
+                                <td>
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <i class="far fa-calendar-alt text-primary"></i>
+                                        <span class="fw-bold text-dark">@r.DateSouhaitee.ToString("dd MMM yyyy")</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2 text-muted small">
+                                        <i class="far fa-clock"></i> @r.DateSouhaitee.ToString("HH:mm")
+                                    </div>
+                                    @if(!string.IsNullOrEmpty(r.Motif))
+                                    {
+                                        <div class="mt-2 small bg-light p-1 px-2 rounded border border-light d-inline-block text-truncate" style="max-width: 200px;" title="@r.Motif">
+                                            @r.Motif
+                                        </div>
+                                    }
+                                </td>
+
+                                <!-- Doctor -->
+                                <td>
+                                    @if (r.Doctor != null)
+                                    {
+                                        <div class="fw-semibold text-dark">Dr. @r.Doctor.Nom</div>
+                                        <span class="info-sub">@r.Doctor.Specialite</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-secondary border">Non assigné</span>
+                                    }
+                                </td>
+
+                                <!-- Status -->
+                                <td>
+                                    @if (r.Statut == ReservationStatus.Confirmed)
+                                    {
+                                        <span class="status-badge status-confirmed"><i class="fas fa-check-circle"></i> Confirmée</span>
+                                        @if(r.DateHeureConfirmee.HasValue) { <div class="info-sub mt-1">Ok: @r.DateHeureConfirmee.Value.ToString("dd/MM HH:mm")</div> }
+                                    }
+                                    else if (r.Statut == ReservationStatus.Rejected)
+                                    {
+                                        <span class="status-badge status-rejected"><i class="fas fa-times-circle"></i> Refusée</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-pending"><i class="fas fa-clock"></i> En attente</span>
+                                    }
+                                </td>
+
+                                <!-- Actions -->
+                                <td class="text-end">
+                                    @if (r.Statut == ReservationStatus.Pending)
+                                    {
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <a class="btn-action-sm btn-approve text-decoration-none" asp-action="Review" asp-route-id="@r.Id">
+                                                <i class="fas fa-check"></i> Traiter
+                                            </a>
+                                            <form asp-action="Refuser" asp-route-id="@r.Id" method="post">
+                                                <button type="submit" class="btn-action-sm btn-reject" onclick="return confirm('Refuser cette demande ?');">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small"><i class="fas fa-lock"></i> Clôturé</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
