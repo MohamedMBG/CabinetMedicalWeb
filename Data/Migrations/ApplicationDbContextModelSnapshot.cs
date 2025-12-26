@@ -119,6 +119,11 @@ namespace CabinetMedicalWeb.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.HasKey("Id");
 
                     b.HasIndex("PersonnelId");
@@ -398,6 +403,12 @@ namespace CabinetMedicalWeb.Data.Migrations
 
                     b.Property<string>("Resultat")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ScanPublicId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ScanUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TypeExamen")
