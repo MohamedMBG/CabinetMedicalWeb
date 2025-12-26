@@ -2,74 +2,263 @@
 @{
     ViewData["Title"] = "Valider une demande";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    
+    // Theme Colors (Consistent with Index)
+    var primaryColor = "#7AA3D1";
+    var textDark = "#1F2937";
+    var textMuted = "#6B7280";
+    var bgPage = "#F3F4F6";
 }
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-start mb-3">
+<style>
+    body { background-color: @bgPage; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+    /* Header */
+    .page-header-modern {
+        background: linear-gradient(135deg, @primaryColor 0%, #6C8CFF 100%);
+        border-radius: 20px;
+        padding: 2rem 2.5rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px -5px rgba(122, 163, 209, 0.4);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-glass {
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+    .btn-glass:hover { background: rgba(255,255,255,0.3); color: white; transform: translateY(-2px); }
+
+    /* Cards */
+    .glass-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+        border: 1px solid #E5E7EB;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-header-custom {
+        padding: 1.5rem;
+        border-bottom: 1px solid #F3F4F6;
+        background: #FAFAFA;
+    }
+
+    .card-body-custom {
+        padding: 1.5rem;
+        flex-grow: 1;
+    }
+
+    /* Patient Info Styles */
+    .patient-avatar-large {
+        width: 64px; height: 64px;
+        background: linear-gradient(135deg, #A7CBED, #7AA3D1);
+        color: white;
+        border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-right: 1rem;
+        box-shadow: 0 4px 10px rgba(122, 163, 209, 0.3);
+    }
+
+    .info-list-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px dashed #E5E7EB;
+        color: @textDark;
+    }
+    .info-list-item:last-child { border-bottom: none; }
+    
+    .info-icon {
+        width: 32px; height: 32px;
+        background: #EFF6FF;
+        color: @primaryColor;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.9rem;
+    }
+
+    /* Form Styles */
+    .form-label-custom {
+        font-weight: 600;
+        color: @textDark;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control-custom, .form-select-custom {
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        background-color: #F9FAFB;
+        transition: all 0.2s;
+    }
+    .form-control-custom:focus, .form-select-custom:focus {
+        background-color: white;
+        border-color: @primaryColor;
+        box-shadow: 0 0 0 4px rgba(122, 163, 209, 0.2);
+        outline: none;
+    }
+
+    .btn-approve {
+        background: @primaryColor;
+        color: white;
+        border: none;
+        padding: 0.85rem 2rem;
+        border-radius: 12px;
+        font-weight: 700;
+        width: 100%;
+        transition: all 0.2s;
+        box-shadow: 0 4px 6px rgba(122, 163, 209, 0.3);
+    }
+    .btn-approve:hover {
+        background: #6C8CFF;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(122, 163, 209, 0.4);
+    }
+
+    .alert-soft {
+        background: #EFF6FF;
+        border: 1px solid #DBEAFE;
+        color: #1E40AF;
+        border-radius: 12px;
+        padding: 1rem;
+        font-size: 0.9rem;
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+</style>
+
+<div class="container py-5" style="max-width: 1100px;">
+    
+    <!-- Header -->
+    <div class="page-header-modern">
         <div>
-            <p class="text-muted mb-1">Validation manuelle</p>
-            <h1 class="h4 mb-0">Confirmer la demande et assigner un médecin</h1>
+            <h2 class="h3 fw-bold mb-1">Validation de Demande</h2>
+            <p class="mb-0 opacity-90">Vérifiez les informations et assignez un médecin.</p>
         </div>
-        <a class="btn btn-outline-secondary" asp-action="Index"><i class="fas fa-arrow-left me-2"></i>Retour aux demandes</a>
+        <a class="btn-glass" asp-action="Index">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
     </div>
 
     <div class="row g-4">
+        
+        <!-- Left: Patient Info -->
         <div class="col-lg-5">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Informations patient</h5>
-                    <p class="mb-1 fw-semibold">@Model.NomComplet</p>
-                    <p class="text-muted mb-3">Né(e) le @Model.DateNaissance.ToString("dd/MM/yyyy")</p>
+            <div class="glass-card">
+                <div class="card-header-custom">
+                    <div class="d-flex align-items-center">
+                        <div class="patient-avatar-large">
+                            @(!string.IsNullOrEmpty(Model.Nom) ? Model.Nom[0].ToString() : "")@(!string.IsNullOrEmpty(Model.Prenom) ? Model.Prenom[0].ToString() : "")
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0 text-dark">@Model.NomComplet</h5>
+                            <p class="text-muted mb-0 small">Né(e) le @Model.DateNaissance.ToString("dd MMMM yyyy")</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body-custom">
+                    <h6 class="text-uppercase text-muted small fw-bold mb-3">Coordonnées</h6>
+                    <div class="info-list-item">
+                        <div class="info-icon"><i class="fas fa-phone"></i></div>
+                        <span>@Model.Telephone</span>
+                    </div>
+                    <div class="info-list-item">
+                        <div class="info-icon"><i class="fas fa-envelope"></i></div>
+                        <span class="text-break">@Model.Email</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Adresse))
+                    {
+                        <div class="info-list-item">
+                            <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                            <span>@Model.Adresse</span>
+                        </div>
+                    }
 
-                    <ul class="list-unstyled small text-muted mb-0">
-                        <li><i class="fas fa-phone me-2"></i>@Model.Telephone</li>
-                        <li><i class="fas fa-envelope me-2"></i>@Model.Email</li>
-                        @if (!string.IsNullOrEmpty(Model.Adresse))
-                        {
-                            <li><i class="fas fa-map-marker-alt me-2"></i>@Model.Adresse</li>
-                        }
-                    </ul>
-
-                    <hr />
-                    <h6 class="text-muted">Rappel de la demande</h6>
-                    <p class="mb-1">Souhaite : <strong>@Model.DateSouhaitee.ToString("dd/MM/yyyy HH:mm")</strong></p>
-                    <div class="alert alert-light border">Motif : @Model.Motif</div>
+                    <div class="mt-4 pt-3 border-top">
+                        <h6 class="text-uppercase text-muted small fw-bold mb-3">Détails de la demande</h6>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Date souhaitée</span>
+                            <span class="fw-bold text-dark">@Model.DateSouhaitee.ToString("dd/MM/yyyy HH:mm")</span>
+                        </div>
+                        <div class="alert-soft mt-3">
+                            <i class="fas fa-quote-left mt-1"></i>
+                            <div>
+                                <strong>Motif :</strong><br/>
+                                @Model.Motif
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-7">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <h5 class="card-title mb-0">Validation de la demande</h5>
-                        <span class="badge bg-warning text-dark">En attente d'assignation</span>
-                    </div>
-                    <p class="text-muted">La validation crée automatiquement le patient (s'il n'existe pas) et le rendez-vous confirmé.</p>
 
+        <!-- Right: Approval Form -->
+        <div class="col-lg-7">
+            <div class="glass-card">
+                <div class="card-header-custom d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-check-circle text-success me-2"></i>Confirmation</h5>
+                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">En attente</span>
+                </div>
+                
+                <div class="card-body-custom">
                     <form asp-action="Approve" method="post">
                         <input type="hidden" asp-for="ReservationId" />
-                        <div class="mb-3">
-                            <label asp-for="DoctorId" class="form-label"></label>
-                            <select asp-for="DoctorId" class="form-select" asp-items="Model.Doctors">
-                                <option value="">-- Choisir un médecin --</option>
-                            </select>
-                            <span class="text-danger" asp-validation-for="DoctorId"></span>
-                        </div>
-                        <div class="mb-3">
-                            <label asp-for="DateHeure" class="form-label"></label>
-                            <input asp-for="DateHeure" class="form-control" />
-                            <span class="text-danger" asp-validation-for="DateHeure"></span>
-                        </div>
-
-                        <div class="alert alert-secondary small">
-                            <i class="fas fa-info-circle me-2"></i>Le patient sera enregistré et un rendez-vous confirmé sera créé avec le
-                            médecin sélectionné.
+                        
+                        <div class="mb-4">
+                            <label asp-for="DoctorId" class="form-label-custom">Médecin assigné</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 border-secondary-subtle" style="border-radius: 12px 0 0 12px;">
+                                    <i class="fas fa-user-md text-primary"></i>
+                                </span>
+                                <select asp-for="DoctorId" class="form-select form-select-custom border-start-0" asp-items="Model.Doctors" style="border-radius: 0 12px 12px 0;">
+                                    <option value="">-- Sélectionner un médecin disponible --</option>
+                                </select>
+                            </div>
+                            <span class="text-danger small mt-1 d-block" asp-validation-for="DoctorId"></span>
                         </div>
 
-                        <div class="d-flex justify-content-between">
-                            <a class="btn btn-outline-secondary" asp-action="Index">Retour</a>
-                            <button type="submit" class="btn btn-primary">Valider et créer le rendez-vous</button>
+                        <div class="mb-4">
+                            <label asp-for="DateHeure" class="form-label-custom">Date et Heure confirmées</label>
+                            <input asp-for="DateHeure" class="form-control form-control-custom" type="datetime-local" />
+                            <div class="form-text small text-muted"><i class="fas fa-info-circle me-1"></i> Ajustez si le créneau souhaité n'est pas exact.</div>
+                            <span class="text-danger small mt-1 d-block" asp-validation-for="DateHeure"></span>
                         </div>
+
+                        <div class="alert-soft mb-4">
+                            <i class="fas fa-magic mt-1"></i>
+                            <div class="small">
+                                <strong>Action automatique :</strong><br/>
+                                En validant, le patient sera créé (s'il n'existe pas) et le rendez-vous sera ajouté à l'agenda du médecin.
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-approve">
+                            <i class="fas fa-calendar-check me-2"></i> Valider et Créer le RDV
+                        </button>
                     </form>
                 </div>
             </div>
