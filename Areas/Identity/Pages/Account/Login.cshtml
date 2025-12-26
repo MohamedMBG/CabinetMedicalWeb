@@ -1,0 +1,136 @@
+@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Sign In";
+}
+
+<section class="auth-hero py-5">
+    <div class="container py-4">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-6">
+                <div class="auth-card shadow-lg">
+                    <div class="badge-soft mb-3">
+                        <i class="fas fa-tooth me-2"></i>
+                        Welcome back to our medical cabinet
+                    </div>
+                    <h1 class="display-5 fw-bold mb-3">Reconnect with your care team</h1>
+                    <p class="lead text-muted mb-4">
+                        Manage appointments, access patient records, and collaborate seamlessly with your colleagues.
+                        Your personalized dashboard keeps everything organized.
+                    </p>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="feature-tile">
+                                <div class="icon-circle bg-primary-subtle text-primary">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">Smart scheduling</div>
+                                    <small class="text-muted">Keep track of upcoming visits effortlessly.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-tile">
+                                <div class="icon-circle bg-info-subtle text-info">
+                                    <i class="fas fa-user-md"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">Patient-first design</div>
+                                    <small class="text-muted">Clear access to records and prescriptions.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-tile">
+                                <div class="icon-circle bg-success-subtle text-success">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">Secure by default</div>
+                                    <small class="text-muted">Your data is protected with modern safeguards.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-tile">
+                                <div class="icon-circle bg-warning-subtle text-warning">
+                                    <i class="fas fa-bell"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">Instant alerts</div>
+                                    <small class="text-muted">Stay informed about updates in real time.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3 mt-4 text-muted small">
+                        <div class="avatar-stack">
+                            <div class="avatar-circle bg-primary text-white">M</div>
+                            <div class="avatar-circle bg-info text-white">S</div>
+                            <div class="avatar-circle bg-success text-white">D</div>
+                        </div>
+                        <div>
+                            <div class="fw-semibold text-secondary">Trusted by teams across our clinic</div>
+                            <div>Role-tailored experiences for doctors, secretaries, and admins.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-xl-5 ms-lg-auto">
+                <div class="auth-panel shadow-lg">
+                    <div class="text-center mb-4">
+                        <div class="icon-circle-lg text-white mb-3">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h2 class="fw-bold mb-1">Sign in to continue</h2>
+                        <p class="text-muted mb-0">Access your workspace with your account credentials.</p>
+                    </div>
+
+                    <form id="account" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Email" class="form-label fw-semibold"></label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                            </div>
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Password" class="form-label fw-semibold"></label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Enter your password" />
+                            </div>
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" asp-for="Input.RememberMe" />
+                                <label class="form-check-label" asp-for="Input.RememberMe"></label>
+                            </div>
+                            <a asp-page="./ForgotPassword" class="text-decoration-none fw-semibold text-primary">Forgot password?</a>
+                        </div>
+
+                        <button id="login-submit" type="submit" class="btn btn-hero-primary w-100 py-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            Sign in
+                        </button>
+
+                        <div class="text-center mt-4 text-muted">
+                            New to the platform? <a asp-page="./Register" class="fw-semibold text-primary">Create an account</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
