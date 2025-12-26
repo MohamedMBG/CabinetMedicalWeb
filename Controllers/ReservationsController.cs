@@ -70,7 +70,7 @@ namespace CabinetMedicalWeb.Controllers
                 return View("Dashboard", invalidModel);
             }
 
-            form.Statut = "En attente";
+            form.Statut = ReservationStatus.Pending;
             _context.ReservationRequests.Add(form);
             await _context.SaveChangesAsync();
 

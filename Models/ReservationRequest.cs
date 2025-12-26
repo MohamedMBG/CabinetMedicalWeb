@@ -3,6 +3,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CabinetMedicalWeb.Models
 {
+    public static class ReservationStatus
+    {
+        public const string Pending = "PENDING";
+        public const string Confirmed = "CONFIRMED";
+        public const string Rejected = "REJECTED";
+    }
+
     public class ReservationRequest
     {
         public int Id { get; set; }
@@ -41,7 +48,7 @@ namespace CabinetMedicalWeb.Models
         public string Motif { get; set; } = string.Empty;
 
         [StringLength(50)]
-        public string Statut { get; set; } = "En attente";
+        public string Statut { get; set; } = ReservationStatus.Pending;
 
         public int? PatientId { get; set; }
         public virtual Patient? Patient { get; set; }

@@ -102,7 +102,11 @@
                                             <td>@reservation.DateSouhaitee.ToString("dd/MM/yyyy HH:mm")</td>
                                             <td>@reservation.Motif</td>
                                             <td>
-                                                <span class="badge bg-@(reservation.Statut == "Confirmé" ? "success" : reservation.Statut == "Refusé" ? "danger" : "warning text-dark")">@reservation.Statut</span>
+                                                @{
+                                                    var badgeClass = reservation.Statut == ReservationStatus.Confirmed ? "success" : reservation.Statut == ReservationStatus.Rejected ? "danger" : "warning text-dark";
+                                                    var statutLabel = reservation.Statut == ReservationStatus.Confirmed ? "Confirmée" : reservation.Statut == ReservationStatus.Rejected ? "Refusée" : "En attente";
+                                                }
+                                                <span class="badge bg-@badgeClass">@statutLabel</span>
                                             </td>
                                             <td>
                                                 @if (reservation.DateHeureConfirmee.HasValue)
