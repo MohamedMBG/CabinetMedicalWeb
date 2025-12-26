@@ -5,6 +5,14 @@
 }
 
 <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <p class="text-muted mb-1">Validation manuelle</p>
+            <h1 class="h4 mb-0">Confirmer la demande et assigner un médecin</h1>
+        </div>
+        <a class="btn btn-outline-secondary" asp-action="Index"><i class="fas fa-arrow-left me-2"></i>Retour aux demandes</a>
+    </div>
+
     <div class="row g-4">
         <div class="col-lg-5">
             <div class="card border-0 shadow-sm h-100">
@@ -21,15 +29,22 @@
                             <li><i class="fas fa-map-marker-alt me-2"></i>@Model.Adresse</li>
                         }
                     </ul>
+
+                    <hr />
+                    <h6 class="text-muted">Rappel de la demande</h6>
+                    <p class="mb-1">Souhaite : <strong>@Model.DateSouhaitee.ToString("dd/MM/yyyy HH:mm")</strong></p>
+                    <div class="alert alert-light border">Motif : @Model.Motif</div>
                 </div>
             </div>
         </div>
         <div class="col-lg-7">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
-                    <h5 class="card-title">Validation de la demande</h5>
-                    <p class="text-muted">Date souhaitée : <strong>@Model.DateSouhaitee.ToString("dd/MM/yyyy HH:mm")</strong></p>
-                    <div class="alert alert-info">Motif : @Model.Motif</div>
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h5 class="card-title mb-0">Validation de la demande</h5>
+                        <span class="badge bg-warning text-dark">En attente d'assignation</span>
+                    </div>
+                    <p class="text-muted">La validation crée automatiquement le patient (s'il n'existe pas) et le rendez-vous confirmé.</p>
 
                     <form asp-action="Approve" method="post">
                         <input type="hidden" asp-for="ReservationId" />
@@ -44,6 +59,11 @@
                             <label asp-for="DateHeure" class="form-label"></label>
                             <input asp-for="DateHeure" class="form-control" />
                             <span class="text-danger" asp-validation-for="DateHeure"></span>
+                        </div>
+
+                        <div class="alert alert-secondary small">
+                            <i class="fas fa-info-circle me-2"></i>Le patient sera enregistré et un rendez-vous confirmé sera créé avec le
+                            médecin sélectionné.
                         </div>
 
                         <div class="d-flex justify-content-between">

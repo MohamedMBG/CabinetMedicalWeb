@@ -81,6 +81,12 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
                 return NotFound();
             }
 
+            if (!string.Equals(reservation.Statut, "En attente", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["ReservationApprouvee"] = "Cette demande a déjà été traitée.";
+                return RedirectToAction(nameof(Index));
+            }
+
             if (!ModelState.IsValid)
             {
                 model.Doctors = await GetDoctorsAsync();
@@ -126,7 +132,7 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
 
             _context.RendezVous.Add(rendezVous);
 
-            reservation.Statut = "Approuvé";
+            reservation.Statut = "Confirmé";
             reservation.PatientId = patient.Id;
             reservation.DoctorId = model.DoctorId;
             reservation.DateHeureConfirmee = model.DateHeure;
@@ -145,6 +151,12 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
             if (reservation == null)
             {
                 return NotFound();
+            }
+
+            if (!string.Equals(reservation.Statut, "En attente", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["ReservationRefusee"] = "Cette demande a déjà été traitée.";
+                return RedirectToAction(nameof(Index));
             }
 
             reservation.Statut = "Refusé";
