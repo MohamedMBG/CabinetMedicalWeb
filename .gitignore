@@ -367,4 +367,14 @@ Data/Migrations/
 
 # App settings
 appsettings.json
+<<<<<<< HEAD
+=======
+appsettings.Development.json
+appsettings.*.json
+
+# EF Core migrations
+Data/Migrations/
+
+# App settings
+appsettings.json
 appsettings.Development.json

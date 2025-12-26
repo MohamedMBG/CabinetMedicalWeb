@@ -186,6 +186,12 @@
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Horaires" ? "active" : "")" 
+                                   asp-area="Admin" asp-controller="Horaires" asp-action="Index">
+                                    <i class="fas fa-clock"></i>Horaires
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Conges" ? "active" : "")"
                                    asp-area="Admin" asp-controller="Conges" asp-action="Index">
                                     <i class="fas fa-plane-departure"></i>Absences
@@ -193,9 +199,15 @@
                             </li>
                         }
 
-                        <!-- Role: Medecin & Admin -->
-                        @if (User.IsInRole("Medecin") || User.IsInRole("Admin"))
+                        <!-- Role: Medecin  -->
+                        @if (User.IsInRole("Medecin"))
                         {
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" && ViewContext.RouteData.Values["Area"]?.ToString() == "Medical" ? "active" : "")" 
+                                   asp-area="Medical" asp-controller="Dashboard" asp-action="Index">
+                                    <i class="fas fa-columns"></i>Dashboard
+                                </a>
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "DossierMedicals" ? "active" : "")" 
                                    asp-area="Medical" asp-controller="DossierMedicals" asp-action="Index">
@@ -210,8 +222,8 @@
                             </li>
                         }
 
-                        <!-- Role: Secretaire & Admin -->
-                        @if (User.IsInRole("Secretaire") || User.IsInRole("Admin"))
+                        <!-- Role: Secretaire  -->
+                        @if (User.IsInRole("Secretaire"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="FrontDesk" asp-controller="Agenda" asp-action="Index">
@@ -282,4 +294,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+<script>
+(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="TA70-OtPyXVi2YI4M6SNk";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+</script>
 </html>

@@ -67,6 +67,7 @@ namespace CabinetMedicalWeb.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
+                conge.Status = CongeStatus.Pending; // Set initial status to Pending
                 _context.Add(conge);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -106,6 +107,34 @@ namespace CabinetMedicalWeb.Areas.Admin.Controllers
                 _context.Conges.Remove(conge);
                 await _context.SaveChangesAsync();
             }
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Approve(int id)
+        {
+            var conge = await _context.Conges.FindAsync(id);
+            if (conge == null) return NotFound();
+
+            conge.Status = CongeStatus.Approved;
+            _context.Update(conge);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reject(int id)
+        {
+            var conge = await _context.Conges.FindAsync(id);
+            if (conge == null) return NotFound();
+
+            conge.Status = CongeStatus.Rejected;
+            _context.Update(conge);
+            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
     }

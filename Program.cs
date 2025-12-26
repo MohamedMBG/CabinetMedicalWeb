@@ -1,7 +1,6 @@
-using CabinetMedicalWeb.Areas.Admin.Controllers;
 using CabinetMedicalWeb.Data;
 using CabinetMedicalWeb.Models;
-using CabinetMedicalWeb.Services; // <--- Namespace de nos nouveaux fichiers
+using CabinetMedicalWeb.Services; // Namespace for Email and Cloudinary services
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,12 +33,13 @@ namespace CabinetMedicalWeb
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             
-            // --- CONFIGURATION EMAIL CORRIGÉE ---
-            // On lie la section "Smtp" du fichier appsettings.json à la classe SmtpSettings
+            // --- EMAIL CONFIGURATION ---
             builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp")); 
-            
-            // On injecte le service. Maintenant ça marche car SmtpEmailService hérite bien de IEmailService
             builder.Services.AddTransient<IEmailService, SmtpEmailService>();
+
+            // --- CLOUDINARY CONFIGURATION (New) ---
+            // Registers the Cloudinary service so it can be injected into LaboController
+            builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
             builder.Services.AddControllersWithViews();
 
