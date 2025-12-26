@@ -1,3 +1,4 @@
+@model CabinetMedicalWeb.Models.ReservationRequest
 @{
     ViewData["Title"] = "Aurora Dental Clinic";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -705,47 +706,72 @@
         <div class="appointment-grid">
             <div class="booking-card">
                 <h4>Reserve a time</h4>
-                <p class="mb-4">Tell us what you need and when you would like to visit. We respond within minutes during office hours.</p>
-                <form>
-                    <div class="mb-3">
-                        <label for="fullName" class="form-label">Full name</label>
-                        <input type="text" class="form-control" id="fullName" placeholder="Your name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" placeholder="you@example.com" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="phone" class="form-label">Phone</label>
-                        <input type="tel" class="form-control" id="phone" placeholder="(555) 123-4567" required>
+                <p class="mb-3">Tell us what you need and when you would like to visit. We respond within minutes during office hours.</p>
+
+                @if (TempData["ReservationSuccess"] != null)
+                {
+                    <div class="alert alert-success">@TempData["ReservationSuccess"]</div>
+                }
+
+                <form asp-action="SubmitReservation" asp-controller="Home" method="post" class="needs-validation" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Nom" class="form-label">Nom</label>
+                                <input asp-for="Nom" class="form-control" />
+                                <span class="text-danger" asp-validation-for="Nom"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Prenom" class="form-label">Prénom</label>
+                                <input asp-for="Prenom" class="form-control" />
+                                <span class="text-danger" asp-validation-for="Prenom"></span>
+                            </div>
+                        </div>
                     </div>
                     <div class="row g-2">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="date" class="form-label">Preferred date</label>
-                                <input type="date" class="form-control" id="date" required>
+                                <label asp-for="Telephone" class="form-label">Téléphone</label>
+                                <input asp-for="Telephone" class="form-control" />
+                                <span class="text-danger" asp-validation-for="Telephone"></span>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="time" class="form-label">Preferred time</label>
-                                <input type="time" class="form-control" id="time" required>
+                                <label asp-for="Email" class="form-label">Email</label>
+                                <input asp-for="Email" class="form-control" />
+                                <span class="text-danger" asp-validation-for="Email"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="DateNaissance" class="form-label">Date de naissance</label>
+                                <input asp-for="DateNaissance" type="date" asp-format="{0:yyyy-MM-dd}" class="form-control" />
+                                <span class="text-danger" asp-validation-for="DateNaissance"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="DateSouhaitee" class="form-label">Date souhaitée</label>
+                                <input asp-for="DateSouhaitee" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" class="form-control" />
+                                <span class="text-danger" asp-validation-for="DateSouhaitee"></span>
                             </div>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="service" class="form-label">Service</label>
-                        <select class="form-control" id="service">
-                            <option>Cleaning & prevention</option>
-                            <option>Whitening & cosmetics</option>
-                            <option>Implants & oral surgery</option>
-                            <option>Orthodontics & aligners</option>
-                            <option>Pediatric dentistry</option>
-                        </select>
+                        <label asp-for="Adresse" class="form-label">Adresse</label>
+                        <input asp-for="Adresse" class="form-control" />
+                        <span class="text-danger" asp-validation-for="Adresse"></span>
                     </div>
                     <div class="mb-4">
-                        <label for="notes" class="form-label">Notes</label>
-                        <textarea class="form-control" id="notes" rows="3" placeholder="Tell us about your goals"></textarea>
+                        <label asp-for="Motif" class="form-label">Motif</label>
+                        <textarea asp-for="Motif" class="form-control" rows="3"></textarea>
+                        <span class="text-danger" asp-validation-for="Motif"></span>
                     </div>
                     <button type="submit" class="btn btn-primary-gradient">Send reservation</button>
                 </form>
@@ -862,3 +888,7 @@
     <a class="support-button primary" href="#appointment"><i class="fas fa-bolt"></i>Quick book</a>
     <a class="support-button" href="mailto:hello@auroradental.com"><i class="fas fa-comments"></i>Message us</a>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -19,5 +19,6 @@ namespace CabinetMedicalWeb.Data
         public DbSet<ResultatExamen> ResultatExamens { get; set; }
         public DbSet<Horaire> Horaires { get; set; }
         public DbSet<Conge> Conges { get; set; }
+        public DbSet<ReservationRequest> ReservationRequests { get; set; }
     }
 }

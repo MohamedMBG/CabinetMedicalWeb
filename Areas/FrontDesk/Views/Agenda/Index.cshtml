@@ -1,5 +1,231 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Agenda Hebdomadaire";
+}
+
+@model IEnumerable<CabinetMedicalWeb.Models.RendezVous>
+
 @{
+    var startOfWeek = (DateTime)ViewData["StartOfWeek"];
+    var rendezVousList = Model.ToList();
+}
+
+<style>
+    body {
+        background-color: #E9EFF7;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #91B3D9 0%, #A7CBED 100%);
+        padding: 30px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .page-header h1 {
+        color: white;
+        margin: 0;
+        font-size: 28px;
+        font-weight: 300;
+    }
+
+    .week-info {
+        color: white;
+        font-size: 16px;
+        opacity: 0.9;
+    }
+
+    .agenda-container {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .agenda-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .agenda-table thead th {
+        background-color: #A7CBED;
+        color: white;
+        padding: 15px 10px;
+        text-align: center;
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        border-right: 2px solid #E9EFF7;
+    }
+
+    .agenda-table thead th:first-child {
+        background-color: #91B3D9;
+        width: 80px;
+    }
+
+    .agenda-table tbody td {
+        padding: 0;
+        border: 1px solid #E9EFF7;
+        vertical-align: top;
+        height: 60px;
+        position: relative;
+    }
+
+    .agenda-table tbody td.time-cell {
+        background-color: #F8FBFF;
+        font-weight: 600;
+        color: #91B3D9;
+        text-align: center;
+        vertical-align: middle;
+        font-size: 13px;
+    }
+
+    .agenda-table tbody td.day-cell {
+        background-color: white;
+        transition: background-color 0.2s;
+        cursor: pointer;
+    }
+
+    .agenda-table tbody td.day-cell:hover {
+        background-color: #F8FBFF;
+    }
+
+    .rdv-card {
+        background: linear-gradient(135deg, #91B3D9 0%, #7AA3D1 100%);
+        color: white;
+        padding: 8px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        margin: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .rdv-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .rdv-card .patient-name {
+        font-weight: 600;
+        margin-bottom: 3px;
+    }
+
+    .rdv-card .rdv-time {
+        font-size: 11px;
+        opacity: 0.9;
+    }
+
+    .rdv-card .rdv-doctor {
+        font-size: 10px;
+        opacity: 0.8;
+        margin-top: 2px;
+    }
+
+    .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .btn-primary-custom {
+        background-color: #91B3D9;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s;
+        display: inline-block;
+    }
+
+    .btn-primary-custom:hover {
+        background-color: #7AA3D1;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(122, 163, 209, 0.3);
+    }
+</style>
+
+<div class="page-header">
+    <h1>📅 Agenda Hebdomadaire</h1>
+    <div class="week-info">
+        Semaine du @startOfWeek.ToString("dd/MM/yyyy") au @startOfWeek.AddDays(4).ToString("dd/MM/yyyy")
+    </div>
+</div>
+
+<div class="toolbar">
+    <div></div>
+    <a asp-area="FrontDesk" asp-controller="RendezVous" asp-action="Create" class="btn-primary-custom">+ Nouveau
+        Rendez-vous</a>
+</div>
+
+<div class="agenda-container">
+    <table class="agenda-table">
+        <thead>
+            <tr>
+                <th>Heure</th>
+                <th>Lundi<br />@startOfWeek.ToString("dd/MM")</th>
+                <th>Mardi<br />@startOfWeek.AddDays(1).ToString("dd/MM")</th>
+                <th>Mercredi<br />@startOfWeek.AddDays(2).ToString("dd/MM")</th>
+                <th>Jeudi<br />@startOfWeek.AddDays(3).ToString("dd/MM")</th>
+                <th>Vendredi<br />@startOfWeek.AddDays(4).ToString("dd/MM")</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int hour = 8; hour <= 18; hour++)
+            {
+                <tr>
+                    <td class="time-cell">@hour:00</td>
+
+                    @for (int day = 0; day < 5; day++)
+                    {
+                        var currentDate = startOfWeek.AddDays(day);
+                        var currentHour = hour;
+
+                        var rdvsForCell = rendezVousList
+                        .Where(r => r.DateHeure.Date == currentDate.Date
+                        && r.DateHeure.Hour == currentHour)
+                        .ToList();
+
+                        <td class="day-cell">
+                            @if (rdvsForCell.Any())
+                            {
+                                @foreach (var rdv in rdvsForCell)
+                                {
+                                    <div class="rdv-card" title="@rdv.Motif">
+                                        <div class="patient-name">
+                                            @rdv.Patient.Nom @rdv.Patient.Prenom
+                                        </div>
+                                        <div class="rdv-time">
+                                            @rdv.DateHeure.ToString("HH:mm")
+                                        </div>
+                                        <div class="rdv-doctor">
+                                            Dr. @rdv.Doctor.Nom
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (!rendezVousList.Any())
+{
+    <div style="text-align: center; padding: 40px; color: #989DA5;">
+        <p style="font-size: 18px;">📭 Aucun rendez-vous cette semaine</p>
+        <p style="font-size: 14px;">Commencez par créer un nouveau rendez-vous</p>
+    </div>
 }

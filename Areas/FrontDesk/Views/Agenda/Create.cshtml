@@ -1,0 +1,54 @@
+@model CabinetMedicalWeb.Models.RendezVous
+
+@{
+    ViewData["Title"] = "Nouveau rendez-vous";
+}
+
+<h2 class="mb-4" style="color: #666B72;">@ViewData["Title"]</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="form-group mb-3">
+        <label asp-for="DoctorId" class="control-label" style="color: #666B72;"></label>
+        <select asp-for="DoctorId" asp-items="ViewBag.DoctorId" class="form-control">
+                        <option value="">-- Choisir un médecin --</option>
+        </select>
+        <span asp-validation-for="DoctorId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="PatientId" class="control-label" style="color: #666B72;"></label>
+        <select asp-for="PatientId" asp-items="ViewBag.PatientId" class="form-control">
+            <option value="">-- Choisir un patient --</option>
+        </select>
+        <span asp-validation-for="PatientId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="DateHeure" class="control-label" style="color: #666B72;"></label>
+        <input asp-for="DateHeure" class="form-control" type="datetime-local" />
+        <span asp-validation-for="DateHeure" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-4">
+        <label asp-for="Motif" class="control-label" style="color: #666B72;">Motif (facultatif)</label>
+        <textarea asp-for="Motif" class="form-control" rows="3"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="background-color: #91B3D9; border: none;">
+        Créer le rendez-vous
+    </button>
+    <a asp-action="Index" asp-controller="Agenda" class="btn btn-secondary ms-2">Annuler</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
