@@ -29,6 +29,8 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
                 .OrderByDescending(r => r.Id)
                 .AsQueryable();
 
+            statut ??= ReservationStatus.Pending;
+
             if (!string.IsNullOrWhiteSpace(statut))
             {
                 query = query.Where(r => r.Statut == statut);
@@ -81,7 +83,7 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
                 return NotFound();
             }
 
-            if (!string.Equals(reservation.Statut, "En attente", StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(reservation.Statut, ReservationStatus.Pending, StringComparison.OrdinalIgnoreCase))
             {
                 TempData["ReservationApprouvee"] = "Cette demande a déjà été traitée.";
                 return RedirectToAction(nameof(Index));
@@ -132,7 +134,7 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
 
             _context.RendezVous.Add(rendezVous);
 
-            reservation.Statut = "Confirmé";
+            reservation.Statut = ReservationStatus.Confirmed;
             reservation.PatientId = patient.Id;
             reservation.DoctorId = model.DoctorId;
             reservation.DateHeureConfirmee = model.DateHeure;
@@ -153,13 +155,13 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
                 return NotFound();
             }
 
-            if (!string.Equals(reservation.Statut, "En attente", StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(reservation.Statut, ReservationStatus.Pending, StringComparison.OrdinalIgnoreCase))
             {
                 TempData["ReservationRefusee"] = "Cette demande a déjà été traitée.";
                 return RedirectToAction(nameof(Index));
             }
 
-            reservation.Statut = "Refusé";
+            reservation.Statut = ReservationStatus.Rejected;
             await _context.SaveChangesAsync();
 
             TempData["ReservationRefusee"] = "La demande a été refusée.";

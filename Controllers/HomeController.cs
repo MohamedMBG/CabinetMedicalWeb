@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using CabinetMedicalWeb.Models;
+using CabinetMedicalWeb.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,13 +11,16 @@ namespace CabinetMedicalWeb.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger, UserManager<ApplicationUser> userManager)
+        public HomeController(ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
             _logger = logger;
             _userManager = userManager;
+            _context = context;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             // If user is logged in, check their role and redirect accordingly
@@ -40,9 +44,37 @@ namespace CabinetMedicalWeb.Controllers
                     }
                 }
             }
-            
+
             // Public homepage for non-authenticated users
-            return View();
+            var model = new ReservationRequest
+            {
+                DateSouhaitee = DateTime.Today.AddDays(1),
+                DateNaissance = DateTime.Today.AddYears(-18)
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubmitReservation([Bind("Nom,Prenom,Adresse,Telephone,Email,DateNaissance,DateSouhaitee,Motif")] ReservationRequest form)
+        {
+            if (form.DateSouhaitee < DateTime.Now)
+            {
+                ModelState.AddModelError(nameof(form.DateSouhaitee), "Veuillez choisir une date future pour la consultation.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View("Index", form);
+            }
+
+            form.Statut = ReservationStatus.Pending;
+            _context.ReservationRequests.Add(form);
+            await _context.SaveChangesAsync();
+
+            TempData["ReservationSuccess"] = "Votre demande a été envoyée à la secrétaire pour validation.";
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Privacy()

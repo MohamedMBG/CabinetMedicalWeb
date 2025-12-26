@@ -19,9 +19,9 @@
     <div class="mb-3">
         <div class="btn-group" role="group">
             <a class="btn btn-@(string.IsNullOrEmpty(statutActuel) ? "primary" : "outline-primary")" asp-route-statut="">Toutes</a>
-            <a class="btn btn-@(statutActuel == "En attente" ? "primary" : "outline-primary")" asp-route-statut="En attente">En attente</a>
-            <a class="btn btn-@(statutActuel == "Confirmé" ? "primary" : "outline-primary")" asp-route-statut="Confirmé">Confirmées</a>
-            <a class="btn btn-@(statutActuel == "Refusé" ? "primary" : "outline-primary")" asp-route-statut="Refusé">Refusées</a>
+            <a class="btn btn-@(statutActuel == ReservationStatus.Pending ? "primary" : "outline-primary")" asp-route-statut="@ReservationStatus.Pending">En attente</a>
+            <a class="btn btn-@(statutActuel == ReservationStatus.Confirmed ? "primary" : "outline-primary")" asp-route-statut="@ReservationStatus.Confirmed">Confirmées</a>
+            <a class="btn btn-@(statutActuel == ReservationStatus.Rejected ? "primary" : "outline-primary")" asp-route-statut="@ReservationStatus.Rejected">Refusées</a>
         </div>
     </div>
 
@@ -86,10 +86,14 @@
                         </td>
                         <td>@reservation.Motif</td>
                         <td>
-                            <span class="badge bg-@(reservation.Statut == "Confirmé" ? "success" : reservation.Statut == "Refusé" ? "danger" : "warning text-dark")">@reservation.Statut</span>
+                            @{
+                                var badgeClass = reservation.Statut == ReservationStatus.Confirmed ? "success" : reservation.Statut == ReservationStatus.Rejected ? "danger" : "warning text-dark";
+                                var statutLabel = reservation.Statut == ReservationStatus.Confirmed ? "Confirmée" : reservation.Statut == ReservationStatus.Rejected ? "Refusée" : "En attente";
+                            }
+                            <span class="badge bg-@badgeClass">@statutLabel</span>
                         </td>
                         <td class="text-end">
-                            @if (reservation.Statut == "En attente")
+                            @if (reservation.Statut == ReservationStatus.Pending)
                             {
                                 <div class="btn-group" role="group">
                                     <a class="btn btn-sm btn-primary" asp-action="Review" asp-route-id="@reservation.Id">Gérer</a>
