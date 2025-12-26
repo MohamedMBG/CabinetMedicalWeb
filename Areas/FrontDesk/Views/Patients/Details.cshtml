@@ -1,60 +1,246 @@
 ﻿@model CabinetMedicalWeb.Models.Patient
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Détails du Patient";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    
+    // Modern Theme Colors (Indigo/Slate)
+    var colorPrimary = "#7AA3D1";
+    var colorBg = "#E9EFF7";
+    var textDark = "#1F2937";
 }
 
-<h1>Details</h1>
+<style>
+    /* Scoped styles for Details View */
+    body { background-color: @colorBg; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
 
-<div>
-    <h4>Patient</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nom)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nom)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Prenom)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Prenom)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Adresse)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Adresse)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Telephone)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Telephone)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DateNaissance)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DateNaissance)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AntecedentsMedicaux)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AntecedentsMedicaux)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    .details-container {
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 24px;
+        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+        border: 1px solid rgba(255,255,255,0.6);
+        overflow: hidden;
+    }
+
+    .details-header {
+        background: linear-gradient(135deg, @colorPrimary 0%, #91B3D9 100%);
+        padding: 3rem;
+        color: white;
+        position: relative;
+    }
+    
+    .avatar-circle {
+        width: 80px;
+        height: 80px;
+        background: rgba(255,255,255,0.25);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 700;
+        backdrop-filter: blur(4px);
+        border: 2px solid rgba(255,255,255,0.3);
+    }
+
+    .section-title {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-weight: 700;
+        color: #6B7280;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #E5E7EB;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: #6B7280;
+        margin-bottom: 0.25rem;
+        font-weight: 500;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        color: #1F2937;
+        font-weight: 600;
+    }
+
+    .btn-edit {
+        background: white;
+        color: @colorPrimary;
+        border-radius: 12px;
+        padding: 0.8rem 2rem;
+        font-weight: 600;
+        border: none;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+    
+    .btn-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        background: #F8FAFC;
+        color: @colorPrimary;
+    }
+
+    .btn-back {
+        color: #4B5563;
+        font-weight: 600;
+        text-decoration: none;
+        padding: 0.8rem 2rem;
+        border-radius: 12px;
+        border: 1px solid transparent;
+        transition: all 0.2s;
+    }
+    
+    .btn-back:hover {
+        background-color: #F3F4F6;
+        color: #111827;
+    }
+</style>
+
+<div class="details-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="glass-card">
+                    <!-- Header -->
+                    <div class="details-header">
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="avatar-circle">
+                                @(Model.Nom?.FirstOrDefault())@(Model.Prenom?.FirstOrDefault())
+                            </div>
+                            <div>
+                                <h1 class="fw-bold mb-1">@Model.Nom @Model.Prenom</h1>
+                                <p class="mb-0 opacity-90 font-monospace small">
+                                    <i class="fas fa-hashtag me-1"></i>Dossier #@Model.Id
+                                </p>
+                            </div>
+                            <div class="ms-auto">
+                                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-edit">
+                                    <i class="fas fa-pen"></i> Modifier
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-5">
+                        
+                        <!-- Section 1: Identité -->
+                        <div class="mb-5">
+                            <h6 class="section-title"><i class="fas fa-id-card text-primary"></i> État Civil</h6>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="info-group">
+                                        <div class="info-label">Nom Complet</div>
+                                        <div class="info-value">@Model.Nom @Model.Prenom</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-group">
+                                        <div class="info-label">Date de Naissance</div>
+                                        <div class="info-value">
+                                            @Model.DateNaissance.ToShortDateString()
+                                            <span class="text-muted small fw-normal ms-2">
+                                                (@(DateTime.Now.Year - Model.DateNaissance.Year) ans)
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 2: Contact -->
+                        <div class="mb-5">
+                            <h6 class="section-title"><i class="fas fa-address-book text-primary"></i> Coordonnées</h6>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="info-group">
+                                        <div class="info-label">Téléphone</div>
+                                        <div class="info-value">
+                                            <i class="fas fa-phone-alt me-2 text-muted small"></i>
+                                            @Model.Telephone
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-group">
+                                        <div class="info-label">Email</div>
+                                        <div class="info-value">
+                                            @if(!string.IsNullOrEmpty(Model.Email))
+                                            {
+                                                <span><i class="fas fa-envelope me-2 text-muted small"></i>@Model.Email</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted fst-italic">Non renseigné</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="info-group">
+                                        <div class="info-label">Adresse</div>
+                                        <div class="info-value">
+                                            @if(!string.IsNullOrEmpty(Model.Adresse))
+                                            {
+                                                <span><i class="fas fa-map-marker-alt me-2 text-muted small"></i>@Model.Adresse</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted fst-italic">Non renseignée</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 3: Médical -->
+                        <div class="mb-2">
+                            <h6 class="section-title"><i class="fas fa-file-medical text-primary"></i> Informations Médicales</h6>
+                            <div class="info-group">
+                                <div class="info-label">Antécédents & Allergies</div>
+                                <div class="p-3 bg-light rounded-3 border mt-2">
+                                    @if(!string.IsNullOrEmpty(Model.AntecedentsMedicaux))
+                                    {
+                                        <p class="mb-0" style="white-space: pre-line;">@Model.AntecedentsMedicaux</p>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">Aucun antécédent noté.</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="d-flex justify-content-start pt-4 mt-4 border-top">
+                            <a asp-action="Index" class="btn-back">
+                                <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
