@@ -20,7 +20,7 @@
         <div class="btn-group" role="group">
             <a class="btn btn-@(string.IsNullOrEmpty(statutActuel) ? "primary" : "outline-primary")" asp-route-statut="">Toutes</a>
             <a class="btn btn-@(statutActuel == "En attente" ? "primary" : "outline-primary")" asp-route-statut="En attente">En attente</a>
-            <a class="btn btn-@(statutActuel == "Approuvé" ? "primary" : "outline-primary")" asp-route-statut="Approuvé">Approuvées</a>
+            <a class="btn btn-@(statutActuel == "Confirmé" ? "primary" : "outline-primary")" asp-route-statut="Confirmé">Confirmées</a>
             <a class="btn btn-@(statutActuel == "Refusé" ? "primary" : "outline-primary")" asp-route-statut="Refusé">Refusées</a>
         </div>
     </div>
@@ -42,9 +42,11 @@
                         <th>Patient</th>
                         <th>Coordonnées</th>
                         <th>Date souhaitée</th>
+                        <th>Médecin</th>
+                        <th>Confirmation</th>
                         <th>Motif</th>
                         <th>Statut</th>
-                        <th></th>
+                        <th class="text-end">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -60,17 +62,46 @@
                             <div class="text-muted small">@reservation.Email</div>
                         </td>
                         <td>@reservation.DateSouhaitee.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(reservation.DoctorId) && reservation.Doctor != null)
+                            {
+                                <div class="fw-semibold">Dr. @reservation.Doctor.Prenom @reservation.Doctor.Nom</div>
+                                <div class="text-muted small">@reservation.Doctor.Specialite</div>
+                            }
+                            else
+                            {
+                                <span class="badge rounded-pill bg-light text-dark">À assigner</span>
+                            }
+                        </td>
+                        <td>
+                            @if (reservation.DateHeureConfirmee.HasValue)
+                            {
+                                <div class="fw-semibold text-success">@reservation.DateHeureConfirmee.Value.ToString("dd/MM/yyyy HH:mm")</div>
+                                <div class="text-muted small">Créneau confirmé</div>
+                            }
+                            else
+                            {
+                                <span class="text-muted small">En attente de confirmation</span>
+                            }
+                        </td>
                         <td>@reservation.Motif</td>
                         <td>
-                            <span class="badge bg-@(reservation.Statut == "Approuvé" ? "success" : reservation.Statut == "Refusé" ? "danger" : "warning text-dark")">@reservation.Statut</span>
+                            <span class="badge bg-@(reservation.Statut == "Confirmé" ? "success" : reservation.Statut == "Refusé" ? "danger" : "warning text-dark")">@reservation.Statut</span>
                         </td>
                         <td class="text-end">
-                            <div class="btn-group" role="group">
-                                <a class="btn btn-sm btn-primary" asp-action="Review" asp-route-id="@reservation.Id">Gérer</a>
-                                <form asp-action="Refuser" asp-route-id="@reservation.Id" method="post" class="ms-1">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Refuser cette demande ?');">Refuser</button>
-                                </form>
-                            </div>
+                            @if (reservation.Statut == "En attente")
+                            {
+                                <div class="btn-group" role="group">
+                                    <a class="btn btn-sm btn-primary" asp-action="Review" asp-route-id="@reservation.Id">Gérer</a>
+                                    <form asp-action="Refuser" asp-route-id="@reservation.Id" method="post" class="ms-1">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Refuser cette demande ?');">Refuser</button>
+                                    </form>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-muted small">Traitée</span>
+                            }
                         </td>
                     </tr>
                 }
