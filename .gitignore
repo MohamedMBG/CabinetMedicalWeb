@@ -366,3 +366,10 @@ FodyWeavers.xsd
 appsettings.json
 appsettings.Development.json
 appsettings.*.json
+
+# EF Core migrations
+Data/Migrations/
+
+# App settings
+appsettings.json
+appsettings.Development.json
