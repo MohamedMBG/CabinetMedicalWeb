@@ -6,11 +6,15 @@
 
     // Data Preparation
     var startOfWeek = (DateTime)ViewData["StartOfWeek"];
+    var previousWeek = (DateTime)ViewData["PreviousWeek"];
+    var nextWeek = (DateTime)ViewData["NextWeek"];
+    var today = (DateTime)ViewData["Today"];
     var rendezVousList = Model.ToList();
     var daysOfWeek = new[] { "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi" };
 
     // Theme Variables
     var primaryColor = "#7AA3D1";
+    var primaryDark = "#5C85B8";
     var bgPage = "#E9EFF7";
     var textDark = "#1F2937";
 }
@@ -62,6 +66,30 @@
         box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     }
     .btn-create:hover { background: white; color: @primaryColor; transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+
+    .agenda-controls {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .btn-nav {
+        background: white;
+        color: @primaryDark;
+        border: 1px solid rgba(255,255,255,0.5);
+        border-radius: 12px;
+        padding: 0.65rem 0.9rem;
+        box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    .btn-nav:hover { transform: translateY(-1px); color: @primaryDark; }
+    .btn-nav:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
 
     /* --- Calendar Grid --- */
     .calendar-container {
@@ -142,6 +170,46 @@
         padding: 4rem;
         color: #9CA3AF;
     }
+
+    .week-pill {
+        padding: 0.35rem 0.9rem;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 999px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .badge-soft {
+        background-color: #EFF6FF;
+        color: @primaryDark;
+        border: 1px solid #DBEAFE;
+        border-radius: 10px;
+        padding: 0.35rem 0.6rem;
+        font-size: 0.85rem;
+    }
+
+    .day-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.35rem 0.25rem;
+        border-radius: 10px;
+    }
+
+    .day-label .day-name { font-size: 0.85rem; opacity: 0.8; }
+    .day-label .day-number { font-size: 1.2rem; font-weight: 800; }
+
+    .day-today { background: #F0F9FF; color: @primaryDark; }
+
+    .cell-empty {
+        color: #CBD5E1;
+        font-size: 0.85rem;
+        display: block;
+    }
 </style>
 
 <div class="container-fluid py-5" style="max-width: 1600px;">
@@ -150,14 +218,33 @@
     <div class="agenda-header animate__animated animate__fadeInDown">
         <div class="header-content">
             <h1>Agenda Hebdomadaire</h1>
-            <p>
-                <i class="far fa-calendar-alt"></i> 
+            <p class="mb-2">
+                <i class="far fa-calendar-alt"></i>
                 Semaine du @startOfWeek.ToString("dd MMMM") au @startOfWeek.AddDays(4).ToString("dd MMMM yyyy")
             </p>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <span class="week-pill"><i class="fas fa-calendar-week"></i> @startOfWeek.ToString("dd MMM") - @startOfWeek.AddDays(4).ToString("dd MMM")</span>
+                <span class="badge-soft"><i class="fas fa-user-md me-1"></i> @rendezVousList.Count() rendez-vous cette semaine</span>
+                <span class="badge-soft"><i class="fas fa-sync-alt me-1"></i> Mise à jour @DateTime.Now.ToString("HH:mm")</span>
+            </div>
         </div>
-        <a asp-area="FrontDesk" asp-controller="RendezVous" asp-action="Create" class="btn-create">
-            <i class="fas fa-plus-circle"></i> Nouveau Rendez-vous
-        </a>
+        <div class="agenda-controls">
+            <a class="btn-nav" asp-area="FrontDesk" asp-controller="Agenda" asp-action="Index" asp-route-weekStart="@previousWeek.ToString("yyyy-MM-dd")">
+                <i class="fas fa-chevron-left"></i>
+                Semaine -1
+            </a>
+            <a class="btn-nav" asp-area="FrontDesk" asp-controller="Agenda" asp-action="Index" asp-route-weekStart="@today.ToString("yyyy-MM-dd")">
+                <i class="fas fa-dot-circle"></i>
+                Aujourd'hui
+            </a>
+            <a class="btn-nav" asp-area="FrontDesk" asp-controller="Agenda" asp-action="Index" asp-route-weekStart="@nextWeek.ToString("yyyy-MM-dd")">
+                Semaine +1
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            <a asp-area="FrontDesk" asp-controller="RendezVous" asp-action="Create" class="btn-create">
+                <i class="fas fa-plus-circle"></i> Nouveau Rendez-vous
+            </a>
+        </div>
     </div>
 
     <!-- 2. Calendar Grid -->
@@ -170,11 +257,12 @@
                         @for (int i = 0; i < 5; i++)
                         {
                             var date = startOfWeek.AddDays(i);
-                            var isToday = date.Date == DateTime.Today;
+                            var isToday = date.Date == today.Date;
                             <th class="@(isToday ? "today-col" : "")">
-                                <div class="d-flex flex-column align-items-center">
-                                    <span class="small opacity-75">@daysOfWeek[i]</span>
-                                    <span class="fs-5">@date.Day</span>
+                                <div class="day-label @(isToday ? "day-today" : "")">
+                                    <span class="day-name">@daysOfWeek[i]</span>
+                                    <span class="day-number">@date.Day</span>
+                                    <small class="text-muted">@date.ToString("MMM")</small>
                                 </div>
                             </th>
                         }
@@ -194,6 +282,10 @@
                                     .ToList();
 
                                 <td>
+                                    @if (!rdvsForCell.Any())
+                                    {
+                                        <span class="cell-empty"><i class="far fa-circle"></i> Libre</span>
+                                    }
                                     @foreach (var rdv in rdvsForCell)
                                     {
                                         <div class="appt-card" title="@rdv.Motif">
