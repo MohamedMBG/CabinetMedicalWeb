@@ -17,12 +17,13 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(DateTime? weekStart)
         {
+            var referenceDate = weekStart?.Date ?? DateTime.Today;
+
             // Calculer le début de la semaine (Lundi)
-            var today = DateTime.Today;
-            int daysUntilMonday = ((int)DayOfWeek.Monday - (int)today.DayOfWeek + 7) % 7;
-            var startOfWeek = today.AddDays(-daysUntilMonday);
+            int daysUntilMonday = ((int)DayOfWeek.Monday - (int)referenceDate.DayOfWeek + 7) % 7;
+            var startOfWeek = referenceDate.AddDays(-daysUntilMonday);
 
             // Calculer la fin de la semaine (Vendredi 23h59)
             var endOfWeek = startOfWeek.AddDays(4).AddHours(23).AddMinutes(59);
@@ -38,6 +39,9 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
             // Passer les dates pour affichage dans la vue
             ViewData["StartOfWeek"] = startOfWeek;
             ViewData["EndOfWeek"] = endOfWeek;
+            ViewData["PreviousWeek"] = startOfWeek.AddDays(-7);
+            ViewData["NextWeek"] = startOfWeek.AddDays(7);
+            ViewData["Today"] = DateTime.Today;
 
             return View(rendezVous);
         }
