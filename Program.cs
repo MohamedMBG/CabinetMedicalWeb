@@ -21,6 +21,10 @@ namespace CabinetMedicalWeb
 
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+            builder.Services.AddHttpClient<AzureTranslatorService>();
+
+            // --- IDENTITY CONFIGURATION ---
+
             builder.Services.AddDefaultIdentity<ApplicationUser>(options => 
             {
                 options.SignIn.RequireConfirmedAccount = false; 

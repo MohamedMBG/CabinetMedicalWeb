@@ -360,17 +360,7 @@ MigrationBackup/
 .ionide/
 
 # Fody - auto-generated XML schema
-FodyWeavers.xsd
-
-# EF Core migrations
-Data/Migrations/
-
-# App settings
-appsettings.json
-<<<<<<< HEAD
-=======
-appsettings.Development.json
-appsettings.*.json
+FodyWeavers.xsd 
 
 # EF Core migrations
 Data/Migrations/
