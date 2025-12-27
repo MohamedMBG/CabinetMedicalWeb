@@ -1,48 +1,65 @@
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Linq;
+using Microsoft.Extensions.Configuration;
 
-public class AzureTranslatorService
+namespace CabinetMedicalWeb.Services
 {
-    private readonly HttpClient _httpClient;
-    private readonly IConfiguration _configuration;
-
-    public AzureTranslatorService(HttpClient httpClient, IConfiguration configuration)
+    public class AzureTranslatorService
     {
-        _httpClient = httpClient;
-        _configuration = configuration;
-    }
+        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
 
-    public async Task<string> TranslateAsync(string text, string targetLang)
-    {
-        var key = _configuration["AzureTranslator:Key"];
-        var endpoint = _configuration["AzureTranslator:Endpoint"];
-        var region = _configuration["AzureTranslator:Region"];
-
-        var route = $"/translate?api-version=3.0&to={targetLang}";
-
-        var body = new object[]
+        public AzureTranslatorService(HttpClient httpClient, IConfiguration configuration)
         {
-            new { Text = text }
-        };
+            _httpClient = httpClient;
+            _configuration = configuration;
+        }
 
-        var requestBody = JsonSerializer.Serialize(body);
+        public async Task<string> TranslateAsync(string text, string targetLang)
+        {
+            var translations = await TranslateBatchAsync(new List<string> { text }, targetLang);
+            return translations.FirstOrDefault() ?? text;
+        }
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, endpoint + route);
-        request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
+        public async Task<List<string>> TranslateBatchAsync(IEnumerable<string> texts, string targetLang)
+        {
+            var key = _configuration["AzureTranslator:Key"];
+            var endpoint = _configuration["AzureTranslator:Endpoint"];
+            var region = _configuration["AzureTranslator:Region"];
 
-        request.Headers.Add("Ocp-Apim-Subscription-Key", key);
-        request.Headers.Add("Ocp-Apim-Subscription-Region", region);
+            var route = $"/translate?api-version=3.0&to={targetLang}";
 
-        var response = await _httpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
+            var body = texts.Select(text => new { Text = text }).ToArray();
+            var requestBody = JsonSerializer.Serialize(body);
 
-        var result = await response.Content.ReadAsStringAsync();
+            using var request = new HttpRequestMessage(HttpMethod.Post, endpoint + route);
+            request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
 
-        using var doc = JsonDocument.Parse(result);
-        return doc.RootElement[0]
-            .GetProperty("translations")[0]
-            .GetProperty("text")
-            .GetString();
+            request.Headers.Add("Ocp-Apim-Subscription-Key", key);
+            request.Headers.Add("Ocp-Apim-Subscription-Region", region);
+
+            var response = await _httpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+            var result = await response.Content.ReadAsStringAsync();
+
+            using var doc = JsonDocument.Parse(result);
+            var translations = new List<string>();
+
+            foreach (var item in doc.RootElement.EnumerateArray())
+            {
+                var translatedText = item
+                    .GetProperty("translations")[0]
+                    .GetProperty("text")
+                    .GetString() ?? string.Empty;
+
+                translations.Add(translatedText);
+            }
+
+            return translations;
+        }
     }
 }
