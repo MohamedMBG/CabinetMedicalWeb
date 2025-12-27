@@ -4,6 +4,37 @@
     const STORAGE_KEY = 'preferredLanguage';
     const FALLBACK_LANGUAGE = 'en';
 
+    const LOCAL_TRANSLATIONS = {
+        fr: {
+            "Home": "Accueil",
+            "Services": "Services",
+            "Appointments": "Rendez-vous",
+            "FAQ": "FAQ",
+            "Book now": "Réserver",
+            "Prendre rendez-vous": "Prendre rendez-vous",
+            "Choose your language": "Choisissez votre langue",
+            "Select the language you prefer for your experience.": "Sélectionnez la langue de votre choix pour votre expérience.",
+            "English": "Anglais",
+            "Français": "Français",
+            "Language": "Langue",
+            "Book Now": "Réserver maintenant"
+        },
+        ar: {
+            "Home": "الصفحة الرئيسية",
+            "Services": "الخدمات",
+            "Appointments": "المواعيد",
+            "FAQ": "الأسئلة الشائعة",
+            "Book now": "احجز الآن",
+            "Prendre rendez-vous": "حجز موعد",
+            "Choose your language": "اختر لغتك",
+            "Select the language you prefer for your experience.": "اختر اللغة المفضلة لتجربتك.",
+            "English": "الإنجليزية",
+            "Français": "الفرنسية",
+            "Language": "اللغة",
+            "Book Now": "احجز الآن"
+        }
+    };
+
     const state = {
         textNodes: [],
         attributeEntries: [],
@@ -133,6 +164,8 @@
             translationMap.set(text, translations[index] || text);
         });
 
+        applyLocalFallbacks(lang, translationMap);
+
         state.textNodes.forEach(node => {
             const original = state.textOriginals.get(node);
             if (translationMap.has(original)) {
@@ -148,6 +181,21 @@
         });
 
         updateLanguage(lang);
+    }
+
+    function applyLocalFallbacks(lang, translationMap) {
+        const dictionary = LOCAL_TRANSLATIONS[lang];
+        if (!dictionary) return;
+
+        translationMap.forEach((value, key) => {
+            if (value === key) {
+                const normalizedKey = key.trim().replace(/\s+/g, ' ');
+                const fallback = dictionary[key] || dictionary[normalizedKey];
+                if (fallback) {
+                    translationMap.set(key, fallback);
+                }
+            }
+        });
     }
 
     function updateLanguage(lang) {
