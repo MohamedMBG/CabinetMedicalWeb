@@ -25,41 +25,51 @@ namespace CabinetMedicalWeb.Services
         }
 
         public async Task<List<string>> TranslateBatchAsync(IEnumerable<string> texts, string targetLang)
-        {
-            var key = _configuration["AzureTranslator:Key"];
-            var endpoint = _configuration["AzureTranslator:Endpoint"];
-            var region = _configuration["AzureTranslator:Region"];
+{
+    var key = _configuration["AzureTranslator:SubscriptionKey"]; // ✅ fixed
+    var endpoint = _configuration["AzureTranslator:Endpoint"]?.TrimEnd('/'); // ✅ fixed
+    var region = _configuration["AzureTranslator:Region"];
 
-            var route = $"/translate?api-version=3.0&to={targetLang}";
+    if (string.IsNullOrWhiteSpace(key))
+        throw new Exception("AzureTranslator SubscriptionKey is missing. Check appsettings.json key name.");
 
-            var body = texts.Select(text => new { Text = text }).ToArray();
-            var requestBody = JsonSerializer.Serialize(body);
+    if (string.IsNullOrWhiteSpace(endpoint))
+        throw new Exception("AzureTranslator Endpoint is missing.");
 
-            using var request = new HttpRequestMessage(HttpMethod.Post, endpoint + route);
-            request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
+    var route = $"/translate?api-version=3.0&to={targetLang}";
+    var body = texts.Select(t => new { Text = t }).ToArray();
+    var requestBody = JsonSerializer.Serialize(body);
 
-            request.Headers.Add("Ocp-Apim-Subscription-Key", key);
-            request.Headers.Add("Ocp-Apim-Subscription-Region", region);
+    using var request = new HttpRequestMessage(HttpMethod.Post, endpoint + route);
+    request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
+    request.Headers.Add("Ocp-Apim-Subscription-Key", key);
+    request.Headers.Add("Ocp-Apim-Subscription-Region", region);
 
-            var result = await response.Content.ReadAsStringAsync();
+    var response = await _httpClient.SendAsync(request);
+    var result = await response.Content.ReadAsStringAsync();
 
-            using var doc = JsonDocument.Parse(result);
-            var translations = new List<string>();
+    if (!response.IsSuccessStatusCode)
+        throw new Exception($"Translator failed: {(int)response.StatusCode} {response.ReasonPhrase}\n{result}");
 
-            foreach (var item in doc.RootElement.EnumerateArray())
-            {
-                var translatedText = item
-                    .GetProperty("translations")[0]
-                    .GetProperty("text")
-                    .GetString() ?? string.Empty;
+    var translationResponse = JsonSerializer.Deserialize<List<TranslationResponse>>(result) ?? new();
 
-                translations.Add(translatedText);
-            }
+    return translationResponse
+        .Select(item => item.Translations.FirstOrDefault()?.Text ?? string.Empty)
+        .ToList();
+}
 
-            return translations;
-        }
+
+    }
+
+    public class TranslationResponse
+    {
+        public List<TranslationItem> Translations { get; set; } = new();
+    }
+
+    public class TranslationItem
+    {
+        public string Text { get; set; } = string.Empty;
+        public string To { get; set; } = string.Empty;
     }
 }
