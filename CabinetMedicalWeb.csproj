@@ -24,7 +24,9 @@
     <Folder Include="Areas\Admin\Views\Conges\" />
     <Folder Include="Areas\Admin\Views\Horaires\" />
     <Folder Include="Areas\FrontDesk\Data\" />
+    <Folder Include="Areas\FrontDesk\Views\RendezVous\" />
     <Folder Include="Areas\Medical\Data\" />
+    <Folder Include="wwwroot\images\" />
   </ItemGroup>
 
 </Project>

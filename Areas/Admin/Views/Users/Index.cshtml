@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Gestion du Personnel";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var primaryColor = "#6366F1";
+
     var totalUsers = Model.Count();
     var medecinsCount = Model.Count(u => u.Role == "Medecin");
     var secretairesCount = Model.Count(u => u.Role == "Secretaire");
@@ -11,252 +11,480 @@
 }
 
 <style>
-    .admin-toolbar {
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(129, 140, 248, 0.12));
-        border: 1px solid rgba(99, 102, 241, 0.15);
-        border-radius: 18px;
-        padding: 1.25rem;
-        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.12);
+    :root{
+        --ink:#0f172a;
+        --muted:#64748b;
+        --surface:rgba(255,255,255,.95);
+        --border:rgba(99,102,241,.18);
+        --glow:0 10px 40px -10px rgba(99,102,241,.18);
+        --primary-grad:linear-gradient(135deg,#6366f1,#4f46e5);
+        --bg-grad:radial-gradient(circle at 10% 20%, rgba(99,102,241,.09), transparent 40%),
+                 radial-gradient(circle at 90% 10%, rgba(14,165,233,.08), transparent 40%),
+                 linear-gradient(180deg,#f8fafc,#f1f5f9);
     }
 
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 0.75rem;
+    @@keyframes fadeInUp { from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:translateY(0)} }
+    @@keyframes shimmer { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
+
+    .staff-shell{
+        background:var(--bg-grad);
+        min-height:100vh;
+        padding:2.5rem 0 4rem;
+        font-family:'Inter',system-ui,-apple-system,sans-serif;
     }
 
-    .stat-pill {
-        background: #fff;
-        border-radius: 14px;
-        padding: 0.85rem 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        border: 1px solid rgba(31, 41, 55, 0.06);
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    .animate-in{opacity:0; animation:fadeInUp .65s cubic-bezier(.16,1,.3,1) forwards;}
+    .delay-1{animation-delay:.08s;}
+    .delay-2{animation-delay:.16s;}
+
+    /* Header */
+    .topline{
+        display:flex; justify-content:space-between; align-items:flex-end;
+        flex-wrap:wrap; gap:1.25rem; margin-bottom:1.1rem;
+    }
+    .eyebrow{
+        display:inline-flex; align-items:center; gap:.5rem;
+        padding:.4rem .8rem; border-radius:999px;
+        background:rgba(99,102,241,.10); color:#4f46e5;
+        font-weight:900; text-transform:uppercase; font-size:.72rem; letter-spacing:.08em;
+    }
+    .title{
+        margin:.55rem 0 .25rem;
+        font-weight:900; color:var(--ink);
+        font-size:2.05rem; letter-spacing:-0.03em; line-height:1.1;
+    }
+    .subtitle{margin:0; color:var(--muted);}
+
+    .header-actions{display:flex; align-items:center; gap:.75rem; flex-wrap:wrap;}
+    .btn-quick{
+        display:inline-flex; align-items:center; gap:.6rem;
+        padding:.85rem 1.15rem; border-radius:14px;
+        font-weight:800; font-size:.95rem; text-decoration:none;
+        transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+        border:1px solid transparent;
+        box-shadow:0 6px 14px rgba(2,6,23,.06);
+        user-select:none;
+    }
+    .btn-primary-grad{
+        background:var(--primary-grad);
+        color:#fff !important;
+        box-shadow:0 14px 26px -10px rgba(99,102,241,.55);
+    }
+    .btn-primary-grad:hover{transform:translateY(-2px); filter:brightness(1.03);}
+    .btn-ghost{
+        background:rgba(255,255,255,.85);
+        color:var(--ink) !important;
+        border-color:rgba(148,163,184,.35);
+        backdrop-filter:blur(10px);
+    }
+    .btn-ghost:hover{transform:translateY(-2px); box-shadow:0 10px 18px rgba(2,6,23,.08);}
+
+    /* KPI */
+    .snapshot{
+        display:grid;
+        grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+        gap:1rem;
+        margin:1rem 0 1.1rem;
+    }
+    .snapshot-card{
+        background:var(--surface);
+        border:1px solid var(--border);
+        box-shadow:var(--glow);
+        border-radius:20px;
+        padding:1.25rem;
+        display:flex; align-items:center; gap:1rem;
+        transition:transform .18s ease;
+    }
+    .snapshot-card:hover{transform:translateY(-3px);}
+    .snapshot-icon{
+        width:52px; height:52px; border-radius:16px;
+        display:grid; place-items:center;
+        color:#fff; font-size:1.25rem;
+        box-shadow:0 10px 18px rgba(2,6,23,.10);
+        flex-shrink:0;
+    }
+    .icon-indigo{background:linear-gradient(135deg,#6366f1,#4f46e5);}
+    .icon-green{background:linear-gradient(135deg,#10b981,#059669);}
+    .icon-amber{background:linear-gradient(135deg,#f59e0b,#d97706);}
+    .icon-red{background:linear-gradient(135deg,#ef4444,#dc2626);}
+
+    .snapshot-content h6{
+        margin:0; color:var(--muted);
+        font-weight:800; font-size:.75rem;
+        text-transform:uppercase; letter-spacing:.08em;
+    }
+    .snapshot-content p{
+        margin:.25rem 0 0;
+        font-size:1.55rem; font-weight:900; color:var(--ink);
+        line-height:1;
     }
 
-    .stat-pill .icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 12px;
-        display: grid;
-        place-items: center;
-        color: #fff;
-        font-size: 1.1rem;
-        box-shadow: 0 6px 16px rgba(99, 102, 241, 0.18);
+    /* Toolbar */
+    .toolbar{
+        background:var(--surface);
+        border:1px solid var(--border);
+        box-shadow:var(--glow);
+        border-radius:20px;
+        padding:1rem;
+        display:flex; justify-content:space-between; align-items:center;
+        gap:1rem; flex-wrap:wrap;
+        margin-bottom:1rem;
     }
 
-    .table-toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 1rem 1.25rem;
-        border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+    .search-wrap{
+        display:flex; align-items:center; gap:.6rem;
+        padding:.65rem .85rem;
+        border-radius:14px;
+        border:1px solid rgba(148,163,184,.35);
+        background:rgba(255,255,255,.9);
+        min-width:min(520px, 100%);
+    }
+    .search-wrap i{color:#94a3b8;}
+    .search-input{
+        border:none; outline:none; width:100%;
+        background:transparent;
+        color:var(--ink);
+        font-weight:700; font-size:.95rem;
+    }
+    .search-input::placeholder{color:#94a3b8; font-weight:700;}
+
+    .chips{display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;}
+    .chip{
+        border:1px solid rgba(148,163,184,.35);
+        background:rgba(255,255,255,.8);
+        padding:.45rem .75rem;
+        border-radius:999px;
+        font-size:.82rem;
+        font-weight:900;
+        color:#334155;
+        cursor:pointer;
+        transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+        user-select:none;
+    }
+    .chip:hover{transform:translateY(-1px); border-color:rgba(99,102,241,.45); box-shadow:0 10px 18px rgba(99,102,241,.10);}
+    .chip.active{
+        border-color:rgba(99,102,241,.55);
+        background:rgba(99,102,241,.10);
+        color:#4f46e5;
     }
 
-    .search-input {
-        position: relative;
-        flex: 1 1 280px;
+    /* Table Card */
+    .panel-card{
+        background:var(--surface);
+        border-radius:22px;
+        border:1px solid var(--border);
+        box-shadow:var(--glow);
+        overflow:hidden;
     }
 
-    .search-input input {
-        border-radius: 12px;
-        padding-left: 2.8rem;
+    .table thead th{
+        color:#64748b !important;
+        font-size:.75rem;
+        text-transform:uppercase;
+        letter-spacing:.08em;
+        font-weight:900;
+        border-bottom:1px solid rgba(148,163,184,.22) !important;
+        background:linear-gradient(90deg, rgba(99,102,241,.07), rgba(14,165,233,.06), rgba(99,102,241,.07));
+        background-size:200% 200%;
+        animation:shimmer 10s ease infinite;
     }
 
-    .search-input i {
-        position: absolute;
-        left: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #9CA3AF;
+    .row-soft{
+        transition:transform .18s ease, box-shadow .18s ease, background-color .18s ease;
+    }
+    .row-soft:hover{
+        background:rgba(99,102,241,.06);
+        transform:translateY(-1px);
+        box-shadow:inset 0 0 0 9999px rgba(99,102,241,.02);
     }
 
-    .filter-badge {
-        border-radius: 999px;
-        padding: 0.45rem 0.9rem;
-        background: #f3f4f6;
-        color: #4b5563;
-        border: 1px solid #e5e7eb;
-        cursor: pointer;
-        transition: all 0.15s ease;
+    .avatar{
+        width:44px; height:44px;
+        border-radius:16px;
+        display:grid; place-items:center;
+        font-weight:900;
+        color:#4f46e5;
+        background:rgba(99,102,241,.12);
+        border:1px solid rgba(99,102,241,.18);
+        box-shadow:0 10px 22px rgba(99,102,241,.12);
+        flex-shrink:0;
+    }
+    .name{font-weight:900; color:var(--ink);}
+    .email{font-size:.86rem; color:#64748b; font-weight:650;}
+
+    .badge-soft{
+        display:inline-flex; align-items:center; gap:.45rem;
+        padding:.42rem .75rem;
+        border-radius:999px;
+        font-weight:900; font-size:.82rem;
+        border:1px solid transparent;
+        white-space:nowrap;
+    }
+    .b-doc{background:rgba(99,102,241,.10); color:#4f46e5; border-color:rgba(99,102,241,.25);}
+    .b-sec{background:rgba(16,185,129,.10); color:#047857; border-color:rgba(16,185,129,.22);}
+    .b-admin{background:rgba(239,68,68,.10); color:#b91c1c; border-color:rgba(239,68,68,.20);}
+    .b-none{background:rgba(100,116,139,.10); color:#334155; border-color:rgba(100,116,139,.22);}
+
+    .spec{
+        display:inline-flex; align-items:center; gap:.5rem;
+        font-weight:800; color:#0f172a;
+    }
+    .spec i{color:#94a3b8;}
+
+    .action-group{
+        display:inline-flex; align-items:center; gap:.5rem;
+        justify-content:flex-end; flex-wrap:wrap;
+    }
+    .icon-btn{
+        width:40px; height:40px;
+        border-radius:14px;
+        display:inline-grid; place-items:center;
+        border:1px solid rgba(148,163,184,.25);
+        background:rgba(255,255,255,.85);
+        color:#0f172a;
+        transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+    .icon-btn:hover{transform:translateY(-1px); box-shadow:0 10px 16px rgba(2,6,23,.08); border-color:rgba(99,102,241,.35);}
+    .icon-btn.edit{color:#4f46e5;}
+    .icon-btn.delete{
+        background:rgba(239,68,68,.08);
+        border-color:rgba(239,68,68,.18);
+        color:#b91c1c;
+    }
+    .icon-btn.delete:hover{box-shadow:0 10px 16px rgba(239,68,68,.12);}
+
+    .protected{
+        display:inline-flex; align-items:center; gap:.45rem;
+        padding:.42rem .75rem; border-radius:999px;
+        background:rgba(148,163,184,.14);
+        color:#475569; font-weight:900; font-size:.82rem;
+        border:1px solid rgba(148,163,184,.22);
+        white-space:nowrap;
     }
 
-    .filter-badge.active {
-        background: #e0e7ff;
-        color: #4338CA;
-        border-color: rgba(99, 102, 241, 0.4);
-        box-shadow: 0 8px 18px rgba(99, 102, 241, 0.18);
+    .no-results{
+        padding:2rem 1rem;
+        text-align:center;
+        color:#64748b;
+        font-weight:700;
+    }
+
+    /* Responsive */
+    @@media (max-width: 992px){
+        .title{font-size:1.75rem;}
+        .search-wrap{min-width:100%;}
+        .table thead{display:none;}
+        .table tbody tr{display:grid; grid-template-columns:1fr; gap:.55rem; padding:1rem !important;}
+        .table tbody td{padding:0 !important; border:none !important;}
+        .mobile-card{
+            background:rgba(255,255,255,.88);
+            border:1px solid rgba(148,163,184,.22);
+            border-radius:18px;
+            padding:1rem;
+        }
+        .kv{display:flex; justify-content:space-between; gap:1rem;}
+        .kv .k{color:#64748b; font-weight:900; font-size:.78rem; text-transform:uppercase; letter-spacing:.08em;}
+        .kv .v{font-weight:900; color:var(--ink); text-align:right;}
+        .action-group{justify-content:flex-start; margin-top:.35rem;}
     }
 </style>
 
-<div class="container py-5">
-    <div class="admin-toolbar mb-4">
-        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
-            <div>
-                <p class="mb-1 text-secondary fw-semibold text-uppercase small" style="letter-spacing: 0.08em;">Administration</p>
-                <h2 class="fw-bold mb-1" style="color: #1F2937;">Personnel du Cabinet</h2>
-                <p class="text-muted mb-0">Gérez les comptes d'accès, les rôles et les spécialités en un coup d'œil.</p>
-            </div>
-            <div class="d-flex gap-2 flex-wrap">
-                <a asp-action="Create" class="btn btn-primary fw-bold shadow-sm px-4 py-2" style="background-color: @primaryColor; border: none; border-radius: 10px;">
-                    <i class="fas fa-user-plus me-2"></i>Ajouter un compte
-                </a>
-                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-light border fw-semibold px-3">
-                    <i class="fas fa-arrow-left me-2"></i>Retour au tableau de bord
-                </a>
-            </div>
-        </div>
-        <div class="stats-grid">
-            <div class="stat-pill">
-                <div class="icon" style="background: linear-gradient(135deg, #6366f1, #4f46e5);"><i class="fas fa-users"></i></div>
-                <div>
-                    <p class="mb-0 text-muted small text-uppercase">Comptes actifs</p>
-                    <h5 class="mb-0 fw-bold">@totalUsers utilisateurs</h5>
-                </div>
-            </div>
-            <div class="stat-pill">
-                <div class="icon" style="background: linear-gradient(135deg, #10b981, #059669);"><i class="fas fa-user-md"></i></div>
-                <div>
-                    <p class="mb-0 text-muted small text-uppercase">Médecins</p>
-                    <h5 class="mb-0 fw-bold">@medecinsCount</h5>
-                </div>
-            </div>
-            <div class="stat-pill">
-                <div class="icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);"><i class="fas fa-headset"></i></div>
-                <div>
-                    <p class="mb-0 text-muted small text-uppercase">Secrétariat</p>
-                    <h5 class="mb-0 fw-bold">@secretairesCount</h5>
-                </div>
-            </div>
-            <div class="stat-pill">
-                <div class="icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);"><i class="fas fa-shield-alt"></i></div>
-                <div>
-                    <p class="mb-0 text-muted small text-uppercase">Administrateurs</p>
-                    <h5 class="mb-0 fw-bold">@adminCount</h5>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="staff-shell">
+    <div class="container" style="max-width:1200px;">
 
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-        <div class="table-toolbar">
-            <div class="search-input">
-                <i class="fas fa-search"></i>
-                <input id="userSearch" class="form-control" type="search" placeholder="Rechercher un nom, un email ou une spécialité..." />
+        <!-- Header -->
+        <div class="topline animate-in">
+            <div>
+                <div class="eyebrow"><i class="fas fa-shield-alt"></i> Administration</div>
+                <h2 class="title">Personnel du Cabinet</h2>
+                <p class="subtitle">Gérez les comptes d’accès, les rôles et les spécialités en un coup d’œil.</p>
             </div>
-            <div class="d-flex gap-2 flex-wrap" id="roleFilters">
-                <button type="button" class="filter-badge active" data-role="">Tous</button>
-                <button type="button" class="filter-badge" data-role="Medecin">Médecins</button>
-                <button type="button" class="filter-badge" data-role="Secretaire">Secrétaires</button>
-                <button type="button" class="filter-badge" data-role="Admin">Admins</button>
+            <div class="header-actions">
+                <a asp-action="Create" class="btn-quick btn-primary-grad">
+                    <i class="fas fa-user-plus"></i> Ajouter un compte
+                </a>
+                <a asp-controller="Dashboard" asp-action="Index" class="btn-quick btn-ghost">
+                    <i class="fas fa-arrow-left"></i> Tableau de bord
+                </a>
             </div>
         </div>
-        <div class="table-responsive">
-            <table class="table table-hover mb-0 align-middle">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="py-3 ps-4 text-uppercase small fw-bold text-muted">Utilisateur</th>
-                        <th class="py-3 text-uppercase small fw-bold text-muted">Rôle</th>
-                        <th class="py-3 text-uppercase small fw-bold text-muted">Spécialité</th>
-                        <th class="py-3 text-end pe-4 text-uppercase small fw-bold text-muted">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="usersTable">
-                    @foreach (var user in Model)
-                    {
-                        <tr data-role="@user.Role" data-searchable="@(($"{user.Nom} {user.Prenom} {user.Email} {user.Specialite}").ToLower())">
-                            <td class="ps-4 py-3">
-                                <div class="d-flex align-items-center">
-                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3 text-primary fw-bold" style="width: 40px; height: 40px;">
-                                        @(user.Nom?.Length > 0 ? user.Nom.Substring(0,1) : "U")
+
+        <!-- KPI Snapshots -->
+        <div class="snapshot animate-in delay-1">
+            <div class="snapshot-card">
+                <div class="snapshot-icon icon-indigo"><i class="fas fa-users"></i></div>
+                <div class="snapshot-content">
+                    <h6>Comptes actifs</h6>
+                    <p>@totalUsers</p>
+                </div>
+            </div>
+            <div class="snapshot-card">
+                <div class="snapshot-icon icon-green"><i class="fas fa-user-md"></i></div>
+                <div class="snapshot-content">
+                    <h6>Médecins</h6>
+                    <p>@medecinsCount</p>
+                </div>
+            </div>
+            <div class="snapshot-card">
+                <div class="snapshot-icon icon-amber"><i class="fas fa-headset"></i></div>
+                <div class="snapshot-content">
+                    <h6>Secrétariat</h6>
+                    <p>@secretairesCount</p>
+                </div>
+            </div>
+            <div class="snapshot-card">
+                <div class="snapshot-icon icon-red"><i class="fas fa-shield-alt"></i></div>
+                <div class="snapshot-content">
+                    <h6>Admins</h6>
+                    <p>@adminCount</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toolbar (Search + Filters) -->
+        <div class="toolbar animate-in delay-2">
+            <div class="search-wrap">
+                <i class="fas fa-magnifying-glass"></i>
+                <input id="userSearch" class="search-input" type="search"
+                       placeholder="Rechercher un nom, email, spécialité..."
+                       oninput="applyUserFilters()" />
+            </div>
+
+            <div class="chips" id="roleFilters">
+                <span class="chip active" data-role="" onclick="setRoleFilter('', this)">Tous</span>
+                <span class="chip" data-role="Medecin" onclick="setRoleFilter('Medecin', this)">Médecins</span>
+                <span class="chip" data-role="Secretaire" onclick="setRoleFilter('Secretaire', this)">Secrétaires</span>
+                <span class="chip" data-role="Admin" onclick="setRoleFilter('Admin', this)">Admins</span>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="panel-card">
+            <div class="table-responsive p-2 p-md-0">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th class="py-3 ps-4">Utilisateur</th>
+                            <th class="py-3">Rôle</th>
+                            <th class="py-3">Spécialité</th>
+                            <th class="py-3 text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTable">
+                        @foreach (var user in Model)
+                        {
+                            var initials = (user.Nom?.Length ?? 0) > 0 ? user.Nom.Substring(0, 1).ToUpper() : "U";
+
+                            <tr class="row-soft user-row"
+                                data-role="@user.Role"
+                                data-search="@($"{user.Nom} {user.Prenom} {user.Email} {user.Specialite}".ToLower())">
+
+                                <td class="ps-4 py-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="avatar">@initials</div>
+                                        <div>
+                                            <div class="name">@user.Nom @user.Prenom</div>
+                                            <div class="email">@user.Email</div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div class="fw-bold text-dark">@user.Nom @user.Prenom</div>
-                                        <div class="small text-muted">@user.Email</div>
-                                    </div>
+                                </td>
+
+                                <td class="py-3">
+                                    @if (user.Role == "Medecin")
+                                    { <span class="badge-soft b-doc"><i class="fas fa-user-md"></i> Médecin</span> }
+                                    else if (user.Role == "Secretaire")
+                                    { <span class="badge-soft b-sec"><i class="fas fa-headset"></i> Secrétaire</span> }
+                                    else if (user.Role == "Admin")
+                                    { <span class="badge-soft b-admin"><i class="fas fa-shield-alt"></i> Admin</span> }
+                                    else
+                                    { <span class="badge-soft b-none"><i class="fas fa-user"></i> Aucun</span> }
+                                </td>
+
+                                <td class="py-3">
+                                    @if (!string.IsNullOrEmpty(user.Specialite))
+                                    {
+                                        <span class="spec"><i class="fas fa-stethoscope"></i> @user.Specialite</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fw-semibold">—</span>
+                                    }
+                                </td>
+
+                                <td class="py-3 text-end pe-4">
+                                    @if (user.Role != "Admin")
+                                    {
+                                        <div class="action-group">
+                                            <a asp-action="Edit" asp-route-id="@user.Id" class="icon-btn edit" title="Modifier">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+                                            <form asp-action="Delete" asp-route-id="@user.Id" method="post" class="d-inline"
+                                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce compte ?');">
+                                                <button type="submit" class="icon-btn delete" title="Supprimer">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="protected"><i class="fas fa-lock"></i> Compte protégé</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+
+                        <tr id="noResultsRow" style="display:none;">
+                            <td colspan="4">
+                                <div class="no-results">
+                                    <i class="fas fa-search-minus me-2"></i> Aucun résultat ne correspond à votre recherche.
                                 </div>
                             </td>
-                            <td>
-                                @if(user.Role == "Medecin") { <span class="badge" style="background:#E0E7FF; color:#4338CA;">Médecin</span> }
-                                else if(user.Role == "Secretaire") { <span class="badge" style="background:#D1FAE5; color:#065F46;">Secrétaire</span> }
-                                else if(user.Role == "Admin") { <span class="badge" style="background:#FEE2E2; color:#991B1B;">Admin</span> }
-                                else { <span class="badge bg-secondary">Aucun</span> }
-                            </td>
-                            <td>
-                                @if(!string.IsNullOrEmpty(user.Specialite))
-                                {
-                                    <span class="text-dark"><i class="fas fa-stethoscope me-1 text-muted"></i> @user.Specialite</span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted small">—</span>
-                                }
-                            </td>
-                            <td class="text-end pe-4">
-                                @if(user.Role != "Admin")
-                                {
-                                    <div class="d-flex justify-content-end gap-2">
-                                        <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-outline-primary border-0" title="Modifier">
-                                            <i class="fas fa-pen"></i>
-                                        </a>
-                                        <form asp-action="Delete" asp-route-id="@user.Id" method="post" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce compte ?');">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Supprimer"><i class="fas fa-trash-alt"></i></button>
-                                        </form>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-light text-muted">Compte protégé</span>
-                                }
-                            </td>
                         </tr>
-                    }
-                    <tr id="noResultsRow" style="display: none;">
-                        <td colspan="4" class="text-center py-4 text-muted">
-                            <i class="fas fa-search-minus me-2"></i> Aucun résultat ne correspond à votre recherche.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
+
     </div>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const searchInput = document.getElementById("userSearch");
-            const roleButtons = document.querySelectorAll("#roleFilters .filter-badge");
-            const rows = Array.from(document.querySelectorAll("#usersTable tr[data-role]"));
+        let activeRole = "";
+
+        function setRoleFilter(role, el) {
+            activeRole = role || "";
+
+            document.querySelectorAll("#roleFilters .chip").forEach(c => c.classList.remove("active"));
+            if (el) el.classList.add("active");
+
+            applyUserFilters();
+        }
+
+        function applyUserFilters() {
+            const q = (document.getElementById("userSearch")?.value || "").trim().toLowerCase();
+            const rows = Array.from(document.querySelectorAll(".user-row"));
             const noResultsRow = document.getElementById("noResultsRow");
 
-            function filterRows() {
-                const term = searchInput.value.trim().toLowerCase();
-                const activeRole = document.querySelector("#roleFilters .filter-badge.active")?.dataset.role || "";
-                let visibleCount = 0;
+            let visible = 0;
 
-                rows.forEach(row => {
-                    const matchesRole = !activeRole || row.dataset.role === activeRole;
-                    const matchesSearch = !term || row.dataset.searchable.includes(term);
-                    const shouldShow = matchesRole && matchesSearch;
-                    row.style.display = shouldShow ? "" : "none";
-                    if (shouldShow) visibleCount++;
-                });
+            rows.forEach(r => {
+                const role = (r.getAttribute("data-role") || "");
+                const hay = (r.getAttribute("data-search") || "");
 
-                noResultsRow.style.display = visibleCount === 0 ? "table-row" : "none";
-            }
+                const roleOk = !activeRole || role === activeRole;
+                const searchOk = !q || hay.includes(q);
 
-            roleButtons.forEach(btn => btn.addEventListener("click", () => {
-                roleButtons.forEach(b => b.classList.remove("active"));
-                btn.classList.add("active");
-                filterRows();
-            }));
+                const show = roleOk && searchOk;
+                r.style.display = show ? "" : "none";
+                if (show) visible++;
+            });
 
-            searchInput.addEventListener("input", filterRows);
-        });
+            if (noResultsRow) noResultsRow.style.display = (visible === 0) ? "table-row" : "none";
+        }
+
+        document.addEventListener("DOMContentLoaded", () => applyUserFilters());
     </script>
 }
