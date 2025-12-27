@@ -144,6 +144,15 @@
             transform: translateY(-1px);
             box-shadow: 0 14px 30px rgba(108, 140, 255, 0.24);
         }
+
+        .language-select {
+            min-width: 150px;
+            border-radius: 12px;
+            border: 1px solid #E2E8F0;
+            padding: 0.35rem 0.85rem;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+            color: var(--secondary-color);
+        }
     </style>
 </head>
 <body>
@@ -268,6 +277,11 @@
 
                     <!-- Right Side: User Profile & Logout -->
                     <div class="d-flex align-items-center gap-3">
+                        <select id="languageSwitcher" class="language-select form-select form-select-sm">
+                            <option value="en">English</option>
+                            <option value="fr">Français</option>
+                            <option value="es">Español</option>
+                        </select>
                         @if (!User.Identity.IsAuthenticated)
                         {
                             <a class="nav-cta d-none d-lg-inline-flex" asp-controller="Reservations" asp-action="Dashboard"><i class="fas fa-bolt me-2"></i>Book now</a>
@@ -292,6 +306,136 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        (() => {
+            const IGNORED_TAGS = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "CODE", "PRE", "OPTION", "TEXTAREA"]);
+            const state = {
+                textNodes: [],
+                originals: new WeakMap(),
+                selector: null
+            };
+
+            const preferredLanguage = localStorage.getItem('preferredLanguage') || 'en';
+
+            function collectTextNodes() {
+                const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+                    acceptNode(node) {
+                        if (!node.parentElement || IGNORED_TAGS.has(node.parentElement.tagName)) {
+                            return NodeFilter.FILTER_REJECT;
+                        }
+
+                        const text = node.textContent?.trim();
+                        if (!text || text.length < 2) {
+                            return NodeFilter.FILTER_REJECT;
+                        }
+
+                        return NodeFilter.FILTER_ACCEPT;
+                    }
+                });
+
+                let current;
+                while ((current = walker.nextNode())) {
+                    state.textNodes.push(current);
+                    state.originals.set(current, current.textContent);
+                }
+            }
+
+            function restoreOriginals() {
+                state.textNodes.forEach(node => {
+                    const original = state.originals.get(node);
+                    if (typeof original === 'string') {
+                        node.textContent = original;
+                    }
+                });
+            }
+
+            async function requestTranslations(texts, lang) {
+                const translations = [];
+
+                for (let i = 0; i < texts.length; i += 50) {
+                    const chunk = texts.slice(i, i + 50);
+                    const response = await fetch('/api/translate/batch', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ language: lang, texts: chunk })
+                    });
+
+                    if (!response.ok) {
+                        console.error('Translation failed', await response.text());
+                        return [];
+                    }
+
+                    const data = await response.json();
+                    translations.push(...(data.translations || chunk));
+                }
+
+                return translations;
+            }
+
+            async function translatePage(lang) {
+                if (lang === 'en') {
+                    restoreOriginals();
+                    updateLanguage(lang);
+                    return;
+                }
+
+                const uniqueTexts = [...new Set(state.textNodes
+                    .map(node => state.originals.get(node))
+                    .filter(text => typeof text === 'string' && text.trim().length > 0))];
+
+                if (uniqueTexts.length === 0) {
+                    updateLanguage(lang);
+                    return;
+                }
+
+                try {
+                    const translations = await requestTranslations(uniqueTexts, lang);
+                    const map = new Map();
+
+                    uniqueTexts.forEach((text, index) => {
+                        map.set(text, translations[index] || text);
+                    });
+
+                    state.textNodes.forEach(node => {
+                        const original = state.originals.get(node);
+                        if (map.has(original)) {
+                            node.textContent = map.get(original);
+                        }
+                    });
+
+                    updateLanguage(lang);
+                } catch (error) {
+                    console.error('Translation error', error);
+                }
+            }
+
+            function updateLanguage(lang) {
+                document.documentElement.setAttribute('lang', lang);
+                localStorage.setItem('preferredLanguage', lang);
+                if (state.selector) {
+                    state.selector.value = lang;
+                }
+            }
+
+            function initialize() {
+                state.selector = document.getElementById('languageSwitcher');
+                collectTextNodes();
+
+                if (state.selector) {
+                    state.selector.addEventListener('change', event => translatePage(event.target.value));
+                    state.selector.value = preferredLanguage;
+                }
+
+                if (preferredLanguage !== 'en') {
+                    translatePage(preferredLanguage);
+                } else {
+                    updateLanguage('en');
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', initialize);
+        })();
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 <script>
