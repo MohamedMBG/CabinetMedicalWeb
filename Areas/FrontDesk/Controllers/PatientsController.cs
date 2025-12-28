@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CabinetMedicalWeb.Data;
 using CabinetMedicalWeb.Models;
+using CabinetMedicalWeb.Areas.FrontDesk.Models;
 
 namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
 {
@@ -51,13 +52,32 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
             }
 
             var patient = await _context.Patients
+                .Include(p => p.Dossier)
+                    .ThenInclude(d => d.Consultations)
+                .Include(p => p.Dossier)
+                    .ThenInclude(d => d.Prescriptions)
+                .Include(p => p.Dossier)
+                    .ThenInclude(d => d.ResultatExamens)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (patient == null)
             {
                 return NotFound();
             }
 
-            return View(patient);
+            var nextRendezVous = await _context.RendezVous
+                .Include(r => r.Doctor)
+                .Where(r => r.PatientId == patient.Id && r.DateHeure >= DateTime.Now)
+                .OrderBy(r => r.DateHeure)
+                .FirstOrDefaultAsync();
+
+            var viewModel = new PatientSnapshotViewModel
+            {
+                Patient = patient,
+                Dossier = patient.Dossier,
+                NextRendezVous = nextRendezVous
+            };
+
+            return View(viewModel);
         }
 
         // GET: FrontDesk/Patients/Create
