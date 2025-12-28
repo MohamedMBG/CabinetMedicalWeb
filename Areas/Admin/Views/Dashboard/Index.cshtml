@@ -27,8 +27,14 @@
     .dashboard-shell {
         background: var(--bg-grad);
         min-height: 100vh;
-        padding: 2.5rem 0 4rem;
+        padding: 3.5rem 0 4.5rem;
         font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    .dashboard-container {
+        max-width: 1260px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
     }
 
     /* Staggered Animations */
@@ -46,15 +52,15 @@
         justify-content: space-between;
         align-items: flex-end;
         flex-wrap: wrap;
-        gap: 1.5rem;
-        margin-bottom: 2.5rem;
+        gap: 1.75rem;
+        margin-bottom: 2.25rem;
     }
 
     .topline h1 {
         font-weight: 800;
         color: var(--ink);
-        margin: 0.5rem 0 0.2rem;
-        font-size: 2.2rem;
+        margin: 0.5rem 0 0.35rem;
+        font-size: 2.3rem;
         letter-spacing: -0.03em;
     }
 
@@ -62,9 +68,9 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        padding: 0.4rem 0.8rem;
+        padding: 0.45rem 0.9rem;
         border-radius: 99px;
-        background: rgba(99, 102, 241, 0.1);
+        background: rgba(99, 102, 241, 0.08);
         color: #4f46e5;
         font-weight: 700;
         text-transform: uppercase;
@@ -72,17 +78,27 @@
         letter-spacing: 0.05em;
     }
 
+    .page-intro {
+        color: var(--muted);
+        max-width: 760px;
+        line-height: 1.6;
+        font-size: 0.98rem;
+        margin-bottom: 0.5rem;
+    }
+
     /* Quick Actions Buttons */
     .quick-actions {
         display: flex;
-        gap: 1rem;
+        gap: 0.85rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
     }
 
     .btn-quick {
         display: inline-flex;
         align-items: center;
         gap: 0.6rem;
-        padding: 0.75rem 1.5rem;
+        padding: 0.85rem 1.6rem;
         border-radius: 12px;
         font-weight: 600;
         font-size: 0.95rem;
@@ -110,15 +126,14 @@
     .snapshot {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2.5rem;
+        gap: 1.75rem;
     }
 
     .snapshot-card {
         background: var(--surface);
         backdrop-filter: blur(12px);
         border-radius: 20px;
-        padding: 1.5rem;
+        padding: 1.6rem;
         border: 1px solid var(--border);
         box-shadow: var(--glow);
         display: flex;
@@ -163,9 +178,48 @@
         box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05);
         overflow: hidden;
         height: 100%;
-        padding: 1.75rem;
+        padding: 2rem;
         display: flex;
         flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .section-block {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .section-header h2 {
+        margin: 0;
+        font-weight: 800;
+        color: var(--ink);
+        letter-spacing: -0.02em;
+    }
+
+    .section-subtext {
+        margin: 0;
+        color: var(--muted);
+        max-width: 720px;
+        line-height: 1.6;
+    }
+
+    .section-pill {
+        padding: 0.4rem 0.85rem;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #4338ca;
+        font-weight: 700;
+        font-size: 0.85rem;
     }
 
     /* Chart Section */
@@ -365,7 +419,7 @@
     .quick-nav-item:hover .nav-arrow { color: #4f46e5; }
 </style>
 
-@{ 
+@{
     var maxPrescriptions = Model.PrescriptionsByDay.Any() ? Model.PrescriptionsByDay.Max(p => p.Count) : 0;
     var weeklyMaxPatients = Model.WeeklyPatientReservations.Any() ? Model.WeeklyPatientReservations.Max(p => p.Patients) : 0;
     var weeklyMaxReservations = Model.WeeklyPatientReservations.Any() ? Model.WeeklyPatientReservations.Max(p => p.Reservations) : 0;
@@ -375,14 +429,14 @@
 }
 
 <div class="dashboard-shell">
-    <div class="container" style="max-width: 1200px;">
-        
+    <div class="dashboard-container">
+
         <!-- Header -->
         <div class="topline animate-in">
             <div>
                 <div class="eyebrow"><i class="fas fa-shield-alt"></i> Espace Administrateur</div>
                 <h1>Tableau de bord</h1>
-                <p class="text-muted mb-0">Vue d'ensemble et gestion de la clinique Aurora.</p>
+                <p class="page-intro">Un espace aéré pour suivre la clinique Aurora, prioriser les actions urgentes et retrouver rapidement vos indicateurs principaux.</p>
             </div>
             <div class="quick-actions">
                 <a asp-controller="Users" asp-action="Create" asp-area="Admin" class="btn-quick btn-quick-primary">
@@ -395,210 +449,236 @@
         </div>
 
         <!-- KPI Snapshots -->
-        <div class="snapshot animate-in delay-1">
-            <div class="snapshot-card">
-                <div class="snapshot-icon icon-green"><i class="fas fa-users"></i></div>
-                <div class="snapshot-content">
-                    <h6>Patients</h6>
-                    <p>@Model.PatientsCount</p>
+        <div class="section-block animate-in delay-1">
+            <div class="section-header">
+                <div>
+                    <span class="section-pill">Vue rapide</span>
+                    <h2>Indicateurs clés</h2>
+                    <p class="section-subtext">Un coup d'œil sur le volume de patients, l'activité médicale et les prescriptions récentes.</p>
                 </div>
             </div>
-            <div class="snapshot-card">
-                <div class="snapshot-icon icon-orange"><i class="fas fa-user-md"></i></div>
-                <div class="snapshot-content">
-                    <h6>Médecins</h6>
-                    <p>@Model.DoctorsCount</p>
+            <div class="snapshot">
+                <div class="snapshot-card">
+                    <div class="snapshot-icon icon-green"><i class="fas fa-users"></i></div>
+                    <div class="snapshot-content">
+                        <h6>Patients</h6>
+                        <p>@Model.PatientsCount</p>
+                    </div>
                 </div>
-            </div>
-            <div class="snapshot-card">
-                <div class="snapshot-icon icon-indigo"><i class="fas fa-folder-open"></i></div>
-                <div class="snapshot-content">
-                    <h6>Dossiers</h6>
-                    <p>@Model.MedicalFoldersCount</p>
+                <div class="snapshot-card">
+                    <div class="snapshot-icon icon-orange"><i class="fas fa-user-md"></i></div>
+                    <div class="snapshot-content">
+                        <h6>Médecins</h6>
+                        <p>@Model.DoctorsCount</p>
+                    </div>
                 </div>
-            </div>
-            <div class="snapshot-card">
-                <div class="snapshot-icon icon-cyan"><i class="fas fa-file-prescription"></i></div>
-                <div class="snapshot-content">
-                    <h6>Rx (7j)</h6>
-                    <p>@Model.PrescriptionsByDay.Sum(p => p.Count)</p>
+                <div class="snapshot-card">
+                    <div class="snapshot-icon icon-indigo"><i class="fas fa-folder-open"></i></div>
+                    <div class="snapshot-content">
+                        <h6>Dossiers</h6>
+                        <p>@Model.MedicalFoldersCount</p>
+                    </div>
+                </div>
+                <div class="snapshot-card">
+                    <div class="snapshot-icon icon-cyan"><i class="fas fa-file-prescription"></i></div>
+                    <div class="snapshot-content">
+                        <h6>Rx (7j)</h6>
+                        <p>@Model.PrescriptionsByDay.Sum(p => p.Count)</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Main Content -->
-        <div class="grid-balanced animate-in delay-2">
-            
-            <!-- Left: Chart -->
-            <div class="panel-card">
-                <div class="chart-header">
-                    <h3><i class="fas fa-chart-bar text-primary me-2"></i>Activité Prescriptions</h3>
-                    <div class="badge-soft">Cette semaine</div>
+        <div class="section-block animate-in delay-2">
+            <div class="section-header">
+                <div>
+                    <span class="section-pill">Flux quotidien</span>
+                    <h2>Activité & raccourcis</h2>
+                    <p class="section-subtext">Une visualisation claire des prescriptions récentes avec des accès rapides pour naviguer sans surcharge visuelle.</p>
                 </div>
-                
-                <div class="chart-bars">
-                    @foreach (var stat in Model.PrescriptionsByDay)
-                    {
-                        var fill = maxPrescriptions > 0 ? (int)Math.Round((double)stat.Count / maxPrescriptions * 100) : 0;
-                        // Avoid 0% height visual glitch
-                        if(fill < 5) fill = 5; 
-                        
-                        <div class="bar-item" title="@stat.Count prescriptions">
-                            <span class="bar-value">@stat.Count</span>
-                            <div class="bar-track">
-                                <div class="bar-fill" style="height: @fill%;"></div>
+            </div>
+            <div class="grid-balanced">
+
+                <!-- Left: Chart -->
+                <div class="panel-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-bar text-primary me-2"></i>Activité Prescriptions</h3>
+                        <div class="badge-soft">Cette semaine</div>
+                    </div>
+
+                    <div class="chart-bars">
+                        @foreach (var stat in Model.PrescriptionsByDay)
+                        {
+                            var fill = maxPrescriptions > 0 ? (int)Math.Round((double)stat.Count / maxPrescriptions * 100) : 0;
+                            // Avoid 0% height visual glitch
+                            if(fill < 5) fill = 5;
+
+                            <div class="bar-item" title="@stat.Count prescriptions">
+                                <span class="bar-value">@stat.Count</span>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="height: @fill%;"></div>
+                                </div>
+                                <span class="bar-label">@stat.Date.ToString("ddd", System.Globalization.CultureInfo.GetCultureInfo("fr-FR"))</span>
                             </div>
-                            <span class="bar-label">@stat.Date.ToString("ddd", System.Globalization.CultureInfo.GetCultureInfo("fr-FR"))</span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Right: Navigation -->
+                <div class="panel-card quick-nav-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-compass text-primary me-2"></i>Accès Rapide</h3>
+                    </div>
+                    <ul class="quick-nav-list">
+                        <li>
+                            <a asp-area="Admin" asp-controller="Users" asp-action="Index" class="quick-nav-item">
+                                <div class="nav-label">
+                                    <div class="nav-icon-box"><i class="fas fa-users"></i></div>
+                                    <span>Annuaire du personnel</span>
+                                </div>
+                                <i class="fas fa-chevron-right nav-arrow"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Admin" asp-controller="Horaires" asp-action="Index" class="quick-nav-item">
+                                <div class="nav-label">
+                                    <div class="nav-icon-box"><i class="fas fa-clock"></i></div>
+                                    <span>Plannings & Horaires</span>
+                                </div>
+                                <i class="fas fa-chevron-right nav-arrow"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Admin" asp-controller="Conges" asp-action="Index" class="quick-nav-item">
+                                <div class="nav-label">
+                                    <div class="nav-icon-box"><i class="fas fa-plane"></i></div>
+                                    <span>Gestion des Absences</span>
+                                </div>
+                                <i class="fas fa-chevron-right nav-arrow"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="section-block animate-in delay-3">
+            <div class="section-header">
+                <div>
+                    <span class="section-pill">Tendances</span>
+                    <h2>Patients & performance</h2>
+                    <p class="section-subtext">Plus d'espace pour comparer les volumes hebdomadaires, mensuels et suivre l'efficacité des équipes.</p>
+                </div>
+            </div>
+            <div class="grid-balanced">
+                <div class="panel-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-area text-primary me-2"></i>Patients & Réservations</h3>
+                        <div class="badge-soft">Vue 6 semaines / 6 mois</div>
+                    </div>
+
+                    <div class="bar-legend mb-3">
+                        <span><span class="legend-dot dot-green"></span> Patients reçus</span>
+                        <span><span class="legend-dot dot-indigo"></span> Réservations</span>
+                    </div>
+
+                    <div class="chart-grid">
+                        <div class="trend-block">
+                            <h4>Hebdomadaire</h4>
+                            @foreach (var point in Model.WeeklyPatientReservations)
+                            {
+                                var patientWidth = weeklyMaxPatients > 0 ? Math.Round((double)point.Patients / weeklyMaxPatients * 100) : 0;
+                                var reservationWidth = weeklyMaxReservations > 0 ? Math.Round((double)point.Reservations / weeklyMaxReservations * 100) : 0;
+                                <div class="trend-row">
+                                    <div class="trend-label">@point.Label</div>
+                                    <div class="dual-bar">
+                                        <div class="bar-track-inline" title="@point.Patients patients uniques">
+                                            <div class="bar-fill-inline bar-fill-patients" style="width: @patientWidth%;"></div>
+                                        </div>
+                                        <div class="bar-track-inline" title="@point.Reservations réservations">
+                                            <div class="bar-fill-inline bar-fill-reservations" style="width: @reservationWidth%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
                         </div>
-                    }
-                </div>
-            </div>
 
-            <!-- Right: Navigation -->
-            <div class="panel-card quick-nav-card">
-                <div class="chart-header">
-                    <h3><i class="fas fa-compass text-primary me-2"></i>Accès Rapide</h3>
-                </div>
-                <ul class="quick-nav-list">
-                    <li>
-                        <a asp-area="Admin" asp-controller="Users" asp-action="Index" class="quick-nav-item">
-                            <div class="nav-label">
-                                <div class="nav-icon-box"><i class="fas fa-users"></i></div>
-                                <span>Annuaire du personnel</span>
-                            </div>
-                            <i class="fas fa-chevron-right nav-arrow"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a asp-area="Admin" asp-controller="Horaires" asp-action="Index" class="quick-nav-item">
-                            <div class="nav-label">
-                                <div class="nav-icon-box"><i class="fas fa-clock"></i></div>
-                                <span>Plannings & Horaires</span>
-                            </div>
-                            <i class="fas fa-chevron-right nav-arrow"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a asp-area="Admin" asp-controller="Conges" asp-action="Index" class="quick-nav-item">
-                            <div class="nav-label">
-                                <div class="nav-icon-box"><i class="fas fa-plane"></i></div>
-                                <span>Gestion des Absences</span>
-                            </div>
-                            <i class="fas fa-chevron-right nav-arrow"></i>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-        </div>
-
-        <div class="grid-balanced animate-in delay-3">
-            <div class="panel-card">
-                <div class="chart-header">
-                    <h3><i class="fas fa-chart-area text-primary me-2"></i>Patients & Réservations</h3>
-                    <div class="badge-soft">Vue 6 semaines / 6 mois</div>
-                </div>
-
-                <div class="bar-legend mb-3">
-                    <span><span class="legend-dot dot-green"></span> Patients reçus</span>
-                    <span><span class="legend-dot dot-indigo"></span> Réservations</span>
-                </div>
-
-                <div class="chart-grid">
-                    <div class="trend-block">
-                        <h4>Hebdomadaire</h4>
-                        @foreach (var point in Model.WeeklyPatientReservations)
-                        {
-                            var patientWidth = weeklyMaxPatients > 0 ? Math.Round((double)point.Patients / weeklyMaxPatients * 100) : 0;
-                            var reservationWidth = weeklyMaxReservations > 0 ? Math.Round((double)point.Reservations / weeklyMaxReservations * 100) : 0;
-                            <div class="trend-row">
-                                <div class="trend-label">@point.Label</div>
-                                <div class="dual-bar">
-                                    <div class="bar-track-inline" title="@point.Patients patients uniques">
-                                        <div class="bar-fill-inline bar-fill-patients" style="width: @patientWidth%;"></div>
-                                    </div>
-                                    <div class="bar-track-inline" title="@point.Reservations réservations">
-                                        <div class="bar-fill-inline bar-fill-reservations" style="width: @reservationWidth%;"></div>
+                        <div class="trend-block">
+                            <h4>Mensuel</h4>
+                            @foreach (var point in Model.MonthlyPatientReservations)
+                            {
+                                var patientWidth = monthlyMaxPatients > 0 ? Math.Round((double)point.Patients / monthlyMaxPatients * 100) : 0;
+                                var reservationWidth = monthlyMaxReservations > 0 ? Math.Round((double)point.Reservations / monthlyMaxReservations * 100) : 0;
+                                <div class="trend-row">
+                                    <div class="trend-label">@point.Label</div>
+                                    <div class="dual-bar">
+                                        <div class="bar-track-inline" title="@point.Patients patients uniques">
+                                            <div class="bar-fill-inline bar-fill-patients" style="width: @patientWidth%;"></div>
+                                        </div>
+                                        <div class="bar-track-inline" title="@point.Reservations réservations">
+                                            <div class="bar-fill-inline bar-fill-reservations" style="width: @reservationWidth%;"></div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        }
-                    </div>
-
-                    <div class="trend-block">
-                        <h4>Mensuel</h4>
-                        @foreach (var point in Model.MonthlyPatientReservations)
-                        {
-                            var patientWidth = monthlyMaxPatients > 0 ? Math.Round((double)point.Patients / monthlyMaxPatients * 100) : 0;
-                            var reservationWidth = monthlyMaxReservations > 0 ? Math.Round((double)point.Reservations / monthlyMaxReservations * 100) : 0;
-                            <div class="trend-row">
-                                <div class="trend-label">@point.Label</div>
-                                <div class="dual-bar">
-                                    <div class="bar-track-inline" title="@point.Patients patients uniques">
-                                        <div class="bar-fill-inline bar-fill-patients" style="width: @patientWidth%;"></div>
-                                    </div>
-                                    <div class="bar-track-inline" title="@point.Reservations réservations">
-                                        <div class="bar-fill-inline bar-fill-reservations" style="width: @reservationWidth%;"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
+                            }
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="panel-card">
-                <div class="chart-header">
-                    <h3><i class="fas fa-user-tie text-primary me-2"></i>Performance équipes</h3>
-                    <div class="badge-soft">Derniers 30 jours</div>
-                </div>
-
-                <div class="performance-grid">
-                    <div>
-                        <h5 class="fw-bold mb-3">Médecins</h5>
-                        @foreach (var doc in Model.DoctorPerformance)
-                        {
-                            var total = doc.Appointments + doc.Prescriptions;
-                            var ratio = doctorMax > 0 ? Math.Round((double)total / doctorMax * 100) : 0;
-                            var prescriptionsWidth = ratio > 0 ? Math.Round((double)doc.Prescriptions / (doctorMax > 0 ? doctorMax : 1) * 100) : 0;
-                            <div class="doctor-row">
-                                <div>
-                                    <div class="doctor-name">@doc.Name</div>
-                                    <div class="doctor-speciality">@(string.IsNullOrWhiteSpace(doc.Specialite) ? "Généraliste" : doc.Specialite)</div>
-                                </div>
-                                <div>
-                                    <div class="stacked-meter" title="@doc.Appointments rendez-vous | @doc.Prescriptions prescriptions">
-                                        <div class="fill-appointments" style="width: @ratio%;"></div>
-                                        <div class="fill-prescriptions" style="width: @prescriptionsWidth%;"></div>
-                                    </div>
-                                </div>
-                                <div class="text-end">
-                                    <div class="metric-pill"><i class="fas fa-calendar-check"></i>@doc.Appointments</div>
-                                    <div class="metric-pill pill-warm mt-1"><i class="fas fa-pills"></i>@doc.Prescriptions</div>
-                                </div>
-                            </div>
-                        }
+                <div class="panel-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-user-tie text-primary me-2"></i>Performance équipes</h3>
+                        <div class="badge-soft">Derniers 30 jours</div>
                     </div>
 
-                    <div>
-                        <h5 class="fw-bold mb-3">Secrétariat</h5>
-                        <div class="trend-block" style="height: 100%;">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <span class="doctor-name">Demandes traitées</span>
-                                <span class="badge-soft">30 derniers jours</span>
+                    <div class="performance-grid">
+                        <div>
+                            <h5 class="fw-bold mb-3">Médecins</h5>
+                            @foreach (var doc in Model.DoctorPerformance)
+                            {
+                                var total = doc.Appointments + doc.Prescriptions;
+                                var ratio = doctorMax > 0 ? Math.Round((double)total / doctorMax * 100) : 0;
+                                var prescriptionsWidth = ratio > 0 ? Math.Round((double)doc.Prescriptions / (doctorMax > 0 ? doctorMax : 1) * 100) : 0;
+                                <div class="doctor-row">
+                                    <div>
+                                        <div class="doctor-name">@doc.Name</div>
+                                        <div class="doctor-speciality">@(string.IsNullOrWhiteSpace(doc.Specialite) ? "Généraliste" : doc.Specialite)</div>
+                                    </div>
+                                    <div>
+                                        <div class="stacked-meter" title="@doc.Appointments rendez-vous | @doc.Prescriptions prescriptions">
+                                            <div class="fill-appointments" style="width: @ratio%;"></div>
+                                            <div class="fill-prescriptions" style="width: @prescriptionsWidth%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="metric-pill"><i class="fas fa-calendar-check"></i>@doc.Appointments</div>
+                                        <div class="metric-pill pill-warm mt-1"><i class="fas fa-pills"></i>@doc.Prescriptions</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div>
+                            <h5 class="fw-bold mb-3">Secrétariat</h5>
+                            <div class="trend-block" style="height: 100%;">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <span class="doctor-name">Demandes traitées</span>
+                                    <span class="badge-soft">30 derniers jours</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="metric-pill"><i class="fas fa-check-circle"></i>@Model.ReceptionPerformance.Confirmed</span>
+                                    <span class="metric-pill pill-warm"><i class="fas fa-times-circle"></i>@Model.ReceptionPerformance.Rejected</span>
+                                </div>
+                                <div class="bar-track-inline" title="Demandes en attente">
+                                    <div class="bar-fill-inline bar-fill-reservations" style="width: 100%; opacity: 0.35;"></div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center text-muted">
+                                    <small>En attente</small>
+                                    <span class="fw-bold">@Model.ReceptionPerformance.Pending</span>
+                                </div>
+                                <p class="text-muted mb-0" style="font-size: 0.9rem;">Les secrétaires voient les demandes confirmées et refusées sur les 30 derniers jours pour mesurer la réactivité.</p>
                             </div>
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="metric-pill"><i class="fas fa-check-circle"></i>@Model.ReceptionPerformance.Confirmed</span>
-                                <span class="metric-pill pill-warm"><i class="fas fa-times-circle"></i>@Model.ReceptionPerformance.Rejected</span>
-                            </div>
-                            <div class="bar-track-inline" title="Demandes en attente">
-                                <div class="bar-fill-inline bar-fill-reservations" style="width: 100%; opacity: 0.35;"></div>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center text-muted">
-                                <small>En attente</small>
-                                <span class="fw-bold">@Model.ReceptionPerformance.Pending</span>
-                            </div>
-                            <p class="text-muted mb-0" style="font-size: 0.9rem;">Les secrétaires voient les demandes confirmées et refusées sur les 30 derniers jours pour mesurer la réactivité.</p>
                         </div>
                     </div>
                 </div>
