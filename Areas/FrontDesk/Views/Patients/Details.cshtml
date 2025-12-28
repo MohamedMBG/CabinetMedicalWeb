@@ -1,4 +1,6 @@
-﻿@model CabinetMedicalWeb.Models.Patient
+﻿@model CabinetMedicalWeb.Areas.FrontDesk.Models.PatientSnapshotViewModel
+@using System.Linq
+@using CabinetMedicalWeb.Models
 
 @{
     ViewData["Title"] = "Détails du Patient";
@@ -32,6 +34,75 @@
         padding: 3rem;
         color: white;
         position: relative;
+    }
+
+    .snapshot-card {
+        background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.82));
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.65);
+        box-shadow: 0 10px 30px -12px rgba(0,0,0,0.15);
+        padding: 1.5rem 1.75rem;
+    }
+
+    .snapshot-title {
+        font-weight: 800;
+        color: @textDark;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 1rem;
+    }
+
+    .snapshot-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+    }
+
+    .snapshot-item {
+        background: rgba(122, 163, 209, 0.08);
+        border-radius: 16px;
+        padding: 1rem 1.25rem;
+        border: 1px solid rgba(122,163,209,0.18);
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+
+    .snapshot-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #6B7280;
+        font-weight: 700;
+    }
+
+    .snapshot-value {
+        font-size: 1.05rem;
+        color: #0F172A;
+        font-weight: 700;
+    }
+
+    .snapshot-sub {
+        color: #4B5563;
+        font-size: 0.9rem;
+    }
+
+    .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: white;
+        color: @colorPrimary;
+        border-radius: 999px;
+        padding: 0.35rem 0.75rem;
+        font-weight: 700;
+        font-size: 0.85rem;
+        border: 1px solid rgba(122,163,209,0.4);
     }
     
     .avatar-circle {
@@ -117,6 +188,16 @@
     }
 </style>
 
+@{
+    var patient = Model.Patient;
+    var dossier = Model.Dossier;
+    var consultations = dossier?.Consultations?.OrderByDescending(c => c.Date) ?? Enumerable.Empty<Consultation>();
+    var lastConsultation = consultations.FirstOrDefault();
+    var prescriptions = dossier?.Prescriptions?.OrderByDescending(p => p.DatePrescription).Take(3) ?? Enumerable.Empty<Prescription>();
+    var latestExam = dossier?.ResultatExamens?.OrderByDescending(r => r.DateExamen).FirstOrDefault();
+    var nextRendezVous = Model.NextRendezVous;
+}
+
 <div class="details-container">
     <div class="container">
         <div class="row justify-content-center">
@@ -126,16 +207,16 @@
                     <div class="details-header">
                         <div class="d-flex align-items-center gap-4">
                             <div class="avatar-circle">
-                                @(Model.Nom?.FirstOrDefault())@(Model.Prenom?.FirstOrDefault())
+                                @(patient.Nom?.FirstOrDefault())@(patient.Prenom?.FirstOrDefault())
                             </div>
                             <div>
-                                <h1 class="fw-bold mb-1">@Model.Nom @Model.Prenom</h1>
+                                <h1 class="fw-bold mb-1">@patient.Nom @patient.Prenom</h1>
                                 <p class="mb-0 opacity-90 font-monospace small">
-                                    <i class="fas fa-hashtag me-1"></i>Dossier #@Model.Id
+                                    <i class="fas fa-hashtag me-1"></i>Dossier #@patient.Id
                                 </p>
                             </div>
                             <div class="ms-auto">
-                                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-edit">
+                                <a asp-action="Edit" asp-route-id="@patient.Id" class="btn-edit">
                                     <i class="fas fa-pen"></i> Modifier
                                 </a>
                             </div>
@@ -143,7 +224,76 @@
                     </div>
 
                     <div class="p-5">
-                        
+                        <div class="snapshot-card mb-5">
+                            <div class="snapshot-title">
+                                <i class="fas fa-bolt text-primary"></i> Résumé rapide
+                            </div>
+                            <div class="snapshot-grid">
+                                <div class="snapshot-item">
+                                    <div class="snapshot-label">Prochain rendez-vous</div>
+                                    @if (nextRendezVous != null)
+                                    {
+                                        <div class="snapshot-value">
+                                            @nextRendezVous.DateHeure.ToString("dd MMM yyyy à HH:mm")
+                                        </div>
+                                        <div class="snapshot-sub">
+                                            <i class="fas fa-user-md me-2"></i>
+                                            @(nextRendezVous.Doctor != null ? $"Dr {nextRendezVous.Doctor.Nom} {nextRendezVous.Doctor.Prenom}" : "Médecin non assigné")
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted fst-italic">Aucun rendez-vous à venir</div>
+                                    }
+                                </div>
+
+                                <div class="snapshot-item">
+                                    <div class="snapshot-label">Dernière consultation</div>
+                                    @if (lastConsultation != null)
+                                    {
+                                        <div class="snapshot-value">@lastConsultation.Date.ToString("dd MMM yyyy")</div>
+                                        <div class="snapshot-sub">@lastConsultation.Motif</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted fst-italic">Aucune consultation enregistrée</div>
+                                    }
+                                </div>
+
+                                <div class="snapshot-item">
+                                    <div class="snapshot-label">Prescriptions actives</div>
+                                    @if (prescriptions.Any())
+                                    {
+                                        foreach (var prescription in prescriptions)
+                                        {
+                                            <div class="pill mb-1">
+                                                <i class="fas fa-pills"></i>
+                                                <span>@prescription.Medicaments</span>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted fst-italic">Aucune prescription en cours</div>
+                                    }
+                                </div>
+
+                                <div class="snapshot-item">
+                                    <div class="snapshot-label">Résultat d'examen</div>
+                                    @if (latestExam != null)
+                                    {
+                                        <div class="snapshot-value">@latestExam.TypeExamen</div>
+                                        <div class="snapshot-sub">@latestExam.DateExamen.ToString("dd MMM yyyy")</div>
+                                        <div class="text-muted small">@latestExam.Resultat</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted fst-italic">Aucun examen disponible</div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Section 1: Identité -->
                         <div class="mb-5">
                             <h6 class="section-title"><i class="fas fa-id-card text-primary"></i> État Civil</h6>
@@ -151,16 +301,16 @@
                                 <div class="col-md-6">
                                     <div class="info-group">
                                         <div class="info-label">Nom Complet</div>
-                                        <div class="info-value">@Model.Nom @Model.Prenom</div>
+                                        <div class="info-value">@patient.Nom @patient.Prenom</div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="info-group">
                                         <div class="info-label">Date de Naissance</div>
                                         <div class="info-value">
-                                            @Model.DateNaissance.ToShortDateString()
+                                            @patient.DateNaissance.ToShortDateString()
                                             <span class="text-muted small fw-normal ms-2">
-                                                (@(DateTime.Now.Year - Model.DateNaissance.Year) ans)
+                                                (@(DateTime.Now.Year - patient.DateNaissance.Year) ans)
                                             </span>
                                         </div>
                                     </div>
@@ -177,7 +327,7 @@
                                         <div class="info-label">Téléphone</div>
                                         <div class="info-value">
                                             <i class="fas fa-phone-alt me-2 text-muted small"></i>
-                                            @Model.Telephone
+                                            @patient.Telephone
                                         </div>
                                     </div>
                                 </div>
@@ -185,9 +335,9 @@
                                     <div class="info-group">
                                         <div class="info-label">Email</div>
                                         <div class="info-value">
-                                            @if(!string.IsNullOrEmpty(Model.Email))
+                                            @if(!string.IsNullOrEmpty(patient.Email))
                                             {
-                                                <span><i class="fas fa-envelope me-2 text-muted small"></i>@Model.Email</span>
+                                                <span><i class="fas fa-envelope me-2 text-muted small"></i>@patient.Email</span>
                                             }
                                             else
                                             {
@@ -200,9 +350,9 @@
                                     <div class="info-group">
                                         <div class="info-label">Adresse</div>
                                         <div class="info-value">
-                                            @if(!string.IsNullOrEmpty(Model.Adresse))
+                                            @if(!string.IsNullOrEmpty(patient.Adresse))
                                             {
-                                                <span><i class="fas fa-map-marker-alt me-2 text-muted small"></i>@Model.Adresse</span>
+                                                <span><i class="fas fa-map-marker-alt me-2 text-muted small"></i>@patient.Adresse</span>
                                             }
                                             else
                                             {
@@ -220,9 +370,9 @@
                             <div class="info-group">
                                 <div class="info-label">Antécédents & Allergies</div>
                                 <div class="p-3 bg-light rounded-3 border mt-2">
-                                    @if(!string.IsNullOrEmpty(Model.AntecedentsMedicaux))
+                                    @if(!string.IsNullOrEmpty(patient.AntecedentsMedicaux))
                                     {
-                                        <p class="mb-0" style="white-space: pre-line;">@Model.AntecedentsMedicaux</p>
+                                        <p class="mb-0" style="white-space: pre-line;">@patient.AntecedentsMedicaux</p>
                                     }
                                     else
                                     {
