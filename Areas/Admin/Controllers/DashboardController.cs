@@ -52,22 +52,24 @@ namespace CabinetMedicalWeb.Areas.Admin.Controllers
             var weeklyStart = GetStartOfWeek(today).AddDays(-7 * 5);
             var monthlyStart = new DateTime(today.Year, today.Month, 1).AddMonths(-5);
 
-            var weeklyAppointments = await _context.RendezVous
-                .Where(r => r.DateHeure.Date >= weeklyStart && r.DateHeure.Date <= today)
-                .GroupBy(r => r.DateHeure.Date.AddDays(-(((int)r.DateHeure.DayOfWeek + 6) % 7)))
+            var weeklyAppointments = (await _context.RendezVous
+                    .Where(r => r.DateHeure.Date >= weeklyStart && r.DateHeure.Date <= today)
+                    .ToListAsync())
+                .GroupBy(r => GetStartOfWeek(r.DateHeure.Date))
                 .Select(g => new
                 {
                     Week = g.Key,
                     PatientCount = g.Select(r => r.PatientId).Distinct().Count(),
                     ReservationCount = g.Count()
                 })
-                .ToDictionaryAsync(x => x.Week, x => x);
+                .ToDictionary(x => x.Week, x => x);
 
-            var weeklyReservations = await _context.ReservationRequests
-                .Where(r => r.DateSouhaitee.Date >= weeklyStart && r.DateSouhaitee.Date <= today)
-                .GroupBy(r => r.DateSouhaitee.Date.AddDays(-(((int)r.DateSouhaitee.DayOfWeek + 6) % 7)))
+            var weeklyReservations = (await _context.ReservationRequests
+                    .Where(r => r.DateSouhaitee.Date >= weeklyStart && r.DateSouhaitee.Date <= today)
+                    .ToListAsync())
+                .GroupBy(r => GetStartOfWeek(r.DateSouhaitee.Date))
                 .Select(g => new { Week = g.Key, ReservationCount = g.Count() })
-                .ToDictionaryAsync(x => x.Week, x => x.ReservationCount);
+                .ToDictionary(x => x.Week, x => x.ReservationCount);
 
             var monthlyAppointments = await _context.RendezVous
                 .Where(r => r.DateHeure.Date >= monthlyStart && r.DateHeure.Date <= today)
