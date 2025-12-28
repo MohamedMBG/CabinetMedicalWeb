@@ -24,16 +24,16 @@ namespace CabinetMedicalWeb.Areas.Admin.Controllers
             _userManager = userManager;
         }
 
+        private static DateTime GetStartOfWeek(DateTime date)
+        {
+            var diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
+            return date.AddDays(-diff).Date;
+        }
+
         public async Task<IActionResult> Index()
         {
             var today = DateTime.Today;
             var startDate = today.AddDays(-6);
-
-            DateTime StartOfWeek(DateTime date)
-            {
-                var diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
-                return date.AddDays(-1 * diff).Date;
-            }
 
             var doctorsInRole = await _userManager.GetUsersInRoleAsync("Medecin");
 
@@ -49,12 +49,12 @@ namespace CabinetMedicalWeb.Areas.Admin.Controllers
                 .Select(g => new { g.Key, Count = g.Count() })
                 .ToDictionaryAsync(x => x.Key, x => x.Count);
 
-            var weeklyStart = StartOfWeek(today).AddDays(-7 * 5);
+            var weeklyStart = GetStartOfWeek(today).AddDays(-7 * 5);
             var monthlyStart = new DateTime(today.Year, today.Month, 1).AddMonths(-5);
 
             var weeklyAppointments = await _context.RendezVous
                 .Where(r => r.DateHeure.Date >= weeklyStart && r.DateHeure.Date <= today)
-                .GroupBy(r => StartOfWeek(r.DateHeure.Date))
+                .GroupBy(r => r.DateHeure.Date.AddDays(-(((int)r.DateHeure.DayOfWeek + 6) % 7)))
                 .Select(g => new
                 {
                     Week = g.Key,
@@ -65,7 +65,7 @@ namespace CabinetMedicalWeb.Areas.Admin.Controllers
 
             var weeklyReservations = await _context.ReservationRequests
                 .Where(r => r.DateSouhaitee.Date >= weeklyStart && r.DateSouhaitee.Date <= today)
-                .GroupBy(r => StartOfWeek(r.DateSouhaitee.Date))
+                .GroupBy(r => r.DateSouhaitee.Date.AddDays(-(((int)r.DateSouhaitee.DayOfWeek + 6) % 7)))
                 .Select(g => new { Week = g.Key, ReservationCount = g.Count() })
                 .ToDictionaryAsync(x => x.Week, x => x.ReservationCount);
 
