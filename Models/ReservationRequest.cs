@@ -14,37 +14,45 @@ namespace CabinetMedicalWeb.Models
     {
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Le nom est obligatoire")]
+        [Required(ErrorMessage = "Last name is required")]
         [StringLength(100)]
+        [Display(Name = "Last name")]
         public string Nom { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Le prénom est obligatoire")]
+        [Required(ErrorMessage = "First name is required")]
         [StringLength(100)]
+        [Display(Name = "First name")]
         public string Prenom { get; set; } = string.Empty;
 
         [StringLength(200)]
+        [Display(Name = "Address")]
         public string? Adresse { get; set; }
 
-        [Required(ErrorMessage = "Le téléphone est obligatoire")]
+        [Required(ErrorMessage = "Phone number is required")]
         [Phone]
         [StringLength(20)]
+        [Display(Name = "Phone")]
         public string Telephone { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "L'email est obligatoire")]
+        [Required(ErrorMessage = "Email is required")]
         [EmailAddress]
         [StringLength(150)]
+        [Display(Name = "Email")]
         public string Email { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "La date de naissance est obligatoire")]
+        [Required(ErrorMessage = "Date of birth is required")]
         [DataType(DataType.Date)]
+        [Display(Name = "Date of birth")]
         public DateTime DateNaissance { get; set; }
 
-        [Required(ErrorMessage = "La date souhaitée est obligatoire")]
+        [Required(ErrorMessage = "Preferred date is required")]
         [DataType(DataType.DateTime)]
+        [Display(Name = "Preferred date & time")]
         public DateTime DateSouhaitee { get; set; }
 
-        [Required(ErrorMessage = "Merci de préciser le motif de la consultation")]
+        [Required(ErrorMessage = "Please tell us the reason for your visit")]
         [StringLength(500)]
+        [Display(Name = "Reason for visit")]
         public string Motif { get; set; } = string.Empty;
 
         [StringLength(50)]
