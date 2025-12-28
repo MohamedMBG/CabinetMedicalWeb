@@ -44,7 +44,9 @@
         modalOverlay: null,
         modal: null,
         languageButtons: [],
-        currentLanguage: FALLBACK_LANGUAGE
+        currentLanguage: FALLBACK_LANGUAGE,
+        observer: null,
+        isTranslating: false
     };
 
     function collectTextNodes() {
@@ -65,6 +67,9 @@
 
         let current;
         while ((current = walker.nextNode())) {
+            if (state.textOriginals.has(current)) {
+                continue;
+            }
             state.textNodes.push(current);
             state.textOriginals.set(current, current.textContent);
         }
@@ -75,14 +80,36 @@
         elements.forEach(element => {
             TRANSLATABLE_ATTRIBUTES.forEach(attribute => {
                 const value = element.getAttribute(attribute);
-                if (value && value.trim().length > 1) {
-                    state.attributeEntries.push({ element, attribute });
-                    if (!state.attributeOriginals.has(element)) {
-                        state.attributeOriginals.set(element, {});
-                    }
-                    state.attributeOriginals.get(element)[attribute] = value;
+                const alreadyTracked = state.attributeEntries.some(entry => entry.element === element && entry.attribute === attribute);
+                if (!value || value.trim().length <= 1 || alreadyTracked) return;
+
+                state.attributeEntries.push({ element, attribute });
+                if (!state.attributeOriginals.has(element)) {
+                    state.attributeOriginals.set(element, {});
                 }
+                state.attributeOriginals.get(element)[attribute] = value;
             });
+        });
+    }
+
+    function pruneDisconnectedNodes() {
+        state.textNodes = state.textNodes.filter(node => {
+            const connected = !!node.parentElement;
+            if (!connected) {
+                state.textOriginals.delete(node);
+            }
+            return connected;
+        });
+
+        state.attributeEntries = state.attributeEntries.filter(({ element, attribute }) => {
+            const connected = !!element.parentElement;
+            if (!connected) {
+                state.attributeOriginals.delete(element);
+            } else if (!element.hasAttribute(attribute)) {
+                const originals = state.attributeOriginals.get(element) || {};
+                delete originals[attribute];
+            }
+            return connected;
         });
     }
 
@@ -136,51 +163,61 @@
     }
 
     async function translatePage(lang) {
+        pruneDisconnectedNodes();
+        collectTextNodes();
+        collectAttributeNodes();
+
         if (lang === FALLBACK_LANGUAGE) {
             restoreOriginals();
             updateLanguage(lang);
             return;
         }
 
-        const textValues = state.textNodes
-            .map(node => state.textOriginals.get(node))
-            .filter(value => typeof value === 'string' && value.trim().length > 0);
+        state.isTranslating = true;
 
-        const attributeValues = state.attributeEntries
-            .map(({ element, attribute }) => (state.attributeOriginals.get(element) || {})[attribute])
-            .filter(value => typeof value === 'string' && value.trim().length > 0);
+        try {
+            const textValues = state.textNodes
+                .map(node => state.textOriginals.get(node))
+                .filter(value => typeof value === 'string' && value.trim().length > 0);
 
-        const uniqueTexts = [...new Set([...textValues, ...attributeValues])];
+            const attributeValues = state.attributeEntries
+                .map(({ element, attribute }) => (state.attributeOriginals.get(element) || {})[attribute])
+                .filter(value => typeof value === 'string' && value.trim().length > 0);
 
-        if (uniqueTexts.length === 0) {
+            const uniqueTexts = [...new Set([...textValues, ...attributeValues])];
+
+            if (uniqueTexts.length === 0) {
+                updateLanguage(lang);
+                return;
+            }
+
+            const translations = await requestTranslations(uniqueTexts, lang);
+            const translationMap = new Map();
+
+            uniqueTexts.forEach((text, index) => {
+                translationMap.set(text, translations[index] || text);
+            });
+
+            applyLocalFallbacks(lang, translationMap);
+
+            state.textNodes.forEach(node => {
+                const original = state.textOriginals.get(node);
+                if (translationMap.has(original)) {
+                    node.textContent = translationMap.get(original);
+                }
+            });
+
+            state.attributeEntries.forEach(({ element, attribute }) => {
+                const original = (state.attributeOriginals.get(element) || {})[attribute];
+                if (translationMap.has(original)) {
+                    element.setAttribute(attribute, translationMap.get(original));
+                }
+            });
+
             updateLanguage(lang);
-            return;
+        } finally {
+            state.isTranslating = false;
         }
-
-        const translations = await requestTranslations(uniqueTexts, lang);
-        const translationMap = new Map();
-
-        uniqueTexts.forEach((text, index) => {
-            translationMap.set(text, translations[index] || text);
-        });
-
-        applyLocalFallbacks(lang, translationMap);
-
-        state.textNodes.forEach(node => {
-            const original = state.textOriginals.get(node);
-            if (translationMap.has(original)) {
-                node.textContent = translationMap.get(original);
-            }
-        });
-
-        state.attributeEntries.forEach(({ element, attribute }) => {
-            const original = (state.attributeOriginals.get(element) || {})[attribute];
-            if (translationMap.has(original)) {
-                element.setAttribute(attribute, translationMap.get(original));
-            }
-        });
-
-        updateLanguage(lang);
     }
 
     function applyLocalFallbacks(lang, translationMap) {
@@ -271,6 +308,36 @@
         }
     }
 
+    function observeDomChanges() {
+        if (state.observer) {
+            state.observer.disconnect();
+        }
+
+        state.observer = new MutationObserver((mutations) => {
+            if (state.isTranslating || state.currentLanguage === FALLBACK_LANGUAGE) {
+                return;
+            }
+
+            const relevant = mutations.some(mutation => {
+                if (mutation.type === 'childList' && (mutation.addedNodes.length || mutation.removedNodes.length)) {
+                    return true;
+                }
+                return mutation.type === 'attributes' && TRANSLATABLE_ATTRIBUTES.includes(mutation.attributeName || '');
+            });
+
+            if (relevant) {
+                translatePage(state.currentLanguage);
+            }
+        });
+
+        state.observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: TRANSLATABLE_ATTRIBUTES
+        });
+    }
+
     async function initializeLanguage() {
         collectTextNodes();
         collectAttributeNodes();
@@ -295,6 +362,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         initializeUI();
+        observeDomChanges();
         initializeLanguage();
     });
 })();
