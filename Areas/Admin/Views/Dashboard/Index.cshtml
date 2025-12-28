@@ -191,6 +191,112 @@
         margin-top: auto;
     }
 
+    .chart-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .trend-block {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 1rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+    }
+
+    .trend-block h4 {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--ink);
+        letter-spacing: -0.01em;
+    }
+
+    .trend-row {
+        display: grid;
+        grid-template-columns: 1fr 3fr;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .trend-label {
+        color: var(--muted);
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .dual-bar {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.35rem;
+    }
+
+    .bar-track-inline {
+        width: 100%;
+        background: #e2e8f0;
+        border-radius: 999px;
+        height: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .bar-fill-inline {
+        position: absolute;
+        top: 0; left: 0; bottom: 0;
+        border-radius: 999px;
+        transition: width 0.5s ease;
+    }
+
+    .bar-fill-patients {
+        background: linear-gradient(90deg, #10b981, #34d399);
+    }
+
+    .bar-fill-reservations {
+        background: linear-gradient(90deg, #6366f1, #a5b4fc);
+    }
+
+    .bar-legend { display: flex; justify-content: flex-end; gap: 0.85rem; color: var(--muted); font-size: 0.85rem; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
+    .dot-green { background: #22c55e; }
+    .dot-indigo { background: #6366f1; }
+
+    .performance-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.25rem;
+    }
+    @@media (max-width: 992px) { .performance-grid { grid-template-columns: 1fr; } }
+
+    .doctor-row {
+        display: grid;
+        grid-template-columns: 1fr 3fr 80px;
+        gap: 0.75rem;
+        align-items: center;
+        padding: 0.85rem 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .doctor-row:last-child { border-bottom: none; }
+
+    .doctor-name { font-weight: 700; color: var(--ink); }
+    .doctor-speciality { color: var(--muted); font-size: 0.9rem; }
+
+    .stacked-meter {
+        width: 100%;
+        height: 10px;
+        background: #e2e8f0;
+        border-radius: 999px;
+        overflow: hidden;
+        position: relative;
+    }
+    .stacked-meter .fill-appointments { background: linear-gradient(90deg, #0ea5e9, #38bdf8); height: 100%; position: absolute; left: 0; top: 0; }
+    .stacked-meter .fill-prescriptions { background: linear-gradient(90deg, #a855f7, #c084fc); height: 100%; position: absolute; left: 0; top: 0; opacity: 0.8; }
+
+    .metric-pill { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.7rem; border-radius: 10px; background: #eef2ff; color: #4f46e5; font-weight: 700; font-size: 0.85rem; }
+    .pill-warm { background: #fff7ed; color: #ea580c; }
+
     .bar-item {
         display: flex;
         flex-direction: column;
@@ -259,8 +365,13 @@
     .quick-nav-item:hover .nav-arrow { color: #4f46e5; }
 </style>
 
-@{
+@{ 
     var maxPrescriptions = Model.PrescriptionsByDay.Any() ? Model.PrescriptionsByDay.Max(p => p.Count) : 0;
+    var weeklyMaxPatients = Model.WeeklyPatientReservations.Any() ? Model.WeeklyPatientReservations.Max(p => p.Patients) : 0;
+    var weeklyMaxReservations = Model.WeeklyPatientReservations.Any() ? Model.WeeklyPatientReservations.Max(p => p.Reservations) : 0;
+    var monthlyMaxPatients = Model.MonthlyPatientReservations.Any() ? Model.MonthlyPatientReservations.Max(p => p.Patients) : 0;
+    var monthlyMaxReservations = Model.MonthlyPatientReservations.Any() ? Model.MonthlyPatientReservations.Max(p => p.Reservations) : 0;
+    var doctorMax = Model.DoctorPerformance.Any() ? Model.DoctorPerformance.Max(d => d.Appointments + d.Prescriptions) : 0;
 }
 
 <div class="dashboard-shell">
@@ -379,6 +490,119 @@
                 </ul>
             </div>
 
+        </div>
+
+        <div class="grid-balanced animate-in delay-3">
+            <div class="panel-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-area text-primary me-2"></i>Patients & Réservations</h3>
+                    <div class="badge-soft">Vue 6 semaines / 6 mois</div>
+                </div>
+
+                <div class="bar-legend mb-3">
+                    <span><span class="legend-dot dot-green"></span> Patients reçus</span>
+                    <span><span class="legend-dot dot-indigo"></span> Réservations</span>
+                </div>
+
+                <div class="chart-grid">
+                    <div class="trend-block">
+                        <h4>Hebdomadaire</h4>
+                        @foreach (var point in Model.WeeklyPatientReservations)
+                        {
+                            var patientWidth = weeklyMaxPatients > 0 ? Math.Round((double)point.Patients / weeklyMaxPatients * 100) : 0;
+                            var reservationWidth = weeklyMaxReservations > 0 ? Math.Round((double)point.Reservations / weeklyMaxReservations * 100) : 0;
+                            <div class="trend-row">
+                                <div class="trend-label">@point.Label</div>
+                                <div class="dual-bar">
+                                    <div class="bar-track-inline" title="@point.Patients patients uniques">
+                                        <div class="bar-fill-inline bar-fill-patients" style="width: @patientWidth%;"></div>
+                                    </div>
+                                    <div class="bar-track-inline" title="@point.Reservations réservations">
+                                        <div class="bar-fill-inline bar-fill-reservations" style="width: @reservationWidth%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="trend-block">
+                        <h4>Mensuel</h4>
+                        @foreach (var point in Model.MonthlyPatientReservations)
+                        {
+                            var patientWidth = monthlyMaxPatients > 0 ? Math.Round((double)point.Patients / monthlyMaxPatients * 100) : 0;
+                            var reservationWidth = monthlyMaxReservations > 0 ? Math.Round((double)point.Reservations / monthlyMaxReservations * 100) : 0;
+                            <div class="trend-row">
+                                <div class="trend-label">@point.Label</div>
+                                <div class="dual-bar">
+                                    <div class="bar-track-inline" title="@point.Patients patients uniques">
+                                        <div class="bar-fill-inline bar-fill-patients" style="width: @patientWidth%;"></div>
+                                    </div>
+                                    <div class="bar-track-inline" title="@point.Reservations réservations">
+                                        <div class="bar-fill-inline bar-fill-reservations" style="width: @reservationWidth%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-user-tie text-primary me-2"></i>Performance équipes</h3>
+                    <div class="badge-soft">Derniers 30 jours</div>
+                </div>
+
+                <div class="performance-grid">
+                    <div>
+                        <h5 class="fw-bold mb-3">Médecins</h5>
+                        @foreach (var doc in Model.DoctorPerformance)
+                        {
+                            var total = doc.Appointments + doc.Prescriptions;
+                            var ratio = doctorMax > 0 ? Math.Round((double)total / doctorMax * 100) : 0;
+                            var prescriptionsWidth = ratio > 0 ? Math.Round((double)doc.Prescriptions / (doctorMax > 0 ? doctorMax : 1) * 100) : 0;
+                            <div class="doctor-row">
+                                <div>
+                                    <div class="doctor-name">@doc.Name</div>
+                                    <div class="doctor-speciality">@(string.IsNullOrWhiteSpace(doc.Specialite) ? "Généraliste" : doc.Specialite)</div>
+                                </div>
+                                <div>
+                                    <div class="stacked-meter" title="@doc.Appointments rendez-vous | @doc.Prescriptions prescriptions">
+                                        <div class="fill-appointments" style="width: @ratio%;"></div>
+                                        <div class="fill-prescriptions" style="width: @prescriptionsWidth%;"></div>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="metric-pill"><i class="fas fa-calendar-check"></i>@doc.Appointments</div>
+                                    <div class="metric-pill pill-warm mt-1"><i class="fas fa-pills"></i>@doc.Prescriptions</div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div>
+                        <h5 class="fw-bold mb-3">Secrétariat</h5>
+                        <div class="trend-block" style="height: 100%;">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="doctor-name">Demandes traitées</span>
+                                <span class="badge-soft">30 derniers jours</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="metric-pill"><i class="fas fa-check-circle"></i>@Model.ReceptionPerformance.Confirmed</span>
+                                <span class="metric-pill pill-warm"><i class="fas fa-times-circle"></i>@Model.ReceptionPerformance.Rejected</span>
+                            </div>
+                            <div class="bar-track-inline" title="Demandes en attente">
+                                <div class="bar-fill-inline bar-fill-reservations" style="width: 100%; opacity: 0.35;"></div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center text-muted">
+                                <small>En attente</small>
+                                <span class="fw-bold">@Model.ReceptionPerformance.Pending</span>
+                            </div>
+                            <p class="text-muted mb-0" style="font-size: 0.9rem;">Les secrétaires voient les demandes confirmées et refusées sur les 30 derniers jours pour mesurer la réactivité.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
