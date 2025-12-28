@@ -1,6 +1,6 @@
 @model CabinetMedicalWeb.Models.ReservationDashboardViewModel
 @{
-    ViewData["Title"] = "Prendre un rendez-vous";
+    ViewData["Title"] = "Book an appointment";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -9,13 +9,13 @@
         <div class="col-lg-6">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body p-4">
-                    <h2 class="h4 mb-3">Réserver une consultation</h2>
-                    <p class="text-muted">Complétez ce formulaire pour envoyer votre demande à notre secrétariat.</p>
+                    <h2 class="h4 mb-3">Request a consultation</h2>
+                    <p class="text-muted">Complete this form to send your request to our front desk team.</p>
                     <div class="alert alert-info d-flex align-items-start">
                         <i class="fas fa-info-circle me-2 mt-1"></i>
                         <div>
-                            La secrétaire vérifiera votre demande, l'assignera à un médecin et confirmera l'heure exacte du rendez-vous.
-                            Vous recevrez le suivi ici en utilisant le même email.
+                            Our team will review your request, assign it to the right dentist, and confirm the exact appointment time.
+                            Track updates here using the same email address.
                         </div>
                     </div>
 
@@ -54,7 +54,7 @@
                                 <span class="text-danger" asp-validation-for="Form.DateNaissance"></span>
                             </div>
                             <div class="col-md-6">
-                                <label asp-for="Form.DateSouhaitee" class="form-label">Date souhaitée</label>
+                                <label asp-for="Form.DateSouhaitee" class="form-label">Preferred date & time</label>
                                 <input asp-for="Form.DateSouhaitee" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" class="form-control" />
                                 <span class="text-danger" asp-validation-for="Form.DateSouhaitee"></span>
                             </div>
@@ -70,7 +70,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary mt-4">Envoyer ma demande</button>
+                        <button type="submit" class="btn btn-primary mt-4">Send my request</button>
                     </form>
                 </div>
             </div>
@@ -79,8 +79,8 @@
         <div class="col-lg-6">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body p-4">
-                    <h2 class="h5 mb-3">Suivi de vos demandes</h2>
-                    <p class="text-muted small">Utilisez le même email pour retrouver l'historique de vos demandes.</p>
+                    <h2 class="h5 mb-3">Track your requests</h2>
+                    <p class="text-muted small">Use the same email to view the history of your submissions.</p>
 
                     @if (Model.Reservations.Any())
                     {
@@ -88,11 +88,11 @@
                             <table class="table align-middle">
                                 <thead>
                                     <tr>
-                                        <th>Date souhaitée</th>
-                                        <th>Motif</th>
-                                        <th>Statut</th>
-                                        <th>Date confirmée</th>
-                                        <th>Assigné à</th>
+                                        <th>Preferred date</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
+                                        <th>Confirmed date</th>
+                                        <th>Assigned to</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -104,7 +104,7 @@
                                             <td>
                                                 @{
                                                     var badgeClass = reservation.Statut == ReservationStatus.Confirmed ? "success" : reservation.Statut == ReservationStatus.Rejected ? "danger" : "warning text-dark";
-                                                    var statutLabel = reservation.Statut == ReservationStatus.Confirmed ? "Confirmée" : reservation.Statut == ReservationStatus.Rejected ? "Refusée" : "En attente";
+                                                    var statutLabel = reservation.Statut == ReservationStatus.Confirmed ? "Confirmed" : reservation.Statut == ReservationStatus.Rejected ? "Rejected" : "Pending";
                                                 }
                                                 <span class="badge bg-@badgeClass">@statutLabel</span>
                                             </td>
@@ -112,11 +112,11 @@
                                                 @if (reservation.DateHeureConfirmee.HasValue)
                                                 {
                                                     <div class="fw-semibold">@reservation.DateHeureConfirmee.Value.ToString("dd/MM/yyyy HH:mm")</div>
-                                                    <div class="text-muted small">Créneau confirmé</div>
+                                                    <div class="text-muted small">Confirmed slot</div>
                                                 }
                                                 else
                                                 {
-                                                    <span class="text-muted small">En attente de confirmation</span>
+                                                    <span class="text-muted small">Awaiting confirmation</span>
                                                 }
                                             </td>
                                             <td>
@@ -126,7 +126,7 @@
                                                 }
                                                 else
                                                 {
-                                                    <span class="text-muted">En attente</span>
+                                                    <span class="text-muted">Pending</span>
                                                 }
                                             </td>
                                         </tr>
@@ -138,8 +138,8 @@
                     else
                     {
                         <div class="text-center text-muted py-5">
-                            <p class="mb-1">Aucune demande trouvée.</p>
-                            <p class="small">Soumettez une demande ou indiquez votre email pour consulter les statuts existants.</p>
+                            <p class="mb-1">No requests found.</p>
+                            <p class="small">Submit a new request or use your email to review existing statuses.</p>
                         </div>
                     }
                 </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Aurora Dental Clinic</title>
+    <title>@ViewData["Title"] - Aurora Dental Group</title>
 
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -156,7 +156,7 @@
                     <div class="brand-icon">
                         <i class="fas fa-tooth"></i>
                     </div>
-                    <span>Aurora Dental</span>
+                    <span>Aurora Dental Group</span>
                 </a>
 
                 <!-- Mobile Toggle -->
@@ -182,19 +182,19 @@
                             <li class="nav-item">
                                 <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Users" ? "active" : "")"
                                    asp-area="Admin" asp-controller="Users" asp-action="Index">
-                                    <i class="fas fa-users-cog"></i>Personnel
+                                    <i class="fas fa-users-cog"></i>Team
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Horaires" ? "active" : "")" 
                                    asp-area="Admin" asp-controller="Horaires" asp-action="Index">
-                                    <i class="fas fa-clock"></i>Horaires
+                                    <i class="fas fa-clock"></i>Schedules
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Conges" ? "active" : "")"
                                    asp-area="Admin" asp-controller="Conges" asp-action="Index">
-                                    <i class="fas fa-plane-departure"></i>Absences
+                                    <i class="fas fa-plane-departure"></i>Time off
                                 </a>
                             </li>
                         }
@@ -237,7 +237,7 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="FrontDesk" asp-controller="ReservationRequests" asp-action="Index">
-                                    <i class="fas fa-inbox"></i>Demandes en ligne
+                                    <i class="fas fa-inbox"></i>Online requests
                                 </a>
                             </li>
                         }
@@ -261,7 +261,7 @@
 
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Reservations" asp-action="Dashboard">
-                                <i class="fas fa-calendar-check"></i>Prendre rendez-vous
+                                <i class="fas fa-calendar-check"></i>Book an appointment
                             </a>
                         </li>
                     </ul>
@@ -285,7 +285,7 @@
 
     <footer class="footer-custom text-center">
         <div class="container">
-            &copy; 2025 <strong>Cabinet Medical</strong> &bull; Secure Health Management System
+            &copy; 2025 <strong>Aurora Dental Group</strong> &bull; Complete digital platform for modern dental care
         </div>
     </footer>
 
