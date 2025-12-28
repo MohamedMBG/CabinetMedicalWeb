@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
@@ -44,7 +45,17 @@ namespace CabinetMedicalWeb.Services
             request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
 
             request.Headers.Add("Ocp-Apim-Subscription-Key", key);
-            request.Headers.Add("Ocp-Apim-Subscription-Region", region);
+            if (string.IsNullOrWhiteSpace(region))
+            {
+                if (EndpointRequiresRegion(endpoint))
+                {
+                    throw new Exception("AzureTranslator Region is missing. Set AzureTranslator:Region to your resource's region (e.g., westeurope).");
+                }
+            }
+            else
+            {
+                request.Headers.Add("Ocp-Apim-Subscription-Region", region);
+            }
 
             var response = await _httpClient.SendAsync(request);
             var result = await response.Content.ReadAsStringAsync();
@@ -62,6 +73,11 @@ namespace CabinetMedicalWeb.Services
             return translationResponse
                 .Select(item => item.Translations.FirstOrDefault()?.Text ?? string.Empty)
                 .ToList();
+        }
+
+        private static bool EndpointRequiresRegion(string endpoint)
+        {
+            return endpoint?.Contains(".cognitiveservices.azure.com", StringComparison.OrdinalIgnoreCase) == true;
         }
 
 
