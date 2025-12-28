@@ -25,39 +25,44 @@ namespace CabinetMedicalWeb.Services
         }
 
         public async Task<List<string>> TranslateBatchAsync(IEnumerable<string> texts, string targetLang)
-{
-    var key = _configuration["AzureTranslator:SubscriptionKey"]; // ✅ fixed
-    var endpoint = _configuration["AzureTranslator:Endpoint"]?.TrimEnd('/'); // ✅ fixed
-    var region = _configuration["AzureTranslator:Region"];
+        {
+            var key = _configuration["AzureTranslator:SubscriptionKey"]; // ✅ fixed
+            var endpoint = _configuration["AzureTranslator:Endpoint"]?.TrimEnd('/'); // ✅ fixed
+            var region = _configuration["AzureTranslator:Region"];
 
-    if (string.IsNullOrWhiteSpace(key))
-        throw new Exception("AzureTranslator SubscriptionKey is missing. Check appsettings.json key name.");
+            if (string.IsNullOrWhiteSpace(key))
+                throw new Exception("AzureTranslator SubscriptionKey is missing. Check appsettings.json key name.");
 
-    if (string.IsNullOrWhiteSpace(endpoint))
-        throw new Exception("AzureTranslator Endpoint is missing.");
+            if (string.IsNullOrWhiteSpace(endpoint))
+                throw new Exception("AzureTranslator Endpoint is missing.");
 
-    var route = $"/translate?api-version=3.0&to={targetLang}";
-    var body = texts.Select(t => new { Text = t }).ToArray();
-    var requestBody = JsonSerializer.Serialize(body);
+            var route = $"/translate?api-version=3.0&to={targetLang}";
+            var body = texts.Select(t => new { Text = t }).ToArray();
+            var requestBody = JsonSerializer.Serialize(body);
 
-    using var request = new HttpRequestMessage(HttpMethod.Post, endpoint + route);
-    request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
+            using var request = new HttpRequestMessage(HttpMethod.Post, endpoint + route);
+            request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
 
-    request.Headers.Add("Ocp-Apim-Subscription-Key", key);
-    request.Headers.Add("Ocp-Apim-Subscription-Region", region);
+            request.Headers.Add("Ocp-Apim-Subscription-Key", key);
+            request.Headers.Add("Ocp-Apim-Subscription-Region", region);
 
-    var response = await _httpClient.SendAsync(request);
-    var result = await response.Content.ReadAsStringAsync();
+            var response = await _httpClient.SendAsync(request);
+            var result = await response.Content.ReadAsStringAsync();
 
-    if (!response.IsSuccessStatusCode)
-        throw new Exception($"Translator failed: {(int)response.StatusCode} {response.ReasonPhrase}\n{result}");
+            if (!response.IsSuccessStatusCode)
+                throw new Exception($"Translator failed: {(int)response.StatusCode} {response.ReasonPhrase}\n{result}");
 
-    var translationResponse = JsonSerializer.Deserialize<List<TranslationResponse>>(result) ?? new();
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
 
-    return translationResponse
-        .Select(item => item.Translations.FirstOrDefault()?.Text ?? string.Empty)
-        .ToList();
-}
+            var translationResponse = JsonSerializer.Deserialize<List<TranslationResponse>>(result, options) ?? new();
+
+            return translationResponse
+                .Select(item => item.Translations.FirstOrDefault()?.Text ?? string.Empty)
+                .ToList();
+        }
 
 
     }
