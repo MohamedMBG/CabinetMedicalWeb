@@ -2,322 +2,686 @@
 @{
     ViewData["Title"] = "Demandes de rendez-vous";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
     var statutActuel = ViewData["FiltreStatut"] as string;
-    
-    // Theme Colors
+
+    // Theme
     var primaryColor = "#7AA3D1";
-    var successColor = "#10B981";
-    var warningColor = "#F59E0B";
-    var dangerColor = "#EF4444";
-    var textDark = "#1F2937";
-    var textMuted = "#6B7280";
+    var textDark = "#0f172a";
+    var textMuted = "#64748b";
     var bgPage = "#F3F4F6";
+
+    // Safe model list
+    var list = Model?.ToList() ?? new List<CabinetMedicalWeb.Models.ReservationRequest>();
+    var total = list.Count;
+    var pendingCount = list.Count(x => x.Statut == ReservationStatus.Pending);
+    var confirmedCount = list.Count(x => x.Statut == ReservationStatus.Confirmed);
+    var rejectedCount = list.Count(x => x.Statut == ReservationStatus.Rejected);
 }
 
 <style>
-    body { background-color: @bgPage; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    :root{
+        --primary:@primaryColor;
+        --primary2:#6C8CFF;
+        --ink:@textDark;
+        --muted:@textMuted;
+        --bg:@bgPage;
 
-    /* Header */
-    .page-header-modern {
-        background: linear-gradient(135deg, @primaryColor 0%, #6C8CFF 100%);
-        border-radius: 20px;
-        padding: 2.5rem;
-        color: white;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 25px -5px rgba(122, 163, 209, 0.4);
-        display: flex;
+        --surface: rgba(255,255,255,.92);
+        --surface2: rgba(248,250,252,.95);
+        --border: rgba(226,232,240,.85);
+        --shadow: 0 18px 42px rgba(15,23,42,.10);
+        --shadow2: 0 10px 25px -5px rgba(122,163,209,.35);
+        --radius-lg: 22px;
+        --radius-md: 14px;
+    }
+
+    html{ scroll-behavior:smooth; }
+    body{
+        background:
+            radial-gradient(circle at 12% 10%, rgba(122,163,209,.18), transparent 42%),
+            radial-gradient(circle at 86% 0%, rgba(167,203,237,.22), transparent 48%),
+            var(--bg);
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        color: var(--ink);
+    }
+
+    @@keyframes fadeInUp{
+        from{opacity:0;transform:translateY(14px)}
+        to{opacity:1;transform:translateY(0)}
+    }
+    @@keyframes fadeInDown{
+        from{opacity:0;transform:translateY(-12px)}
+        to{opacity:1;transform:translateY(0)}
+    }
+
+    .page-shell{
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2.2rem 1.25rem 3rem;
+    }
+
+    /* ===== Header ===== */
+    .page-hero{
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary2) 100%);
+        border-radius: var(--radius-lg);
+        padding: 2.1rem 2.2rem;
+        color:#fff;
+        box-shadow: var(--shadow2);
+        position: relative;
+        overflow:hidden;
+        display:flex;
+        align-items: flex-end;
         justify-content: space-between;
-        align-items: center;
+        gap: 1.25rem;
         flex-wrap: wrap;
-        gap: 1.5rem;
+        animation: fadeInDown .6s cubic-bezier(.16,1,.3,1) both;
+    }
+    .page-hero::after{
+        content:"";
+        position:absolute;
+        right:-140px; top:-160px;
+        width:360px;height:360px;
+        background: radial-gradient(circle, rgba(255,255,255,.18), transparent 62%);
+        border-radius:50%;
+        pointer-events:none;
     }
 
-    .header-content h2 { font-weight: 800; margin: 0; font-size: 2rem; letter-spacing: -0.02em; }
-    .header-content p { opacity: 0.9; margin: 0.5rem 0 0 0; font-size: 1rem; }
-
-    .btn-glass {
-        background: rgba(255,255,255,0.2);
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(255,255,255,0.3);
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 12px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.2s;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
+    .hero-title{
+        margin:0;
+        font-weight: 950;
+        letter-spacing: -0.03em;
+        font-size: 2.05rem;
+        line-height: 1.05;
+        display:flex;
+        align-items:center;
+        gap:.65rem;
     }
-    .btn-glass:hover { background: rgba(255,255,255,0.3); color: white; transform: translateY(-2px); }
-
-    /* Filter Tabs */
-    .filter-bar {
-        display: flex;
-        gap: 0.5rem;
-        background: white;
-        padding: 0.5rem;
-        border-radius: 16px;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-        margin-bottom: 2rem;
-        width: fit-content;
+    .hero-sub{
+        margin:.55rem 0 0;
+        opacity:.9;
+        font-weight: 650;
     }
 
-    .filter-tab {
-        padding: 0.6rem 1.2rem;
-        border-radius: 10px;
-        font-weight: 600;
-        color: @textMuted;
-        text-decoration: none;
-        transition: all 0.2s;
-        border: 1px solid transparent;
+    .hero-actions{
+        display:flex;
+        gap:.6rem;
+        flex-wrap: wrap;
+        align-items:center;
+        position: relative;
+        z-index: 1;
     }
 
-    .filter-tab:hover { background: #F9FAFB; color: @textDark; }
-    
-    .filter-tab.active {
-        background: #EFF6FF;
-        color: @primaryColor;
-        border-color: #DBEAFE;
+    .btn-ghost{
+        background: rgba(255,255,255,.18);
+        border: 1px solid rgba(255,255,255,.32);
+        color:#fff;
+        padding:.65rem 1rem;
+        border-radius: 999px;
+        font-weight: 900;
+        text-decoration:none;
+        display:inline-flex;
+        align-items:center;
+        gap:.45rem;
+        backdrop-filter: blur(6px);
+        transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
+        white-space: nowrap;
+    }
+    .btn-ghost:hover{
+        color:#fff;
+        transform: translateY(-1px);
+        background: rgba(255,255,255,.26);
+        box-shadow: 0 18px 30px -22px rgba(15,23,42,.55);
     }
 
-    /* Card & Table */
-    .glass-card {
-        background: white;
-        border-radius: 20px;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-        border: 1px solid #E5E7EB;
-        overflow: hidden;
+    /* ===== Stats + Filters bar ===== */
+    .topbar{
+        margin-top: 1.2rem;
+        display:flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: stretch;
+        justify-content: space-between;
+        animation: fadeInUp .6s cubic-bezier(.16,1,.3,1) both;
+        animation-delay: .06s;
     }
 
-    .modern-table { width: 100%; border-collapse: separate; border-spacing: 0; }
-    
-    .modern-table thead th {
-        background: #F8FAFC;
-        padding: 1rem 1.5rem;
-        font-size: 0.75rem;
+    .stats-row{
+        display:flex;
+        gap: .8rem;
+        flex-wrap: wrap;
+        align-items: stretch;
+    }
+
+    .stat-pill{
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: .65rem .9rem;
+        box-shadow: 0 12px 28px -24px rgba(15,23,42,.35);
+        display:flex;
+        align-items:center;
+        gap:.65rem;
+        min-width: 190px;
+    }
+    .stat-dot{
+        width: 12px; height: 12px; border-radius: 999px;
+    }
+    .dot-p{ background:#f59e0b; }
+    .dot-c{ background:#10b981; }
+    .dot-r{ background:#ef4444; }
+
+    .stat-meta{
+        line-height: 1.05;
+    }
+    .stat-meta b{
+        display:block;
+        font-size: 1.15rem;
+        letter-spacing: -0.02em;
+    }
+    .stat-meta small{
+        color: var(--muted);
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: @textMuted;
-        font-weight: 700;
-        border-bottom: 1px solid #E5E7EB;
+        letter-spacing: .06em;
+        font-size: .72rem;
     }
 
-    .modern-table tbody td {
-        padding: 1.25rem 1.5rem;
-        vertical-align: middle;
-        border-bottom: 1px solid #F3F4F6;
-        color: @textDark;
+    /* Filters */
+    .filter-bar{
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: .45rem;
+        box-shadow: 0 12px 28px -24px rgba(15,23,42,.35);
+        display:flex;
+        gap:.35rem;
+        align-items:center;
+        flex-wrap: wrap;
     }
 
-    .modern-table tbody tr:last-child td { border-bottom: none; }
-    .modern-table tbody tr:hover { background-color: #FAFAFA; }
-
-    /* Avatars & Badges */
-    .avatar-circle {
-        width: 42px; height: 42px;
-        background: linear-gradient(135deg, #A7CBED, #7AA3D1);
-        color: white;
+    .filter-tab{
+        padding: .65rem .95rem;
         border-radius: 12px;
-        display: flex; align-items: center; justify-content: center;
+        font-weight: 950;
+        color: var(--muted);
+        text-decoration:none;
+        border: 1px solid transparent;
+        display:inline-flex;
+        align-items:center;
+        gap:.45rem;
+        transition: transform .12s ease, background .12s ease, color .12s ease, border-color .12s ease;
+        white-space: nowrap;
+    }
+    .filter-tab:hover{
+        background: rgba(248,250,252,.9);
+        color: var(--ink);
+        transform: translateY(-1px);
+    }
+    .filter-tab.active{
+        background: rgba(239,246,255,.9);
+        color: var(--primary);
+        border-color: rgba(219,234,254,.9);
+    }
+    .tab-count{
+        background: rgba(15,23,42,.06);
+        border: 1px solid rgba(226,232,240,.9);
+        padding: .12rem .5rem;
+        border-radius: 999px;
+        font-size: .78rem;
+        font-weight: 950;
+        color: var(--ink);
+    }
+
+    /* ===== Card + Table ===== */
+    .card{
+        margin-top: 1.1rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        overflow:hidden;
+        animation: fadeInUp .65s cubic-bezier(.16,1,.3,1) both;
+        animation-delay: .12s;
+        backdrop-filter: blur(10px);
+    }
+
+    .card-head{
+        padding: 1rem 1.2rem;
+        border-bottom: 1px solid rgba(226,232,240,.85);
+        background: rgba(248,250,252,.75);
+        display:flex;
+        justify-content: space-between;
+        align-items:center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .card-head h5{
+        margin:0;
+        font-weight: 950;
+        letter-spacing: -0.02em;
+        display:flex;
+        align-items:center;
+        gap:.55rem;
+    }
+
+    .search-wrap{
+        display:flex;
+        gap:.5rem;
+        align-items:center;
+        flex-wrap: wrap;
+    }
+
+    .search{
+        position: relative;
+        min-width: 260px;
+    }
+    .search i{
+        position:absolute;
+        left:.85rem;
+        top:50%;
+        transform: translateY(-50%);
+        color:#94a3b8;
+    }
+    .search input{
+        width:100%;
+        border: 1px solid rgba(226,232,240,.95);
+        background: rgba(255,255,255,.9);
+        border-radius: 14px;
+        padding: .65rem .9rem .65rem 2.3rem;
+        font-weight: 750;
+        outline: none;
+        transition: box-shadow .12s ease, border-color .12s ease;
+    }
+    .search input:focus{
+        border-color: rgba(122,163,209,.7);
+        box-shadow: 0 0 0 4px rgba(122,163,209,.22);
+    }
+
+    .table-wrap{
+        max-height: calc(100vh - 360px);
+        overflow:auto;
+        scroll-behavior:smooth;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .modern-table{
+        width:100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        min-width: 1050px;
+        table-layout: fixed;
+    }
+
+    .modern-table thead th{
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: rgba(248,250,252,.96);
+        backdrop-filter: blur(8px);
+        padding: 1rem 1.1rem;
+        font-size: .74rem;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: var(--muted);
+        font-weight: 950;
+        border-bottom: 1px solid rgba(226,232,240,.9);
+    }
+
+    .modern-table tbody td{
+        padding: 1rem 1.1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid rgba(226,232,240,.65);
+        color: var(--ink);
+        background: rgba(255,255,255,.72);
+    }
+    .modern-table tbody tr:hover td{
+        background: rgba(248,250,252,.92);
+    }
+    .modern-table tbody tr:last-child td{ border-bottom:none; }
+
+    /* patient */
+    .patient-cell{
+        display:flex;
+        align-items:center;
+        gap: .9rem;
+        min-width: 240px;
+    }
+
+    .avatar{
+        width: 44px; height: 44px;
+        border-radius: 14px;
+        display:grid;
+        place-items:center;
+        color:#fff;
+        font-weight: 950;
+        background: linear-gradient(135deg, rgba(167,203,237,1), rgba(122,163,209,1));
+        box-shadow: 0 12px 24px -20px rgba(15,23,42,.55);
+        flex: 0 0 auto;
+    }
+
+    .sub{
+        display:block;
+        color: var(--muted);
+        font-size: .86rem;
         font-weight: 700;
-        font-size: 1rem;
-        margin-right: 1rem;
+        margin-top: .1rem;
+        white-space: nowrap;
+        overflow:hidden;
+        text-overflow: ellipsis;
+        max-width: 280px;
     }
 
-    .status-badge {
-        padding: 0.35rem 0.8rem;
-        border-radius: 50px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        display: inline-flex; align-items: center; gap: 0.35rem;
+    /* contact */
+    .contact{
+        display:flex;
+        flex-direction: column;
+        gap: .25rem;
+        color: var(--muted);
+        font-weight: 750;
+        font-size: .9rem;
     }
-    .status-pending { background: #FEF3C7; color: #D97706; }
-    .status-confirmed { background: #D1FAE5; color: #059669; }
-    .status-rejected { background: #FEE2E2; color: #DC2626; }
+    .contact i{
+        width: 18px;
+        color:#94a3b8;
+    }
+    .contact a{
+        color: inherit;
+        text-decoration: none;
+    }
+    .contact a:hover{ text-decoration: underline; }
 
-    .info-sub { font-size: 0.85rem; color: @textMuted; display: block; margin-top: 2px; }
-    
-    .contact-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: @textMuted; margin-bottom: 2px; }
-    .contact-item i { color: #9CA3AF; width: 16px; }
+    /* badges */
+    .status{
+        padding: .35rem .75rem;
+        border-radius: 999px;
+        font-weight: 950;
+        font-size: .82rem;
+        display:inline-flex;
+        align-items:center;
+        gap:.35rem;
+        border: 1px solid transparent;
+        white-space: nowrap;
+    }
+    .st-p{ background:#FEF3C7; color:#b45309; border-color:#fde68a; }
+    .st-c{ background:#D1FAE5; color:#047857; border-color:#a7f3d0; }
+    .st-r{ background:#FEE2E2; color:#b91c1c; border-color:#fecaca; }
 
-    /* Action Buttons */
-    .btn-action-sm {
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        border: none;
+    /* actions */
+    .actions{
+        display:flex;
+        justify-content: flex-end;
+        gap:.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-action{
+        padding: .55rem .9rem;
+        border-radius: 12px;
+        font-weight: 950;
+        font-size: .88rem;
+        border: 1px solid rgba(226,232,240,.95);
+        background: rgba(255,255,255,.92);
+        color: var(--ink);
+        text-decoration:none;
+        display:inline-flex;
+        align-items:center;
+        gap:.45rem;
+        transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
         cursor: pointer;
-        transition: all 0.2s;
-        display: inline-flex; align-items: center; gap: 0.4rem;
+        white-space: nowrap;
     }
-    .btn-approve { background: @primaryColor; color: white; }
-    .btn-approve:hover { background: #6C8CFF; transform: translateY(-1px); box-shadow: 0 4px 6px rgba(108, 140, 255, 0.2); }
-    
-    .btn-reject { background: white; border: 1px solid #FCA5A5; color: #EF4444; }
-    .btn-reject:hover { background: #FEF2F2; border-color: #EF4444; }
+    .btn-action:hover{
+        transform: translateY(-1px);
+        border-color: rgba(122,163,209,.65);
+        box-shadow: 0 18px 30px -24px rgba(15,23,42,.45);
+    }
 
-    .empty-state { padding: 4rem; text-align: center; color: @textMuted; }
+    .btn-primary{
+        border: 0;
+        background: linear-gradient(135deg, var(--primary), var(--primary2));
+        color:#fff;
+    }
+    .btn-primary:hover{ box-shadow: 0 22px 34px -26px rgba(108,140,255,.6); }
+
+    .btn-danger{
+        border: 1px solid rgba(252,165,165,.9);
+        background: rgba(255,255,255,.92);
+        color:#ef4444;
+    }
+    .btn-danger:hover{
+        background: #FEF2F2;
+        border-color:#ef4444;
+    }
+
+    /* empty */
+    .empty{
+        padding: 3.6rem 1.5rem;
+        text-align:center;
+        color: #94a3b8;
+        background: rgba(255,255,255,.72);
+    }
+
+    @@media (max-width: 992px){
+        .page-hero{ padding: 1.6rem 1.4rem; }
+        .hero-title{ font-size: 1.75rem; }
+        .search{ min-width: 220px; }
+        .table-wrap{ max-height: calc(100vh - 420px); }
+    }
+
+    @@media (prefers-reduced-motion: reduce){
+        html{ scroll-behavior:auto; }
+        *{ animation:none !important; transition:none !important; }
+    }
 </style>
 
-<div class="container-fluid px-4 py-5" style="max-width: 1400px;">
-    
-    <!-- 1. HEADER -->
-    <div class="page-header-modern animate-entry">
-        <div class="header-content">
-            <h2><i class="fas fa-inbox me-2"></i> Demandes en ligne</h2>
-            <p>Gérez les demandes de rendez-vous reçues depuis le portail patient.</p>
+<div class="page-shell">
+
+    <!-- HERO -->
+    <div class="page-hero">
+        <div>
+            <h2 class="hero-title"><i class="fas fa-inbox"></i> Demandes en ligne</h2>
+            <p class="hero-sub">Gérez les demandes de rendez-vous reçues depuis le portail patient.</p>
         </div>
-        <a href="@Url.Action("Index", "Agenda", new { area = "FrontDesk" })" class="btn-glass">
-            <i class="fas fa-calendar-alt"></i> Retour à l'Agenda
-        </a>
+
+        <div class="hero-actions">
+            <a href="@Url.Action("Index", "Agenda", new { area = "FrontDesk" })" class="btn-ghost">
+                <i class="fas fa-calendar-alt"></i> Retour à l'Agenda
+            </a>
+        </div>
     </div>
 
-    <!-- 2. ALERTS -->
+    <!-- ALERTS -->
     @if (TempData["ReservationApprouvee"] != null)
     {
-        <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4 d-flex align-items-center">
+        <div class="alert alert-success border-0 shadow-sm rounded-4 mt-3 d-flex align-items-center">
             <i class="fas fa-check-circle fs-4 me-3"></i> @TempData["ReservationApprouvee"]
         </div>
     }
     @if (TempData["ReservationRefusee"] != null)
     {
-        <div class="alert alert-warning border-0 shadow-sm rounded-3 mb-4 d-flex align-items-center">
+        <div class="alert alert-warning border-0 shadow-sm rounded-4 mt-3 d-flex align-items-center">
             <i class="fas fa-times-circle fs-4 me-3"></i> @TempData["ReservationRefusee"]
         </div>
     }
 
-    <!-- 3. FILTERS -->
-    <div class="filter-bar">
-        <a class="filter-tab @(string.IsNullOrEmpty(statutActuel) ? "active" : "")" asp-route-statut="">
-            Tout voir <span class="badge bg-secondary ms-1" style="font-size:0.7em;">@Model.Count()</span>
-        </a>
-        <a class="filter-tab @(statutActuel == ReservationStatus.Pending ? "active" : "")" asp-route-statut="@ReservationStatus.Pending">
-            <i class="fas fa-clock me-1 text-warning"></i> En attente
-        </a>
-        <a class="filter-tab @(statutActuel == ReservationStatus.Confirmed ? "active" : "")" asp-route-statut="@ReservationStatus.Confirmed">
-            <i class="fas fa-check me-1 text-success"></i> Confirmées
-        </a>
-        <a class="filter-tab @(statutActuel == ReservationStatus.Rejected ? "active" : "")" asp-route-statut="@ReservationStatus.Rejected">
-            <i class="fas fa-times me-1 text-danger"></i> Refusées
-        </a>
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <div class="stats-row">
+            <div class="stat-pill">
+                <span class="stat-dot dot-p"></span>
+                <div class="stat-meta">
+                    <b>@pendingCount</b>
+                    <small>En attente</small>
+                </div>
+            </div>
+            <div class="stat-pill">
+                <span class="stat-dot dot-c"></span>
+                <div class="stat-meta">
+                    <b>@confirmedCount</b>
+                    <small>Confirmées</small>
+                </div>
+            </div>
+            <div class="stat-pill">
+                <span class="stat-dot dot-r"></span>
+                <div class="stat-meta">
+                    <b>@rejectedCount</b>
+                    <small>Refusées</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <a class="filter-tab @(string.IsNullOrEmpty(statutActuel) ? "active" : "")" asp-route-statut="">
+                Tout <span class="tab-count">@total</span>
+            </a>
+            <a class="filter-tab @(statutActuel == ReservationStatus.Pending ? "active" : "")" asp-route-statut="@ReservationStatus.Pending">
+                <i class="fas fa-clock text-warning"></i> En attente <span class="tab-count">@pendingCount</span>
+            </a>
+            <a class="filter-tab @(statutActuel == ReservationStatus.Confirmed ? "active" : "")" asp-route-statut="@ReservationStatus.Confirmed">
+                <i class="fas fa-check text-success"></i> Confirmées <span class="tab-count">@confirmedCount</span>
+            </a>
+            <a class="filter-tab @(statutActuel == ReservationStatus.Rejected ? "active" : "")" asp-route-statut="@ReservationStatus.Rejected">
+                <i class="fas fa-times text-danger"></i> Refusées <span class="tab-count">@rejectedCount</span>
+            </a>
+        </div>
     </div>
 
-    <!-- 4. TABLE -->
-    <div class="glass-card">
-        @if (!Model.Any())
-        {
-            <div class="empty-state">
-                <div class="mb-3">
-                    <i class="fas fa-folder-open fa-3x" style="color: #D1D5DB;"></i>
+    <!-- TABLE CARD -->
+    <div class="card">
+        <div class="card-head">
+            <h5><i class="fas fa-list-check text-primary"></i> Liste des demandes</h5>
+
+            <!-- Client-side search (no backend change) -->
+            <div class="search-wrap">
+                <div class="search">
+                    <i class="fas fa-search"></i>
+                    <input id="rqSearch" type="text" placeholder="Rechercher (nom, tel, email, motif)..." autocomplete="off" />
                 </div>
-                <h5 class="fw-bold" style="color: @textDark;">Aucune demande trouvée</h5>
+                <span class="text-muted small fw-semibold">
+                    <i class="fas fa-filter me-1"></i> Filtre: <b>@(string.IsNullOrEmpty(statutActuel) ? "Tous" : statutActuel)</b>
+                </span>
+            </div>
+        </div>
+
+        @if (!list.Any())
+        {
+            <div class="empty">
+                <div class="mb-3">
+                    <i class="fas fa-folder-open fa-3x"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">Aucune demande trouvée</h5>
                 <p class="mb-0">Il n'y a pas de demande correspondant à ce filtre pour le moment.</p>
             </div>
         }
         else
         {
-            <div class="table-responsive">
-                <table class="modern-table">
+            <div class="table-wrap" id="rqScroll">
+                <table class="modern-table" id="rqTable">
                     <thead>
                         <tr>
-                            <th>Patient</th>
-                            <th>Contact</th>
-                            <th>Détails du RDV</th>
-                            <th>Médecin</th>
-                            <th>Statut</th>
-                            <th class="text-end">Actions</th>
+                            <th style="width: 28%;">Patient</th>
+                            <th style="width: 18%;">Contact</th>
+                            <th style="width: 20%;">Détails RDV</th>
+                            <th style="width: 14%;">Médecin</th>
+                            <th style="width: 12%;">Statut</th>
+                            <th class="text-end" style="width: 18%;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var r in Model)
+                        @foreach (var r in list)
                         {
                             var initial = (!string.IsNullOrEmpty(r.Nom) ? r.Nom[0].ToString() : "") + (!string.IsNullOrEmpty(r.Prenom) ? r.Prenom[0].ToString() : "");
-                            
-                            <tr>
-                                <!-- Patient Info -->
+                            var patientFull = $"{r.Nom} {r.Prenom}";
+                            var motif = r.Motif ?? "";
+
+                            <tr class="rq-row"
+                                data-search="@($"{patientFull} {r.Telephone} {r.Email} {motif}".ToLowerInvariant())">
+
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-circle">@initial</div>
-                                        <div>
-                                            <div class="fw-bold">@r.Nom @r.Prenom</div>
-                                            <span class="info-sub">Né(e) le @r.DateNaissance.ToShortDateString()</span>
+                                    <div class="patient-cell">
+                                        <div class="avatar">@initial</div>
+                                        <div class="overflow-hidden">
+                                            <div class="fw-bold text-dark text-truncate">@patientFull</div>
+                                            <span class="sub">Né(e) le @r.DateNaissance.ToShortDateString()</span>
                                         </div>
                                     </div>
                                 </td>
 
-                                <!-- Contact -->
                                 <td>
-                                    <div class="contact-item"><i class="fas fa-phone"></i> @r.Telephone</div>
-                                    <div class="contact-item"><i class="fas fa-envelope"></i> @r.Email</div>
+                                    <div class="contact">
+                                        <span><i class="fas fa-phone"></i> @r.Telephone</span>
+                                        <span><i class="fas fa-envelope"></i> <a href="mailto:@r.Email">@r.Email</a></span>
+                                    </div>
                                 </td>
 
-                                <!-- Date & Motif -->
                                 <td>
-                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                    <div class="fw-bold text-dark d-flex align-items-center gap-2">
                                         <i class="far fa-calendar-alt text-primary"></i>
-                                        <span class="fw-bold text-dark">@r.DateSouhaitee.ToString("dd MMM yyyy")</span>
+                                        @r.DateSouhaitee.ToString("dd MMM yyyy")
                                     </div>
-                                    <div class="d-flex align-items-center gap-2 text-muted small">
-                                        <i class="far fa-clock"></i> @r.DateSouhaitee.ToString("HH:mm")
+                                    <div class="sub">
+                                        <i class="far fa-clock me-1"></i>@r.DateSouhaitee.ToString("HH:mm")
+                                        @if (!string.IsNullOrWhiteSpace(r.Motif))
+                                        {
+                                            <span class="ms-2"><i class="fas fa-tag me-1"></i>@r.Motif</span>
+                                        }
                                     </div>
-                                    @if(!string.IsNullOrEmpty(r.Motif))
-                                    {
-                                        <div class="mt-2 small bg-light p-1 px-2 rounded border border-light d-inline-block text-truncate" style="max-width: 200px;" title="@r.Motif">
-                                            @r.Motif
-                                        </div>
-                                    }
                                 </td>
 
-                                <!-- Doctor -->
                                 <td>
                                     @if (r.Doctor != null)
                                     {
-                                        <div class="fw-semibold text-dark">Dr. @r.Doctor.Nom</div>
-                                        <span class="info-sub">@r.Doctor.Specialite</span>
+                                        <div class="fw-semibold text-dark text-truncate">Dr. @r.Doctor.Nom</div>
+                                        <span class="sub">@r.Doctor.Specialite</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-light text-secondary border">Non assigné</span>
+                                        <span class="status" style="background: rgba(15,23,42,.06); border-color: rgba(226,232,240,.9); color: var(--muted);">
+                                            <i class="fas fa-user-slash"></i> Non assigné
+                                        </span>
                                     }
                                 </td>
 
-                                <!-- Status -->
                                 <td>
                                     @if (r.Statut == ReservationStatus.Confirmed)
                                     {
-                                        <span class="status-badge status-confirmed"><i class="fas fa-check-circle"></i> Confirmée</span>
-                                        @if(r.DateHeureConfirmee.HasValue) { <div class="info-sub mt-1">Ok: @r.DateHeureConfirmee.Value.ToString("dd/MM HH:mm")</div> }
+                                        <span class="status st-c"><i class="fas fa-check-circle"></i> Confirmée</span>
+                                        @if (r.DateHeureConfirmee.HasValue)
+                                        {
+                                            <div class="sub">Ok: @r.DateHeureConfirmee.Value.ToString("dd/MM HH:mm")</div>
+                                        }
                                     }
                                     else if (r.Statut == ReservationStatus.Rejected)
                                     {
-                                        <span class="status-badge status-rejected"><i class="fas fa-times-circle"></i> Refusée</span>
+                                        <span class="status st-r"><i class="fas fa-times-circle"></i> Refusée</span>
                                     }
                                     else
                                     {
-                                        <span class="status-badge status-pending"><i class="fas fa-clock"></i> En attente</span>
+                                        <span class="status st-p"><i class="fas fa-clock"></i> En attente</span>
                                     }
                                 </td>
 
-                                <!-- Actions -->
                                 <td class="text-end">
                                     @if (r.Statut == ReservationStatus.Pending)
                                     {
-                                        <div class="d-flex justify-content-end gap-2">
-                                            <a class="btn-action-sm btn-approve text-decoration-none" asp-action="Review" asp-route-id="@r.Id">
+                                        <div class="actions">
+                                            <a class="btn-action btn-primary" asp-action="Review" asp-route-id="@r.Id">
                                                 <i class="fas fa-check"></i> Traiter
                                             </a>
-                                            <form asp-action="Refuser" asp-route-id="@r.Id" method="post">
-                                                <button type="submit" class="btn-action-sm btn-reject" onclick="return confirm('Refuser cette demande ?');">
-                                                    <i class="fas fa-times"></i>
+
+                                            <form asp-action="Refuser" asp-route-id="@r.Id" method="post" class="d-inline">
+                                                <button type="submit" class="btn-action btn-danger"
+                                                        onclick="return confirm('Refuser cette demande ?');">
+                                                    <i class="fas fa-times"></i> Refuser
                                                 </button>
                                             </form>
                                         </div>
                                     }
                                     else
                                     {
-                                        <span class="text-muted small"><i class="fas fa-lock"></i> Clôturé</span>
+                                        <span class="text-muted small fw-semibold"><i class="fas fa-lock me-1"></i> Clôturé</span>
                                     }
                                 </td>
                             </tr>
@@ -328,3 +692,31 @@
         }
     </div>
 </div>
+
+@section Scripts{
+<script>
+    // Smooth client-side search (no backend change)
+    (function () {
+        const input = document.getElementById('rqSearch');
+        const rows = Array.from(document.querySelectorAll('#rqTable .rq-row'));
+        if (!input || rows.length === 0) return;
+
+        const normalize = (s) => (s || "").toLowerCase().trim();
+
+        input.addEventListener('input', () => {
+            const q = normalize(input.value);
+            let visible = 0;
+
+            rows.forEach(r => {
+                const hay = r.getAttribute('data-search') || '';
+                const ok = !q || hay.includes(q);
+                r.style.display = ok ? '' : 'none';
+                if (ok) visible++;
+            });
+
+            // Optional: when search active, keep scroll position stable
+            // (no extra DOM needed)
+        });
+    })();
+</script>
+}

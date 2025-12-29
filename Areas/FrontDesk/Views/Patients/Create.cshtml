@@ -1,219 +1,365 @@
 ﻿@model CabinetMedicalWeb.Models.Patient
-
 @{
     ViewData["Title"] = "Nouveau Patient";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    
-    // Modern Theme Colors
+
     var colorPrimary = "#7AA3D1";
+    var primary2 = "#6C8CFF";
     var colorBg = "#E9EFF7";
 }
 
 <style>
-    /* Scoped styles for Create View */
-    body { background-color: @colorBg; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    :root{
+        --primary: @colorPrimary;
+        --primary2: @primary2;
+        --bg: @colorBg;
+        --ink: #0f172a;
+        --muted: #64748b;
+        --border: rgba(226,232,240,.9);
+        --surface: rgba(255,255,255,.96);
+        --shadow: 0 16px 34px rgba(15,23,42,.10);
+        --radius-lg: 24px;
+        --radius-md: 14px;
+    }
 
-    .create-container {
-        padding-top: 3rem;
-        padding-bottom: 3rem;
+    /* ✅ Smooth scroll + better scrolling behavior */
+    html { scroll-behavior: smooth; }
+    body {
+        background:
+            radial-gradient(circle at 12% 10%, rgba(122,163,209,.18), transparent 42%),
+            radial-gradient(circle at 86% 0%, rgba(108,140,255,.14), transparent 48%),
+            var(--bg);
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* ✅ GPU-friendly animations */
+    @@keyframes fadeInUp {
+        from { opacity: 0; transform: translate3d(0, 12px, 0); }
+        to   { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+
+    .create-shell {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 2.5rem 1.25rem 3.5rem;
+        opacity: 0;
+        transform: translate3d(0, 12px, 0);
+        will-change: transform, opacity;
+    }
+    .is-visible {
+        animation: fadeInUp .55s cubic-bezier(.16,1,.3,1) both;
     }
 
     .glass-card {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 24px;
-        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
-        border: 1px solid rgba(255,255,255,0.6);
+        background: var(--surface);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(255,255,255,.65);
         overflow: hidden;
     }
 
     .form-header {
-        background: linear-gradient(135deg, @colorPrimary 0%, #91B3D9 100%);
-        padding: 3rem;
-        color: white;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary2) 100%);
+        padding: 2.1rem 2.1rem 1.8rem;
+        color: #fff;
         position: relative;
+        overflow: hidden;
+        contain: paint; /* Performance optimization */
     }
-    
-    .header-icon-box {
-        background: rgba(255,255,255,0.2);
-        width: 64px; height: 64px;
+    .form-header::after {
+        content: "";
+        position: absolute;
+        right: -160px; top: -180px;
+        width: 420px; height: 420px;
+        background: radial-gradient(circle, rgba(255,255,255,.16), transparent 62%);
         border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        backdrop-filter: blur(5px);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        pointer-events: none;
     }
 
-    .form-section-title {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        font-weight: 700;
-        color: #6B7280;
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid #E5E7EB;
+    .header-row {
+        position: relative;
+        z-index: 1;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    .header-icon {
+        width: 62px; height: 62px;
+        border-radius: 18px;
+        display: grid;
+        place-items: center;
+        background: rgba(255,255,255,.18);
+        border: 1px solid rgba(255,255,255,.26);
+        box-shadow: 0 18px 30px -24px rgba(15,23,42,.55);
+        flex: 0 0 auto;
+    }
+    .header-title { margin: 0; font-weight: 950; letter-spacing: -0.03em; font-size: 2rem; line-height: 1.05; }
+    .header-sub { margin: .35rem 0 0; opacity: .92; font-weight: 650; }
+
+    .card-body { padding: 2.2rem; }
+
+    .section {
+        margin-top: 1.2rem;
+        padding-top: 1.2rem;
+        border-top: 1px solid rgba(226,232,240,.75);
+    }
+    .section:first-of-type { margin-top: 0; padding-top: 0; border-top: 0; }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.1rem;
     }
 
-    /* Floating Labels Styling */
-    .form-floating > .form-control, .form-floating > .form-select {
-        border-radius: 12px;
-        border: 1px solid #E5E7EB;
-        background-color: #F9FAFB;
+    .section-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: .55rem;
+        padding: .42rem .8rem;
+        border-radius: 999px;
+        background: rgba(239,246,255,.95);
+        border: 1px solid rgba(219,234,254,.95);
+        color: var(--primary);
+        font-weight: 950;
+        font-size: .86rem;
     }
 
-    .form-floating > .form-control:focus, .form-floating > .form-select:focus {
-        border-color: @colorPrimary;
+    .hint { color: var(--muted); font-weight: 750; font-size: .9rem; }
+
+    /* Inputs */
+    .form-floating > .form-control,
+    .form-floating > .form-select {
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        background-color: rgba(248,250,252,.98);
+        transition: box-shadow .12s ease, border-color .12s ease, transform .12s ease, background .12s ease;
+        font-weight: 700;
+        color: var(--ink);
+        will-change: transform;
+    }
+    .form-floating > .form-control:focus,
+    .form-floating > .form-select:focus {
+        border-color: rgba(122,163,209,.75);
         background-color: #fff;
-        box-shadow: 0 0 0 4px rgba(122, 163, 209, 0.2);
+        box-shadow: 0 0 0 4px rgba(122,163,209,.18);
         outline: none;
+        transform: translate3d(0,-1px,0);
     }
-    
-    .form-floating > label { color: #6B7280; }
-    
+
+    textarea.form-control { resize: vertical; min-height: 120px; line-height: 1.65; }
+
+    /* Actions Footer */
+    .actions {
+        margin-top: 1.8rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid rgba(226,232,240,.75);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .9rem;
+        flex-wrap: wrap;
+    }
+
     .btn-save {
-        background: linear-gradient(135deg, @colorPrimary 0%, #6C8CFF 100%);
-        color: white;
-        border-radius: 12px;
-        padding: 0.8rem 2rem;
-        font-weight: 600;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary2) 100%);
+        color: #fff;
+        border-radius: 14px;
+        padding: .85rem 1.6rem;
+        font-weight: 950;
         border: none;
-        transition: all 0.2s;
-        box-shadow: 0 4px 6px rgba(122, 163, 209, 0.3);
-        display: inline-flex; align-items: center; gap: 0.5rem;
+        transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+        box-shadow: 0 18px 30px -24px rgba(108,140,255,.7);
+        display: inline-flex;
+        align-items: center;
+        gap: .55rem;
+        will-change: transform;
     }
-    
     .btn-save:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 15px rgba(122, 163, 209, 0.4);
-        color: white;
+        transform: translate3d(0,-2px,0);
+        filter: brightness(1.02);
+        box-shadow: 0 22px 34px -26px rgba(108,140,255,.8);
     }
 
     .btn-cancel {
-        color: #4B5563;
-        font-weight: 600;
+        color: var(--ink);
+        font-weight: 950;
         text-decoration: none;
-        padding: 0.8rem 2rem;
-        border-radius: 12px;
-        border: 1px solid transparent;
-        transition: all 0.2s;
-        display: inline-flex; align-items: center; gap: 0.5rem;
+        padding: .85rem 1.15rem;
+        border-radius: 14px;
+        border: 1px solid rgba(226,232,240,.95);
+        background: rgba(255,255,255,.86);
+        transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: .55rem;
+        will-change: transform;
     }
-    
     .btn-cancel:hover {
-        background-color: #F3F4F6;
-        color: #111827;
+        transform: translate3d(0,-1px,0);
+        border-color: rgba(122,163,209,.65);
+        box-shadow: 0 18px 30px -24px rgba(15,23,42,.35);
+    }
+
+    @@media (max-width: 768px) {
+        .card-body { padding: 1.25rem; }
+        .form-header { padding: 1.6rem 1.4rem; }
+        .header-title { font-size: 1.6rem; }
     }
 </style>
 
-<div class="create-container">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <form asp-action="Create">
-                    
-                    <div class="glass-card">
-                        <!-- Header -->
-                        <div class="form-header">
-                            <div class="d-flex align-items-center gap-4">
-                                <div class="header-icon-box">
-                                    <i class="fas fa-user-plus fa-2x text-white"></i>
-                                </div>
-                                <div>
-                                    <h2 class="fw-bold mb-1">Nouveau Patient</h2>
-                                    <p class="mb-0 opacity-90 font-monospace small">Création d'un dossier administratif</p>
-                                </div>
+<div class="create-shell" id="pageRoot">
+    <form asp-action="Create" method="post" novalidate>
+        <div class="glass-card">
+
+            <div class="form-header">
+                <div class="header-row">
+                    <div class="header-icon">
+                        <i class="fas fa-user-plus fa-2x text-white"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h2 class="header-title">Nouveau Patient</h2>
+                        <p class="header-sub">Création d'un dossier administratif.</p>
+                    </div>
+                    <a asp-action="Index" class="btn-cancel" style="border-color: rgba(255,255,255,.35); background: rgba(255,255,255,.16); color:#fff;">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4"></div>
+
+                <!-- Section 1 -->
+                <div class="section">
+                    <div class="section-title">
+                        <span class="section-pill"><i class="fas fa-id-card"></i> État Civil</span>
+                        <span class="hint">Champs obligatoires</span>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="Nom" class="form-control" placeholder="Nom" />
+                                <label asp-for="Nom">Nom <span class="text-danger">*</span></label>
                             </div>
+                            <span asp-validation-for="Nom" class="text-danger small ms-1"></span>
                         </div>
 
-                        <div class="p-5">
-                            <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4"></div>
-
-                            <!-- Section 1: Identité -->
-                            <div class="mb-5">
-                                <h6 class="form-section-title"><i class="fas fa-id-card text-primary"></i> État Civil</h6>
-                                <div class="row g-4">
-                                    <div class="col-md-6">
-                                        <div class="form-floating">
-                                            <input asp-for="Nom" class="form-control" placeholder="Nom" />
-                                            <label asp-for="Nom">Nom <span class="text-danger">*</span></label>
-                                        </div>
-                                        <span asp-validation-for="Nom" class="text-danger small ms-1"></span>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-floating">
-                                            <input asp-for="Prenom" class="form-control" placeholder="Prénom" />
-                                            <label asp-for="Prenom">Prénom <span class="text-danger">*</span></label>
-                                        </div>
-                                        <span asp-validation-for="Prenom" class="text-danger small ms-1"></span>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-floating">
-                                            <input asp-for="DateNaissance" type="date" class="form-control" placeholder="Date de naissance" />
-                                            <label asp-for="DateNaissance">Date de naissance <span class="text-danger">*</span></label>
-                                        </div>
-                                        <span asp-validation-for="DateNaissance" class="text-danger small ms-1"></span>
-                                    </div>
-                                     
-                                </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="Prenom" class="form-control" placeholder="Prénom" />
+                                <label asp-for="Prenom">Prénom <span class="text-danger">*</span></label>
                             </div>
+                            <span asp-validation-for="Prenom" class="text-danger small ms-1"></span>
+                        </div>
 
-                            <!-- Section 2: Contact -->
-                            <div class="mb-5">
-                                <h6 class="form-section-title"><i class="fas fa-address-book text-primary"></i> Coordonnées</h6>
-                                <div class="row g-4">
-                                    <div class="col-md-6">
-                                        <div class="form-floating">
-                                            <input asp-for="Telephone" class="form-control" placeholder="Téléphone" />
-                                            <label asp-for="Telephone">Téléphone <span class="text-danger">*</span></label>
-                                        </div>
-                                        <span asp-validation-for="Telephone" class="text-danger small ms-1"></span>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-floating">
-                                            <input asp-for="Email" class="form-control" placeholder="Email" />
-                                            <label asp-for="Email">Email</label>
-                                        </div>
-                                        <span asp-validation-for="Email" class="text-danger small ms-1"></span>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="form-floating">
-                                            <input asp-for="Adresse" class="form-control" placeholder="Adresse complète" />
-                                            <label asp-for="Adresse">Adresse complète</label>
-                                        </div>
-                                        <span asp-validation-for="Adresse" class="text-danger small ms-1"></span>
-                                    </div>
-                                </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="DateNaissance" type="date" class="form-control" placeholder="Date de naissance" />
+                                <label asp-for="DateNaissance">Date de naissance <span class="text-danger">*</span></label>
                             </div>
+                            <span asp-validation-for="DateNaissance" class="text-danger small ms-1"></span>
+                        </div>
+                         
+                    </div>
+                </div>
 
-                            <!-- Section 3: Médical -->
-                            <div class="mb-4">
-                                <h6 class="form-section-title"><i class="fas fa-file-medical text-primary"></i> Informations Médicales</h6>
-                                <div class="form-floating">
-                                    <textarea asp-for="AntecedentsMedicaux" class="form-control" style="height: 120px" placeholder="Antécédents"></textarea>
-                                    <label asp-for="AntecedentsMedicaux">Antécédents, Allergies & Notes importantes</label>
-                                </div>
-                                <span asp-validation-for="AntecedentsMedicaux" class="text-danger small ms-1"></span>
-                            </div>
+                <!-- Section 2 -->
+                <div class="section">
+                    <div class="section-title">
+                        <span class="section-pill"><i class="fas fa-address-book"></i> Coordonnées</span>
+                        <span class="hint">Contact patient</span>
+                    </div>
 
-                            <!-- Actions -->
-                            <div class="d-flex justify-content-between align-items-center pt-4 mt-4 border-top">
-                                <a asp-action="Index" class="btn-cancel">
-                                    <i class="fas fa-arrow-left"></i> Annuler
-                                </a>
-                                <button type="submit" class="btn-save">
-                                    <i class="fas fa-save"></i> Enregistrer le Patient
-                                </button>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="Telephone" class="form-control" placeholder="Téléphone" />
+                                <label asp-for="Telephone">Téléphone <span class="text-danger">*</span></label>
                             </div>
+                            <span asp-validation-for="Telephone" class="text-danger small ms-1"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="Email" class="form-control" placeholder="Email" />
+                                <label asp-for="Email">Email</label>
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger small ms-1"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <input asp-for="Adresse" class="form-control" placeholder="Adresse complète" />
+                                <label asp-for="Adresse">Adresse complète</label>
+                            </div>
+                            <span asp-validation-for="Adresse" class="text-danger small ms-1"></span>
                         </div>
                     </div>
-                </form>
+                </div>
+
+                <!-- Section 3 -->
+                <div class="section">
+                    <div class="section-title">
+                        <span class="section-pill"><i class="fas fa-file-medical"></i> Informations Médicales</span>
+                        <span class="hint">Allergies, antécédents</span>
+                    </div>
+
+                    <div class="form-floating">
+                        <textarea asp-for="AntecedentsMedicaux" class="form-control" style="height: 140px" placeholder="Antécédents"></textarea>
+                        <label asp-for="AntecedentsMedicaux">Antécédents, Allergies & Notes importantes</label>
+                    </div>
+                    <span asp-validation-for="AntecedentsMedicaux" class="text-danger small ms-1"></span>
+
+                    <div class="d-flex justify-content-between mt-2 small text-muted">
+                        <span><i class="fas fa-lightbulb me-1"></i>Utilisez “•” pour lister</span>
+                        <span id="notesCount">0 caractères</span>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <a asp-action="Index" class="btn-cancel">
+                        <i class="fas fa-xmark"></i> Annuler
+                    </a>
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i> Enregistrer le Patient
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
+    </form>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // ✅ Animate only when visible
+        (function () {
+            const root = document.getElementById('pageRoot');
+            if (!root) return;
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach(e => {
+                    if (e.isIntersecting) {
+                        e.target.classList.add('is-visible');
+                        io.unobserve(e.target);
+                    }
+                });
+            }, { threshold: 0.12 });
+            io.observe(root);
+        })();
+
+        // ✅ Char counter
+        (function () {
+            const ta = document.querySelector('[name="AntecedentsMedicaux"]');
+            const out = document.getElementById('notesCount');
+            if (!ta || !out) return;
+            const update = () => out.textContent = `${(ta.value || "").trim().length} caractères`;
+            ta.addEventListener('input', update);
+            update();
+        })();
+    </script>
 }
