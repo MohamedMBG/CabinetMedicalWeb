@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CabinetMedicalWeb.Areas.FrontDesk.Models;
 using CabinetMedicalWeb.Data;
 using CabinetMedicalWeb.Models;
+using CabinetMedicalWeb.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -16,10 +17,12 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
     public class ReservationRequestsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public ReservationRequestsController(ApplicationDbContext context)
+        public ReservationRequestsController(ApplicationDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         public async Task<IActionResult> Index(string? statut)
@@ -134,12 +137,15 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
 
             _context.RendezVous.Add(rendezVous);
 
+            var previousDate = reservation.DateHeureConfirmee ?? reservation.DateSouhaitee;
             reservation.Statut = ReservationStatus.Confirmed;
             reservation.PatientId = patient.Id;
             reservation.DoctorId = model.DoctorId;
             reservation.DateHeureConfirmee = model.DateHeure;
 
             await _context.SaveChangesAsync();
+
+            await SendStatusEmailAsync(reservation, previousDate);
 
             TempData["ReservationApprouvee"] = "La demande a été validée et le rendez-vous a été créé.";
             return RedirectToAction(nameof(Index));
@@ -164,8 +170,54 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
             reservation.Statut = ReservationStatus.Rejected;
             await _context.SaveChangesAsync();
 
+            await SendStatusEmailAsync(reservation, reservation.DateHeureConfirmee ?? reservation.DateSouhaitee);
+
             TempData["ReservationRefusee"] = "La demande a été refusée.";
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task SendStatusEmailAsync(ReservationRequest reservation, DateTime? previousDate)
+        {
+            if (string.IsNullOrWhiteSpace(reservation.Email))
+            {
+                return;
+            }
+
+            var isConfirmed = reservation.Statut == ReservationStatus.Confirmed;
+            var subject = isConfirmed
+                ? "Confirmation de votre réservation"
+                : "Mise à jour de votre réservation";
+
+            var body = BuildEmailBody(reservation, previousDate);
+            await _emailService.SendEmailAsync(reservation.Email, subject, body);
+        }
+
+        private string BuildEmailBody(ReservationRequest reservation, DateTime? previousDate)
+        {
+            var confirmedDate = reservation.DateHeureConfirmee ?? reservation.DateSouhaitee;
+            var dateChanged = previousDate.HasValue && previousDate.Value != confirmedDate;
+
+            if (reservation.Statut == ReservationStatus.Confirmed)
+            {
+                var changeNotice = dateChanged
+                    ? $"<p><strong>Nouveau créneau confirmé :</strong> {confirmedDate:dddd dd MMMM yyyy à HH:mm}.</p>"
+                    : string.Empty;
+
+                return $@"
+                    <h2>Votre réservation est confirmée</h2>
+                    <p>Bonjour <strong>{reservation.Prenom} {reservation.Nom}</strong>,</p>
+                    <p>Votre demande de rendez-vous a été acceptée.</p>
+                    <p><strong>Date et heure confirmées :</strong> {confirmedDate:dddd dd MMMM yyyy à HH:mm}.</p>
+                    {changeNotice}
+                    <p>Motif : {reservation.Motif}</p>
+                    <p>Merci de vous présenter quelques minutes avant l'heure prévue.</p>";
+            }
+
+            return $@"
+                <h2>Votre réservation a été déclinée</h2>
+                <p>Bonjour <strong>{reservation.Prenom} {reservation.Nom}</strong>,</p>
+                <p>Votre demande du {reservation.DateSouhaitee:dddd dd MMMM yyyy à HH:mm} n'a pas pu être acceptée.</p>
+                <p>Pour toute question, vous pouvez nous contacter par téléphone ou email.</p>";
         }
 
         private async Task<SelectList> GetDoctorsAsync()
