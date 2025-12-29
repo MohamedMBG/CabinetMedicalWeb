@@ -9,14 +9,17 @@
 
     var primaryColor = "#7AA3D1";
     var primaryLight = "#A7CBED";
-    var successColor = "#989DA5";
-    var textDark = "#666B72";
-    var textMuted = "#7B8592";
-    var bgPage = "#E9EFF7";
+    var successColor = "#6BA270";
+    var textDark = "#2D3748";
+    var textMuted = "#5B6472";
+    var bgPage = "#F3F6FB";
 }
 
 <style>
-    body { background-color: @bgPage; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    body { background: radial-gradient(circle at top left, rgba(122, 163, 209, 0.08), transparent 35%),
+                 radial-gradient(circle at 80% 20%, rgba(107, 162, 112, 0.06), transparent 30%),
+                 @bgPage;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif; }
 
     /* Layout */
     .page-shell {
@@ -29,10 +32,24 @@
     }
 
     /* Header */
-    .page-header {
-        margin-bottom: 2.5rem;
+    .page-header { margin-bottom: 2.5rem; }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .35rem .75rem;
+        background: white;
+        border: 1px solid #E5E7EB;
+        border-radius: 999px;
+        color: @textMuted;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        font-size: .75rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,.04);
     }
-    
+
     .page-title {
         color: @textDark;
         font-weight: 800;
@@ -45,18 +62,82 @@
     .page-subtitle {
         color: @textMuted;
         font-size: 1.05rem;
-        max-width: 720px;
-        margin: 0 auto;
-        line-height: 1.5;
+        max-width: 760px;
+        margin: 0.5rem auto 0;
+        line-height: 1.6;
     }
+
+    .header-tags {
+        display: flex;
+        justify-content: center;
+        gap: .5rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+    }
+
+    .tag-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .45rem .85rem;
+        background: rgba(122,163,209,.12);
+        border: 1px solid rgba(122,163,209,.35);
+        color: @textDark;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: .9rem;
+    }
+
+    .tag-pill i { color: #5C7899; }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #E5E7EB;
+        padding: 1rem 1.1rem;
+        display: flex;
+        gap: .85rem;
+        align-items: flex-start;
+        box-shadow: 0 10px 30px rgba(0,0,0,.05);
+    }
+
+    .info-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        color: white;
+        font-weight: 800;
+        background: linear-gradient(135deg, #7AA3D1, #6BA270);
+        box-shadow: 0 10px 20px rgba(0,0,0,.12);
+        flex-shrink: 0;
+    }
+
+    .info-body { flex: 1; }
+
+    .info-title {
+        font-weight: 800;
+        color: @textDark;
+        margin-bottom: .2rem;
+    }
+
+    .info-text { color: @textMuted; margin: 0; line-height: 1.45; }
 
     /* Search */
     .search-container {
         background: white;
         border-radius: 16px;
-        padding: .75rem 1rem;
+        padding: 1rem 1.25rem;
         border: 1px solid #E5E7EB;
-        box-shadow: 0 2px 8px rgba(0,0,0,.03);
+        box-shadow: 0 10px 30px rgba(0,0,0,.05);
         transition: box-shadow .2s, border-color .2s;
         margin-bottom: 2rem;
     }
@@ -81,7 +162,7 @@
     
     .search-actions {
         display: flex;
-        gap: .5rem;
+        gap: .65rem;
         flex: 0 0 auto;
         align-items: center;
     }
@@ -96,6 +177,23 @@
         width: 100%;
         height: auto;
         line-height: 1.5;
+    }
+
+    .search-label { color: @textMuted; font-weight: 700; font-size: .95rem; letter-spacing: .01em; }
+
+    .search-meta { color: @textMuted; font-size: .9rem; margin-bottom: .25rem; }
+
+    .filter-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        padding: .4rem .85rem;
+        background: #ECF3FB;
+        color: @textDark;
+        border-radius: 999px;
+        border: 1px solid #D8E5F6;
+        font-weight: 700;
+        font-size: .9rem;
     }
 
     /* Patient Cards - Optimized */
@@ -290,11 +388,11 @@
         left: 50%;
         bottom: 20px;
         transform: translateX(-50%) translateY(100%);
-        background: white;
-        padding: 1rem 1.5rem;
-        border-radius: 16px;
+        background: rgba(255,255,255,0.96);
+        padding: 1.1rem 1.5rem;
+        border-radius: 18px;
         width: min(600px, calc(100vw - 32px));
-        box-shadow: 0 -4px 32px rgba(0,0,0,.1), 0 16px 48px rgba(0,0,0,.12);
+        box-shadow: 0 12px 45px rgba(0,0,0,.18);
         z-index: 1000;
         display: flex;
         align-items: center;
@@ -302,6 +400,7 @@
         gap: 1.25rem;
         transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         border: 1px solid #E5E7EB;
+        backdrop-filter: blur(4px);
     }
 
     .action-bar.visible { transform: translateX(-50%) translateY(0); }
@@ -404,6 +503,28 @@
         margin-bottom: 4rem;
     }
 
+    .section-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+        margin-bottom: .5rem;
+    }
+
+    .heading-meta {
+        color: @textMuted;
+        font-size: .9rem;
+        display: flex;
+        align-items: center;
+        gap: .35rem;
+    }
+
+    .legend { color: @textMuted; font-size: .85rem; display: flex; gap: .75rem; flex-wrap: wrap; }
+
+    .legend span { display: inline-flex; align-items: center; gap: .35rem; }
+
+    .legend-dot { width: 10px; height: 10px; border-radius: 999px; background: @successColor; display: inline-block; }
+
     @@media (max-width: 768px) {
         .patients-grid {
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -447,8 +568,39 @@
 
     <!-- Header -->
     <div class="page-header text-center">
+        <div class="eyebrow"><i class="fas fa-briefcase-medical"></i> Dossier médical</div>
         <h1 class="page-title">New Medical Record</h1>
-        <p class="page-subtitle">Select a patient from the list below to initialize their folder</p>
+        <p class="page-subtitle">Choose the patient to attach the new record to, then confirm to initialize their medical dossier with consistent styling and guidance.</p>
+
+        <div class="header-tags">
+            <span class="tag-pill"><i class="fas fa-search"></i>Step 1 · Find the patient</span>
+            <span class="tag-pill"><i class="fas fa-user-check"></i>Step 2 · Confirm selection</span>
+            <span class="tag-pill"><i class="fas fa-file-medical"></i>Step 3 · Create dossier</span>
+        </div>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-card">
+            <div class="info-icon">1</div>
+            <div class="info-body">
+                <div class="info-title">Search confidently</div>
+                <p class="info-text">Use a name, email, or phone number. Matching patients stay highlighted so you always know who will receive the dossier.</p>
+            </div>
+        </div>
+        <div class="info-card">
+            <div class="info-icon">2</div>
+            <div class="info-body">
+                <div class="info-title">Accessible controls</div>
+                <p class="info-text">Cards are keyboard-friendly (Enter to select, Esc to clear). Visual affordances keep the experience consistent across devices.</p>
+            </div>
+        </div>
+        <div class="info-card">
+            <div class="info-icon">3</div>
+            <div class="info-body">
+                <div class="info-title">Quick confirmation</div>
+                <p class="info-text">The floating action bar summarizes the chosen patient and keeps the primary action visible without distracting from the list.</p>
+            </div>
+        </div>
     </div>
 
     <!-- Alert -->
@@ -463,6 +615,16 @@
 
     <!-- Search -->
     <div class="search-container">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+            <div>
+                <div class="search-label text-uppercase">Find a registered patient</div>
+                <div class="search-meta">Type a few characters to narrow the list. Clear the search to see everyone again.</div>
+            </div>
+            @if(!string.IsNullOrEmpty(searchTerm))
+            {
+                <div class="filter-chip"><i class="fas fa-filter"></i> "@searchTerm"</div>
+            }
+        </div>
         <form method="get" asp-area="Medical" asp-controller="DossierMedicals" asp-action="Create" class="search-form">
             <div class="search-input-wrap">
                 <i class="fas fa-search position-absolute"
@@ -521,12 +683,20 @@
         }
         else
         {
-            <div class="d-flex justify-content-between align-items-center mb-3 px-1">
+            <div class="section-heading px-1">
                 <h5 class="fw-bold m-0 text-dark d-flex align-items-center gap-2">
                     <i class="fas fa-users text-primary"></i>
                     Available Patients
                     <span class="badge bg-light text-dark rounded-pill px-3 py-1 border">@patientCount</span>
                 </h5>
+                <div class="heading-meta">
+                    <i class="fas fa-mouse-pointer text-muted"></i>
+                    Click or press Enter to select a patient
+                </div>
+            </div>
+            <div class="legend px-1 mb-3">
+                <span><span class="legend-dot"></span> Selected card</span>
+                <span><i class="far fa-envelope"></i> Email details stay visible for verification</span>
             </div>
 
             <!-- Responsive Grid -->
