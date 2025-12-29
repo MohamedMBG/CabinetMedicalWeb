@@ -6,6 +6,8 @@
 
     // Data Preparation
     var startOfWeek = (DateTime)ViewData["StartOfWeek"];
+    var previousWeek = (DateTime)ViewData["PreviousWeek"];
+    var nextWeek = (DateTime)ViewData["NextWeek"];
     var rendezVousList = Model.ToList();
     var daysOfWeek = new[] { "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi" };
 
@@ -151,9 +153,20 @@
         <div class="header-content">
             <h1>Agenda Hebdomadaire</h1>
             <p>
-                <i class="far fa-calendar-alt"></i> 
+                <i class="far fa-calendar-alt"></i>
                 Semaine du @startOfWeek.ToString("dd MMMM") au @startOfWeek.AddDays(4).ToString("dd MMMM yyyy")
             </p>
+            <div class="d-flex align-items-center gap-2 mt-3">
+                <a asp-area="FrontDesk" asp-controller="Agenda" asp-action="Index" asp-route-startDate="@previousWeek.ToString(\"yyyy-MM-dd\")" class="btn btn-light btn-sm text-primary fw-semibold">
+                    <i class="fas fa-arrow-left me-1"></i> Semaine précédente
+                </a>
+                <a asp-area="FrontDesk" asp-controller="Agenda" asp-action="Index" asp-route-startDate="@DateTime.Today.ToString(\"yyyy-MM-dd\")" class="btn btn-outline-light btn-sm fw-semibold">
+                    <i class="fas fa-calendar-day me-1"></i> Cette semaine
+                </a>
+                <a asp-area="FrontDesk" asp-controller="Agenda" asp-action="Index" asp-route-startDate="@nextWeek.ToString(\"yyyy-MM-dd\")" class="btn btn-light btn-sm text-primary fw-semibold">
+                    Semaine suivante <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
         </div>
         <a asp-area="FrontDesk" asp-controller="RendezVous" asp-action="Create" class="btn-create">
             <i class="fas fa-plus-circle"></i> Nouveau Rendez-vous
