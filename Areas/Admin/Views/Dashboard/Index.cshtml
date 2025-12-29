@@ -57,11 +57,11 @@
     }
 
     .topline h1 {
-        font-weight: 800;
+        font-weight: 900;
         color: var(--ink);
         margin: 0.5rem 0 0.35rem;
-        font-size: 2.3rem;
-        letter-spacing: -0.03em;
+        font-size: 2.35rem;
+        letter-spacing: -0.04em;
     }
 
     .eyebrow {
@@ -72,17 +72,18 @@
         border-radius: 99px;
         background: rgba(99, 102, 241, 0.08);
         color: #4f46e5;
-        font-weight: 700;
+        font-weight: 800;
         text-transform: uppercase;
         font-size: 0.75rem;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.06em;
+        border: 1px solid rgba(99,102,241,.15);
     }
 
     .page-intro {
         color: var(--muted);
         max-width: 760px;
-        line-height: 1.6;
-        font-size: 0.98rem;
+        line-height: 1.65;
+        font-size: 1rem;
         margin-bottom: 0.5rem;
     }
 
@@ -99,49 +100,75 @@
         align-items: center;
         gap: 0.6rem;
         padding: 0.85rem 1.6rem;
-        border-radius: 12px;
-        font-weight: 600;
+        border-radius: 14px;
+        font-weight: 700;
         font-size: 0.95rem;
         text-decoration: none;
-        transition: all 0.2s ease;
+        transition: all 0.18s ease;
         border: 1px solid transparent;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        box-shadow: 0 6px 14px -8px rgba(0,0,0,0.18);
+        will-change: transform;
     }
 
     .btn-quick-primary {
         background: var(--primary-grad);
         color: white;
-        box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.4);
+        box-shadow: 0 14px 26px -12px rgba(99, 102, 241, 0.65);
     }
-    .btn-quick-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -4px rgba(99, 102, 241, 0.5); color: white; }
+    .btn-quick-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 34px -12px rgba(99, 102, 241, 0.75);
+        color: white;
+    }
 
     .btn-quick-secondary {
-        background: white;
+        background: rgba(255,255,255,.92);
         color: var(--ink);
-        border-color: #e2e8f0;
+        border-color: rgba(226,232,240,.9);
+        backdrop-filter: blur(10px);
     }
-    .btn-quick-secondary:hover { background: #f8fafc; border-color: #cbd5e1; color: var(--ink); }
+    .btn-quick-secondary:hover {
+        transform: translateY(-2px);
+        background: #ffffff;
+        border-color: #cbd5e1;
+        color: var(--ink);
+    }
 
     /* Stats Grid */
     .snapshot {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 1.75rem;
+        gap: 1.25rem;
     }
 
     .snapshot-card {
         background: var(--surface);
         backdrop-filter: blur(12px);
-        border-radius: 20px;
-        padding: 1.6rem;
-        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 1.55rem;
+        border: 1px solid rgba(226,232,240,.85);
         box-shadow: var(--glow);
         display: flex;
         align-items: center;
-        gap: 1.25rem;
-        transition: transform 0.2s ease;
+        gap: 1.1rem;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        position: relative;
+        overflow: hidden;
     }
-    .snapshot-card:hover { transform: translateY(-4px); }
+    .snapshot-card::after{
+        content:"";
+        position:absolute;
+        inset:-1px;
+        background: radial-gradient(circle at 20% 10%, rgba(99,102,241,.10), transparent 35%);
+        opacity:.9;
+        pointer-events:none;
+    }
+    .snapshot-card > * { position: relative; z-index: 1; }
+    .snapshot-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(99,102,241,.22);
+        box-shadow: 0 18px 40px -20px rgba(15,23,42,.35);
+    }
 
     .snapshot-icon {
         width: 56px; height: 56px;
@@ -149,274 +176,439 @@
         display: grid;
         place-items: center;
         color: white;
-        font-size: 1.4rem;
+        font-size: 1.35rem;
         flex-shrink: 0;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        box-shadow: 0 14px 24px rgba(15,23,42,0.14);
     }
-    /* Icon Colors */
     .icon-green { background: linear-gradient(135deg, #10b981, #059669); }
     .icon-orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
     .icon-indigo { background: linear-gradient(135deg, #6366f1, #4f46e5); }
     .icon-cyan { background: linear-gradient(135deg, #06b6d4, #0891b2); }
 
-    .snapshot-content h6 { margin: 0; color: var(--muted); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    .snapshot-content p { margin: 0.2rem 0 0; font-size: 1.8rem; font-weight: 800; color: var(--ink); line-height: 1; }
-
-    /* Main Content Layout */
-    .grid-balanced {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 1.5rem;
+    .snapshot-content h6 {
+        margin: 0;
+        color: var(--muted);
+        font-weight: 800;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
     }
-    @@media (max-width: 992px) { .grid-balanced { grid-template-columns: 1fr; } }
-
-    /* Cards Generic */
-    .panel-card {
-        background: var(--surface);
-        border-radius: 20px;
-        border: 1px solid var(--border);
-        box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05);
-        overflow: hidden;
-        height: 100%;
-        padding: 2rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
+    .snapshot-content p {
+        margin: 0.25rem 0 0;
+        font-size: 1.85rem;
+        font-weight: 900;
+        color: var(--ink);
+        line-height: 1;
+        letter-spacing: -0.02em;
     }
 
+    /* Sections */
     .section-block {
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
-        margin-bottom: 3rem;
+        gap: 1.25rem;
+        margin-bottom: 2.5rem;
     }
 
     .section-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-end;
         gap: 1rem;
         flex-wrap: wrap;
     }
 
     .section-header h2 {
         margin: 0;
-        font-weight: 800;
+        font-weight: 900;
         color: var(--ink);
-        letter-spacing: -0.02em;
+        letter-spacing: -0.03em;
     }
 
     .section-subtext {
-        margin: 0;
+        margin: 0.35rem 0 0;
         color: var(--muted);
-        max-width: 720px;
-        line-height: 1.6;
+        max-width: 760px;
+        line-height: 1.65;
     }
 
     .section-pill {
-        padding: 0.4rem 0.85rem;
+        padding: 0.42rem 0.9rem;
         border-radius: 999px;
-        background: #eef2ff;
+        background: rgba(99,102,241,.10);
         color: #4338ca;
-        font-weight: 700;
+        font-weight: 900;
         font-size: 0.85rem;
+        border: 1px solid rgba(99,102,241,.15);
     }
 
-    /* Chart Section */
+    /* Layout */
+    .grid-balanced {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.25rem;
+        align-items: stretch;
+    }
+    @@media (max-width: 992px) { .grid-balanced { grid-template-columns: 1fr; } }
+
+    /* Cards */
+    .panel-card {
+        background: var(--surface);
+        border-radius: 22px;
+        border: 1px solid rgba(226,232,240,.9);
+        box-shadow: 0 10px 28px -20px rgba(15,23,42,0.30);
+        overflow: hidden;
+        height: 100%;
+        padding: 1.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    .panel-card:hover{
+        border-color: rgba(99,102,241,.22);
+        box-shadow: 0 18px 42px -26px rgba(15,23,42,0.38);
+    }
+
+    /* Chart headers */
     .chart-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.5rem;
+        gap: .75rem;
+        flex-wrap: wrap;
+        margin-bottom: .5rem;
     }
-    .chart-header h3 { font-size: 1.2rem; font-weight: 700; margin: 0; color: var(--ink); }
+    .chart-header h3 {
+        font-size: 1.15rem;
+        font-weight: 900;
+        margin: 0;
+        color: var(--ink);
+        letter-spacing: -0.02em;
+    }
     .badge-soft {
-        background: #eff6ff; color: #3b82f6;
-        padding: 0.35rem 0.85rem; border-radius: 99px;
-        font-weight: 700; font-size: 0.8rem;
+        background: rgba(59,130,246,.10);
+        color: #2563eb;
+        padding: 0.35rem 0.85rem;
+        border-radius: 999px;
+        font-weight: 900;
+        font-size: 0.8rem;
+        border: 1px solid rgba(59,130,246,.15);
     }
 
+    /* Bar chart */
     .chart-bars {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
         gap: 1rem;
         align-items: end;
-        height: 200px;
+        height: 210px;
         margin-top: auto;
     }
-
-    .chart-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 1.25rem;
-    }
-
-    .trend-block {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 14px;
-        padding: 1rem 1.25rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.85rem;
-    }
-
-    .trend-block h4 {
-        margin: 0;
-        font-size: 1rem;
-        color: var(--ink);
-        letter-spacing: -0.01em;
-    }
-
-    .trend-row {
-        display: grid;
-        grid-template-columns: 1fr 3fr;
-        gap: 0.75rem;
-        align-items: center;
-    }
-
-    .trend-label {
-        color: var(--muted);
-        font-weight: 700;
-        font-size: 0.9rem;
-    }
-
-    .dual-bar {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 0.35rem;
-    }
-
-    .bar-track-inline {
-        width: 100%;
-        background: #e2e8f0;
-        border-radius: 999px;
-        height: 8px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .bar-fill-inline {
-        position: absolute;
-        top: 0; left: 0; bottom: 0;
-        border-radius: 999px;
-        transition: width 0.5s ease;
-    }
-
-    .bar-fill-patients {
-        background: linear-gradient(90deg, #10b981, #34d399);
-    }
-
-    .bar-fill-reservations {
-        background: linear-gradient(90deg, #6366f1, #a5b4fc);
-    }
-
-    .bar-legend { display: flex; justify-content: flex-end; gap: 0.85rem; color: var(--muted); font-size: 0.85rem; }
-    .legend-dot { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
-    .dot-green { background: #22c55e; }
-    .dot-indigo { background: #6366f1; }
-
-    .performance-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 1.25rem;
-    }
-    @@media (max-width: 992px) { .performance-grid { grid-template-columns: 1fr; } }
-
-    .doctor-row {
-        display: grid;
-        grid-template-columns: 1fr 3fr 80px;
-        gap: 0.75rem;
-        align-items: center;
-        padding: 0.85rem 0;
-        border-bottom: 1px solid #e2e8f0;
-    }
-
-    .doctor-row:last-child { border-bottom: none; }
-
-    .doctor-name { font-weight: 700; color: var(--ink); }
-    .doctor-speciality { color: var(--muted); font-size: 0.9rem; }
-
-    .stacked-meter {
-        width: 100%;
-        height: 10px;
-        background: #e2e8f0;
-        border-radius: 999px;
-        overflow: hidden;
-        position: relative;
-    }
-    .stacked-meter .fill-appointments { background: linear-gradient(90deg, #0ea5e9, #38bdf8); height: 100%; position: absolute; left: 0; top: 0; }
-    .stacked-meter .fill-prescriptions { background: linear-gradient(90deg, #a855f7, #c084fc); height: 100%; position: absolute; left: 0; top: 0; opacity: 0.8; }
-
-    .metric-pill { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.7rem; border-radius: 10px; background: #eef2ff; color: #4f46e5; font-weight: 700; font-size: 0.85rem; }
-    .pill-warm { background: #fff7ed; color: #ea580c; }
 
     .bar-item {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.5rem;
-        group: hover;
+        gap: 0.45rem;
     }
 
     .bar-track {
         width: 100%;
         background: #f1f5f9;
-        border-radius: 12px;
+        border-radius: 14px;
         height: 160px;
         position: relative;
         overflow: hidden;
-        border: 1px solid #e2e8f0;
+        border: 1px solid rgba(226,232,240,.9);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
     }
 
     .bar-fill {
         position: absolute;
         bottom: 0; left: 0; right: 0;
         background: linear-gradient(to top, #6366f1, #a5b4fc);
-        border-radius: 12px;
+        border-radius: 14px;
         transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        min-height: 4px;
+        min-height: 6px;
+        box-shadow: 0 10px 18px rgba(99,102,241,.18);
     }
 
-    .bar-label { font-size: 0.8rem; font-weight: 600; color: var(--muted); text-transform: uppercase; }
-    .bar-value { font-size: 0.9rem; font-weight: 800; color: var(--ink); margin-bottom: 4px; }
-
-    /* Quick Nav Sidebar */
-    .quick-nav-card {
-        background: linear-gradient(145deg, #ffffff, #f8fafc);
+    .bar-label {
+        font-size: 0.78rem;
+        font-weight: 900;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+    .bar-value {
+        font-size: 0.92rem;
+        font-weight: 900;
+        color: var(--ink);
+        margin-bottom: 2px;
     }
 
+    /* Quick Nav */
+    .quick-nav-card { background: linear-gradient(145deg, rgba(255,255,255,.95), rgba(248,250,252,.95)); }
     .quick-nav-list {
         list-style: none; padding: 0; margin: 0;
         display: flex; flex-direction: column; gap: 0.75rem;
     }
-
     .quick-nav-item {
         display: flex; justify-content: space-between; align-items: center;
-        background: white; padding: 1rem 1.25rem;
-        border-radius: 14px;
-        border: 1px solid #e2e8f0;
+        background: rgba(255,255,255,.92);
+        padding: 1rem 1.05rem;
+        border-radius: 16px;
+        border: 1px solid rgba(226,232,240,.9);
         text-decoration: none;
-        transition: all 0.2s;
+        transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
     }
-
     .quick-nav-item:hover {
         transform: translateX(4px);
-        border-color: #6366f1;
-        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+        border-color: rgba(99,102,241,.28);
+        box-shadow: 0 14px 26px -18px rgba(15,23,42,.35);
     }
-
     .nav-label {
-        display: flex; align-items: center; gap: 0.8rem;
-        color: var(--ink); font-weight: 600;
+        display: flex; align-items: center; gap: 0.85rem;
+        color: var(--ink); font-weight: 900;
     }
     .nav-icon-box {
-        width: 36px; height: 36px; border-radius: 10px;
-        background: #eff6ff; color: #4f46e5;
+        width: 38px; height: 38px; border-radius: 12px;
+        background: rgba(99,102,241,.10);
+        color: #4f46e5;
         display: grid; place-items: center; font-size: 1rem;
+        border: 1px solid rgba(99,102,241,.14);
     }
-    .nav-arrow { color: #cbd5e1; transition: color 0.2s; }
+    .nav-arrow { color: #cbd5e1; transition: color .16s ease; }
     .quick-nav-item:hover .nav-arrow { color: #4f46e5; }
+
+    /* ---------- Trends + Team (refined) ---------- */
+    .panel-card--tight { padding: 1.55rem; gap: .95rem; }
+
+    .panel-top{
+        display:flex; align-items:flex-start; justify-content:space-between;
+        gap: 1rem; flex-wrap: wrap;
+        padding-bottom: .9rem;
+        border-bottom: 1px solid rgba(226,232,240,.95);
+    }
+
+    .panel-title h3{
+        margin: 0;
+        font-size: 1.15rem;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+    }
+    .panel-title h3 i{ color:#4f46e5; }
+
+    .panel-sub{
+        margin: .28rem 0 0;
+        color: var(--muted);
+        font-size: .94rem;
+        line-height: 1.55;
+    }
+
+    .panel-meta{
+        display:flex; align-items:flex-end; gap: .75rem;
+        flex-direction: column;
+    }
+    @@media (max-width: 768px){
+        .panel-meta{ align-items:flex-start; width:100%; }
+    }
+
+    .bar-legend{
+        display:flex;
+        justify-content:flex-end;
+        gap: .85rem;
+        color: var(--muted);
+        font-size: .86rem;
+        font-weight: 700;
+    }
+    .legend-dot{ width:10px;height:10px;border-radius:999px; display:inline-block; }
+    .dot-green{ background:#22c55e; }
+    .dot-indigo{ background:#6366f1; }
+
+    /* Segmented tabs (CSS only) */
+    .segmented{
+        display:flex;
+        gap:.35rem;
+        padding:.35rem;
+        background:#f1f5f9;
+        border:1px solid rgba(226,232,240,.95);
+        border-radius: 16px;
+        width: fit-content;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.65);
+    }
+    .segmented__input{ display:none; }
+    .segmented__label{
+        cursor:pointer;
+        user-select:none;
+        display:inline-flex; align-items:center;
+        padding:.55rem .95rem;
+        border-radius: 13px;
+        font-weight: 900;
+        font-size: .9rem;
+        color: #334155;
+        transition: all .16s ease;
+    }
+    .segmented__label i{ opacity:.85; }
+
+    #tab-week:checked + label,
+    #tab-month:checked + label{
+        background: #ffffff;
+        border: 1px solid rgba(99,102,241,.25);
+        box-shadow: 0 12px 22px rgba(15, 23, 42, 0.06);
+        color: #111827;
+    }
+
+    .trend-panels { margin-top: .75rem; }
+    .trend-panel { display:none; }
+    #tab-week:checked ~ .trend-panels .trend-panel--week { display:block; }
+    #tab-month:checked ~ .trend-panels .trend-panel--month { display:block; }
+
+    .trend-block--clean{
+        background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(248,250,252,.95));
+        border: 1px solid rgba(226,232,240,.95);
+        border-radius: 18px;
+        padding: 1rem;
+    }
+
+    .trend-row--pro{
+        display:grid;
+        grid-template-columns: 1.35fr 2.65fr;
+        gap: 1rem;
+        padding: .8rem 0;
+        border-bottom: 1px dashed rgba(226,232,240,.95);
+        align-items: center;
+    }
+    .trend-row--pro:last-child{ border-bottom: none; padding-bottom: .2rem; }
+
+    .trend-left{ display:flex; flex-direction:column; gap:.35rem; }
+    .trend-label{ color: var(--muted); font-weight: 900; font-size: .9rem; }
+    .trend-mini{ display:flex; gap:.45rem; flex-wrap:wrap; }
+
+    .mini-chip{
+        display:inline-flex; align-items:center; gap:.35rem;
+        padding:.28rem .58rem;
+        border-radius: 999px;
+        font-weight: 900;
+        font-size: .8rem;
+        border: 1px solid rgba(226,232,240,.95);
+        background:#fff;
+    }
+    .mini-chip i{ font-size:.78rem; opacity:.85; }
+    .mini-green{
+        color:#065f46;
+        background: rgba(16,185,129,.08);
+        border-color: rgba(16,185,129,.18);
+    }
+    .mini-indigo{
+        color:#3730a3;
+        background: rgba(99,102,241,.10);
+        border-color: rgba(99,102,241,.20);
+    }
+
+    .trend-bars{ display:grid; gap:.5rem; }
+
+    .bar-track-inline{
+        width: 100%;
+        background: #e9eef6;
+        border-radius: 999px;
+        height: 10px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(226,232,240,.85);
+    }
+    .bar-fill-inline{
+        position: absolute;
+        top: 0; left: 0; bottom: 0;
+        border-radius: 999px;
+        transition: width 0.5s ease;
+        box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
+        filter: saturate(1.1);
+    }
+    .bar-fill-patients{ background: linear-gradient(90deg, #10b981, #34d399); }
+    .bar-fill-reservations{ background: linear-gradient(90deg, #6366f1, #a5b4fc); }
+
+    /* Performance */
+    .performance-grid{ display:grid; grid-template-columns: 1fr; gap: 1rem; }
+    .doctor-list{ display:flex; flex-direction:column; gap:.65rem; }
+
+    .doctor-row--card{
+        border: 1px solid rgba(226,232,240,.95);
+        border-radius: 18px;
+        padding: .95rem;
+        background: rgba(255,255,255,.95);
+        box-shadow: 0 10px 20px -18px rgba(15, 23, 42, 0.28);
+        transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+        display:grid;
+        grid-template-columns: 1.1fr 2.9fr;
+        gap: .9rem;
+        align-items: center;
+    }
+    .doctor-row--card:hover{
+        transform: translateY(-2px);
+        border-color: rgba(99,102,241,.26);
+        box-shadow: 0 18px 30px -22px rgba(15, 23, 42, 0.35);
+    }
+
+    .doctor-name{ font-weight: 900; color: var(--ink); }
+    .doctor-speciality{ color: var(--muted); font-size: .92rem; }
+
+    .doctor-bars{ display:flex; flex-direction:column; gap:.55rem; }
+
+    .stacked-meter{
+        width: 100%;
+        height: 12px;
+        background: #eef2f7;
+        border-radius: 999px;
+        overflow: hidden;
+        position: relative;
+        border: 1px solid rgba(226,232,240,.95);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+    }
+    .stacked-meter .fill-appointments{
+        background: linear-gradient(90deg, #0ea5e9, #38bdf8);
+        height: 100%;
+        position: absolute; left: 0; top: 0;
+    }
+    .stacked-meter .fill-prescriptions{
+        background: linear-gradient(90deg, #a855f7, #c084fc);
+        height: 100%;
+        position: absolute; left: 0; top: 0;
+        opacity: 0.82;
+    }
+
+    .doctor-kpis{
+        display:flex;
+        gap:.45rem;
+        justify-content:flex-end;
+        flex-wrap:wrap;
+    }
+
+    .metric-pill{
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.42rem 0.72rem;
+        border-radius: 12px;
+        background: rgba(99,102,241,.10);
+        color: #4f46e5;
+        font-weight: 900;
+        font-size: 0.85rem;
+        border: 1px solid rgba(99,102,241,.14);
+    }
+    .pill-warm{
+        background: rgba(234,88,12,.10);
+        color: #ea580c;
+        border-color: rgba(234,88,12,.16);
+    }
+
+    /* Accessibility: reduce motion */
+    @@media (prefers-reduced-motion: reduce){
+        .animate-in{ animation: none; opacity: 1; }
+        .snapshot-card, .panel-card, .btn-quick, .quick-nav-item, .doctor-row--card{ transition: none; }
+    }
 </style>
 
 @{
@@ -436,7 +628,9 @@
             <div>
                 <div class="eyebrow"><i class="fas fa-shield-alt"></i> Espace Administrateur</div>
                 <h1>Tableau de bord</h1>
-                <p class="page-intro">Un espace aéré pour suivre la clinique Aurora, prioriser les actions urgentes et retrouver rapidement vos indicateurs principaux.</p>
+                <p class="page-intro">
+                    Un espace aéré pour suivre la clinique Aurora, prioriser les actions urgentes et retrouver rapidement vos indicateurs principaux.
+                </p>
             </div>
             <div class="quick-actions">
                 <a asp-controller="Users" asp-action="Create" asp-area="Admin" class="btn-quick btn-quick-primary">
@@ -454,9 +648,12 @@
                 <div>
                     <span class="section-pill">Vue rapide</span>
                     <h2>Indicateurs clés</h2>
-                    <p class="section-subtext">Un coup d'œil sur le volume de patients, l'activité médicale et les prescriptions récentes.</p>
+                    <p class="section-subtext">
+                        Un coup d'œil sur le volume de patients, l'activité médicale et les prescriptions récentes.
+                    </p>
                 </div>
             </div>
+
             <div class="snapshot">
                 <div class="snapshot-card">
                     <div class="snapshot-icon icon-green"><i class="fas fa-users"></i></div>
@@ -465,6 +662,7 @@
                         <p>@Model.PatientsCount</p>
                     </div>
                 </div>
+
                 <div class="snapshot-card">
                     <div class="snapshot-icon icon-orange"><i class="fas fa-user-md"></i></div>
                     <div class="snapshot-content">
@@ -472,6 +670,7 @@
                         <p>@Model.DoctorsCount</p>
                     </div>
                 </div>
+
                 <div class="snapshot-card">
                     <div class="snapshot-icon icon-indigo"><i class="fas fa-folder-open"></i></div>
                     <div class="snapshot-content">
@@ -479,6 +678,7 @@
                         <p>@Model.MedicalFoldersCount</p>
                     </div>
                 </div>
+
                 <div class="snapshot-card">
                     <div class="snapshot-icon icon-cyan"><i class="fas fa-file-prescription"></i></div>
                     <div class="snapshot-content">
@@ -489,20 +689,24 @@
             </div>
         </div>
 
+        <!-- Activity + Shortcuts -->
         <div class="section-block animate-in delay-2">
             <div class="section-header">
                 <div>
                     <span class="section-pill">Flux quotidien</span>
                     <h2>Activité & raccourcis</h2>
-                    <p class="section-subtext">Une visualisation claire des prescriptions récentes avec des accès rapides pour naviguer sans surcharge visuelle.</p>
+                    <p class="section-subtext">
+                        Une visualisation claire des prescriptions récentes avec des accès rapides pour naviguer sans surcharge visuelle.
+                    </p>
                 </div>
             </div>
+
             <div class="grid-balanced">
 
                 <!-- Left: Chart -->
                 <div class="panel-card">
                     <div class="chart-header">
-                        <h3><i class="fas fa-chart-bar text-primary me-2"></i>Activité Prescriptions</h3>
+                        <h3><i class="fas fa-chart-bar me-2" style="color:#4f46e5"></i>Activité Prescriptions</h3>
                         <div class="badge-soft">Cette semaine</div>
                     </div>
 
@@ -510,8 +714,7 @@
                         @foreach (var stat in Model.PrescriptionsByDay)
                         {
                             var fill = maxPrescriptions > 0 ? (int)Math.Round((double)stat.Count / maxPrescriptions * 100) : 0;
-                            // Avoid 0% height visual glitch
-                            if(fill < 5) fill = 5;
+                            if (fill < 6) fill = 6;
 
                             <div class="bar-item" title="@stat.Count prescriptions">
                                 <span class="bar-value">@stat.Count</span>
@@ -527,8 +730,9 @@
                 <!-- Right: Navigation -->
                 <div class="panel-card quick-nav-card">
                     <div class="chart-header">
-                        <h3><i class="fas fa-compass text-primary me-2"></i>Accès Rapide</h3>
+                        <h3><i class="fas fa-compass me-2" style="color:#4f46e5"></i>Accès Rapide</h3>
                     </div>
+
                     <ul class="quick-nav-list">
                         <li>
                             <a asp-area="Admin" asp-controller="Users" asp-action="Index" class="quick-nav-item">
@@ -539,6 +743,7 @@
                                 <i class="fas fa-chevron-right nav-arrow"></i>
                             </a>
                         </li>
+
                         <li>
                             <a asp-area="Admin" asp-controller="Horaires" asp-action="Index" class="quick-nav-item">
                                 <div class="nav-label">
@@ -548,6 +753,7 @@
                                 <i class="fas fa-chevron-right nav-arrow"></i>
                             </a>
                         </li>
+
                         <li>
                             <a asp-area="Admin" asp-controller="Conges" asp-action="Index" class="quick-nav-item">
                                 <div class="nav-label">
@@ -563,126 +769,181 @@
             </div>
         </div>
 
+        <!-- Trends + Performance -->
         <div class="section-block animate-in delay-3">
             <div class="section-header">
                 <div>
                     <span class="section-pill">Tendances</span>
                     <h2>Patients & performance</h2>
-                    <p class="section-subtext">Plus d'espace pour comparer les volumes hebdomadaires, mensuels et suivre l'efficacité des équipes.</p>
+                    <p class="section-subtext">
+                        Plus d'espace pour comparer les volumes hebdomadaires, mensuels et suivre l'efficacité des équipes.
+                    </p>
                 </div>
             </div>
+
             <div class="grid-balanced">
-                <div class="panel-card">
-                    <div class="chart-header">
-                        <h3><i class="fas fa-chart-area text-primary me-2"></i>Patients & Réservations</h3>
-                        <div class="badge-soft">Vue 6 semaines / 6 mois</div>
-                    </div>
 
-                    <div class="bar-legend mb-3">
-                        <span><span class="legend-dot dot-green"></span> Patients reçus</span>
-                        <span><span class="legend-dot dot-indigo"></span> Réservations</span>
-                    </div>
-
-                    <div class="chart-grid">
-                        <div class="trend-block">
-                            <h4>Hebdomadaire</h4>
-                            @foreach (var point in Model.WeeklyPatientReservations)
-                            {
-                                var patientWidth = weeklyMaxPatients > 0 ? Math.Round((double)point.Patients / weeklyMaxPatients * 100) : 0;
-                                var reservationWidth = weeklyMaxReservations > 0 ? Math.Round((double)point.Reservations / weeklyMaxReservations * 100) : 0;
-                                <div class="trend-row">
-                                    <div class="trend-label">@point.Label</div>
-                                    <div class="dual-bar">
-                                        <div class="bar-track-inline" title="@point.Patients patients uniques">
-                                            <div class="bar-fill-inline bar-fill-patients" style="width: @patientWidth%;"></div>
-                                        </div>
-                                        <div class="bar-track-inline" title="@point.Reservations réservations">
-                                            <div class="bar-fill-inline bar-fill-reservations" style="width: @reservationWidth%;"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
+                <!-- Patients & Réservations -->
+                <div class="panel-card panel-card--tight">
+                    <div class="panel-top">
+                        <div class="panel-title">
+                            <h3><i class="fas fa-chart-area me-2"></i>Patients & Réservations</h3>
+                            <p class="panel-sub">Suivi des tendances sur 6 semaines et 6 mois</p>
                         </div>
 
-                        <div class="trend-block">
-                            <h4>Mensuel</h4>
-                            @foreach (var point in Model.MonthlyPatientReservations)
-                            {
-                                var patientWidth = monthlyMaxPatients > 0 ? Math.Round((double)point.Patients / monthlyMaxPatients * 100) : 0;
-                                var reservationWidth = monthlyMaxReservations > 0 ? Math.Round((double)point.Reservations / monthlyMaxReservations * 100) : 0;
-                                <div class="trend-row">
-                                    <div class="trend-label">@point.Label</div>
-                                    <div class="dual-bar">
-                                        <div class="bar-track-inline" title="@point.Patients patients uniques">
-                                            <div class="bar-fill-inline bar-fill-patients" style="width: @patientWidth%;"></div>
+                        <div class="panel-meta">
+                            <span class="badge-soft">Comparatif</span>
+                            <div class="bar-legend">
+                                <span><span class="legend-dot dot-green"></span> Patients reçus</span>
+                                <span><span class="legend-dot dot-indigo"></span> Réservations</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Segmented switch -->
+                    <div class="segmented" role="tablist" aria-label="Période">
+                        <input class="segmented__input" type="radio" name="period" id="tab-week" checked>
+                        <label class="segmented__label" for="tab-week"><i class="fas fa-calendar-week me-2"></i>Hebdomadaire</label>
+
+                        <input class="segmented__input" type="radio" name="period" id="tab-month">
+                        <label class="segmented__label" for="tab-month"><i class="fas fa-calendar-alt me-2"></i>Mensuel</label>
+
+                        <div class="trend-panels">
+                            <!-- Weekly -->
+                            <div class="trend-panel trend-panel--week">
+                                <div class="trend-block trend-block--clean">
+                                    @foreach (var point in Model.WeeklyPatientReservations)
+                                    {
+                                        var patientWidth = weeklyMaxPatients > 0 ? Math.Round((double)point.Patients / weeklyMaxPatients * 100) : 0;
+                                        var reservationWidth = weeklyMaxReservations > 0 ? Math.Round((double)point.Reservations / weeklyMaxReservations * 100) : 0;
+
+                                        <div class="trend-row--pro">
+                                            <div class="trend-left">
+                                                <div class="trend-label">@point.Label</div>
+                                                <div class="trend-mini">
+                                                    <span class="mini-chip mini-green" title="Patients uniques"><i class="fas fa-user-check"></i>@point.Patients</span>
+                                                    <span class="mini-chip mini-indigo" title="Réservations"><i class="fas fa-calendar-check"></i>@point.Reservations</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="trend-bars">
+                                                <div class="bar-track-inline" title="@point.Patients patients uniques">
+                                                    <div class="bar-fill-inline bar-fill-patients" style="width: @patientWidth%;"></div>
+                                                </div>
+                                                <div class="bar-track-inline" title="@point.Reservations réservations">
+                                                    <div class="bar-fill-inline bar-fill-reservations" style="width: @reservationWidth%;"></div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="bar-track-inline" title="@point.Reservations réservations">
-                                            <div class="bar-fill-inline bar-fill-reservations" style="width: @reservationWidth%;"></div>
-                                        </div>
-                                    </div>
+                                    }
                                 </div>
-                            }
+                            </div>
+
+                            <!-- Monthly -->
+                            <div class="trend-panel trend-panel--month">
+                                <div class="trend-block trend-block--clean">
+                                    @foreach (var point in Model.MonthlyPatientReservations)
+                                    {
+                                        var patientWidth = monthlyMaxPatients > 0 ? Math.Round((double)point.Patients / monthlyMaxPatients * 100) : 0;
+                                        var reservationWidth = monthlyMaxReservations > 0 ? Math.Round((double)point.Reservations / monthlyMaxReservations * 100) : 0;
+
+                                        <div class="trend-row--pro">
+                                            <div class="trend-left">
+                                                <div class="trend-label">@point.Label</div>
+                                                <div class="trend-mini">
+                                                    <span class="mini-chip mini-green" title="Patients uniques"><i class="fas fa-user-check"></i>@point.Patients</span>
+                                                    <span class="mini-chip mini-indigo" title="Réservations"><i class="fas fa-calendar-check"></i>@point.Reservations</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="trend-bars">
+                                                <div class="bar-track-inline" title="@point.Patients patients uniques">
+                                                    <div class="bar-fill-inline bar-fill-patients" style="width: @patientWidth%;"></div>
+                                                </div>
+                                                <div class="bar-track-inline" title="@point.Reservations réservations">
+                                                    <div class="bar-fill-inline bar-fill-reservations" style="width: @reservationWidth%;"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="panel-card">
-                    <div class="chart-header">
-                        <h3><i class="fas fa-user-tie text-primary me-2"></i>Performance équipes</h3>
-                        <div class="badge-soft">Derniers 30 jours</div>
+                <!-- Performance équipes -->
+                <div class="panel-card panel-card--tight">
+                    <div class="panel-top">
+                        <div class="panel-title">
+                            <h3><i class="fas fa-user-tie me-2"></i>Performance équipes</h3>
+                            <p class="panel-sub">Derniers 30 jours</p>
+                        </div>
+                        <span class="badge-soft">30 jours</span>
                     </div>
 
                     <div class="performance-grid">
                         <div>
                             <h5 class="fw-bold mb-3">Médecins</h5>
-                            @foreach (var doc in Model.DoctorPerformance)
-                            {
-                                var total = doc.Appointments + doc.Prescriptions;
-                                var ratio = doctorMax > 0 ? Math.Round((double)total / doctorMax * 100) : 0;
-                                var prescriptionsWidth = ratio > 0 ? Math.Round((double)doc.Prescriptions / (doctorMax > 0 ? doctorMax : 1) * 100) : 0;
-                                <div class="doctor-row">
-                                    <div>
-                                        <div class="doctor-name">@doc.Name</div>
-                                        <div class="doctor-speciality">@(string.IsNullOrWhiteSpace(doc.Specialite) ? "Généraliste" : doc.Specialite)</div>
-                                    </div>
-                                    <div>
-                                        <div class="stacked-meter" title="@doc.Appointments rendez-vous | @doc.Prescriptions prescriptions">
-                                            <div class="fill-appointments" style="width: @ratio%;"></div>
-                                            <div class="fill-prescriptions" style="width: @prescriptionsWidth%;"></div>
+                            <div class="doctor-list">
+                                @foreach (var doc in Model.DoctorPerformance)
+                                {
+                                    var total = doc.Appointments + doc.Prescriptions;
+                                    var ratio = doctorMax > 0 ? Math.Round((double)total / doctorMax * 100) : 0;
+                                    var prescriptionsWidth = doctorMax > 0 ? Math.Round((double)doc.Prescriptions / doctorMax * 100) : 0;
+
+                                    <div class="doctor-row--card">
+                                        <div>
+                                            <div class="doctor-name">@doc.Name</div>
+                                            <div class="doctor-speciality">@(string.IsNullOrWhiteSpace(doc.Specialite) ? "Généraliste" : doc.Specialite)</div>
+                                        </div>
+
+                                        <div class="doctor-bars">
+                                            <div class="stacked-meter" title="@doc.Appointments rendez-vous | @doc.Prescriptions prescriptions">
+                                                <div class="fill-appointments" style="width: @ratio%;"></div>
+                                                <div class="fill-prescriptions" style="width: @prescriptionsWidth%;"></div>
+                                            </div>
+                                            <div class="doctor-kpis">
+                                                <span class="metric-pill"><i class="fas fa-calendar-check"></i>@doc.Appointments</span>
+                                                <span class="metric-pill pill-warm"><i class="fas fa-pills"></i>@doc.Prescriptions</span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="text-end">
-                                        <div class="metric-pill"><i class="fas fa-calendar-check"></i>@doc.Appointments</div>
-                                        <div class="metric-pill pill-warm mt-1"><i class="fas fa-pills"></i>@doc.Prescriptions</div>
-                                    </div>
-                                </div>
-                            }
+                                }
+                            </div>
                         </div>
 
                         <div>
                             <h5 class="fw-bold mb-3">Secrétariat</h5>
-                            <div class="trend-block" style="height: 100%;">
+
+                            <div class="trend-block--clean">
                                 <div class="d-flex align-items-center justify-content-between">
                                     <span class="doctor-name">Demandes traitées</span>
-                                    <span class="badge-soft">30 derniers jours</span>
+                                    <span class="badge-soft">30 jours</span>
                                 </div>
-                                <div class="d-flex align-items-center gap-2">
+
+                                <div class="d-flex align-items-center gap-2 flex-wrap mt-2">
                                     <span class="metric-pill"><i class="fas fa-check-circle"></i>@Model.ReceptionPerformance.Confirmed</span>
                                     <span class="metric-pill pill-warm"><i class="fas fa-times-circle"></i>@Model.ReceptionPerformance.Rejected</span>
+                                    <span class="metric-pill" style="background:#f1f5f9;color:#0f172a;border-color:rgba(226,232,240,.95);">
+                                        <i class="fas fa-hourglass-half"></i>@Model.ReceptionPerformance.Pending
+                                    </span>
                                 </div>
-                                <div class="bar-track-inline" title="Demandes en attente">
-                                    <div class="bar-fill-inline bar-fill-reservations" style="width: 100%; opacity: 0.35;"></div>
+
+                                <div class="bar-track-inline mt-3" title="Demandes en attente">
+                                    <div class="bar-fill-inline bar-fill-reservations" style="width: 100%; opacity: 0.22;"></div>
                                 </div>
-                                <div class="d-flex justify-content-between align-items-center text-muted">
-                                    <small>En attente</small>
-                                    <span class="fw-bold">@Model.ReceptionPerformance.Pending</span>
-                                </div>
-                                <p class="text-muted mb-0" style="font-size: 0.9rem;">Les secrétaires voient les demandes confirmées et refusées sur les 30 derniers jours pour mesurer la réactivité.</p>
+
+                                <p class="text-muted mb-0 mt-2" style="font-size: 0.92rem; line-height: 1.6;">
+                                    Objectif : mesurer la réactivité (confirmées/refusées) et garder un œil sur les demandes en attente.
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
+
     </div>
 </div>

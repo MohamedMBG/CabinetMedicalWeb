@@ -1,467 +1,341 @@
 ﻿@model CabinetMedicalWeb.Models.Consultation
 
 @{
-    ViewData["Title"] = "New Consultation";
-    var patientName = ViewBag.PatientName as string ?? "Patient";
+    ViewData["Title"] = "Nouvelle Consultation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var patientName = ViewBag.PatientName as string ?? "Patient Inconnu";
     var dossierId = ViewBag.DossierId as int? ?? Model?.DossierMedicalId ?? 0;
     
-    // Theme Colors
-    var primaryColor = "#7AA3D1";
-    var primaryLight = "#A7CBED";
+    var colorPrimary = "#4F46E5"; // Indigo
+    var colorBg = "#F3F4F6";
 }
 
 <style>
-    /* Scoped Styles matching the Dashboard Theme */
-    .consultation-wrapper {
-        --primary: #7AA3D1;
-        --primary-hover: #91B3D9;
-        --primary-light: #A7CBED;
-        --secondary: #666B72;
-        --surface: #FFFFFF;
-        --bg: #E9EFF7;
-        --border: #D4DEEC;
-        --text-main: #666B72;
-        
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        padding: 0 1.5rem 3rem 1.5rem;
-        color: var(--text-main);
+    body { background-color: @colorBg; font-family: 'Inter', system-ui, sans-serif; }
+    
+    /* Animations */
+    @@keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    .animate-in { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+
+    /* Layout */
+    .page-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 3rem 1.5rem;
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 2rem;
+        align-items: start;
     }
 
-    /* --- Hero Header --- */
-    .page-header {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+    /* Main Form Card */
+    .form-card {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(12px);
         border-radius: 24px;
-        padding: 2rem 2.5rem;
-        color: white;
-        margin-bottom: 2rem;
-        position: relative;
+        border: 1px solid rgba(255,255,255,0.5);
+        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
         overflow: hidden;
-        box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.3);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
     }
 
-    .page-header::before {
-        content: '';
-        position: absolute;
-        top: -100px; right: -50px;
-        width: 300px; height: 300px;
-        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
-        border-radius: 50%;
-        pointer-events: none;
+    .form-header {
+        background: linear-gradient(135deg, @colorPrimary 0%, #818CF8 100%);
+        padding: 2.5rem;
+        color: white;
+        position: relative;
     }
 
-    .header-title h2 {
-        font-size: 2rem;
-        font-weight: 800;
-        margin: 0;
-        letter-spacing: -0.02em;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
+    .form-header-content h2 { font-weight: 800; margin: 0; font-size: 1.8rem; letter-spacing: -0.02em; }
+    .form-header-content p { opacity: 0.9; margin: 0.5rem 0 0; font-size: 1rem; }
 
-    .header-meta {
-        font-size: 0.95rem;
-        opacity: 0.9;
-        margin-top: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
+    .form-body { padding: 2.5rem; }
 
-    .header-badge {
-        background: rgba(255,255,255,0.2);
-        padding: 0.25rem 0.75rem;
-        border-radius: 50px;
+    /* Floating Inputs */
+    .form-floating > .form-control {
+        border-radius: 12px;
+        border: 2px solid #E5E7EB;
+        background-color: #F9FAFB;
+        height: auto;
+        min-height: 3.5rem;
+    }
+    .form-floating > .form-control:focus {
+        border-color: @colorPrimary;
+        background-color: #fff;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+    .form-floating > label { color: #6B7280; }
+    
+    textarea.form-control { min-height: 300px; line-height: 1.6; }
+
+    /* Chips */
+    .chip-container { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+    .chip {
         font-size: 0.85rem;
         font-weight: 600;
-        backdrop-filter: blur(4px);
-    }
-
-    /* --- Layout Grid --- */
-    .layout-grid {
-        display: grid;
-        grid-template-columns: 1fr 350px;
-        gap: 2rem;
-    }
-
-    /* --- Form Card --- */
-    .form-card {
-        background: var(--surface);
-        border-radius: 20px;
-        border: 1px solid var(--border);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-    }
-
-    .form-section {
-        padding: 2rem;
-    }
-
-    .section-title {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.35rem 0.75rem;
-        background: #EEF4FB;
-        border-radius: 999px;
-        font-weight: 700;
-        font-size: 0.9rem;
-        color: var(--primary);
-        margin-bottom: 1.5rem;
-    }
-
-    .section-title i {
-        color: var(--primary);
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: var(--text-main);
-        margin-bottom: 0.5rem;
-        display: block;
-        font-size: 0.95rem;
-    }
-
-    .form-label i {
-        color: var(--primary);
-        margin-right: 0.5rem;
-        width: 20px;
-        text-align: center;
-    }
-
-    .form-control {
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 0.875rem 1rem;
-        font-size: 1rem;
-        color: var(--text-main);
-        background-color: #F8FAFC;
-        transition: all 0.2s ease;
-    }
-
-    .form-control:focus {
-        background-color: #fff;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 4px var(--primary-light);
-        outline: none;
-    }
-
-    textarea.form-control {
-        resize: vertical;
-        min-height: 300px; /* Increased from 150px to 300px */
-        line-height: 1.6;
-    }
-
-    /* --- Quick chips --- */
-    .chip-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin: 0.5rem 0 0.25rem 0;
-    }
-
-    .chip {
-        border: 1px solid var(--border);
-        background: #f7f9fb;
-        padding: 0.4rem 0.75rem;
-        border-radius: 999px;
-        font-size: 0.9rem;
-        color: var(--secondary);
+        color: #4F46E5;
+        background: #EEF2FF;
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.2s;
+        border: 1px solid #C7D2FE;
+        user-select: none;
     }
+    .chip:hover { background: #4F46E5; color: white; transform: translateY(-1px); }
+    .chip i { margin-right: 4px; }
 
-    .chip:hover {
-        background: var(--primary-light);
-        color: #1f2a44;
-        border-color: var(--primary);
-    }
-
-    /* --- Summary Card --- */
-    .summary-card {
-        background: linear-gradient(180deg, #f6f9fe 0%, #ffffff 100%);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 1.25rem;
-        margin-bottom: 1.25rem;
-        box-shadow: 0 10px 30px -20px rgba(0,0,0,0.25);
-    }
-
-    .summary-header {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-weight: 700;
-        color: var(--primary);
-        margin-bottom: 1rem;
-    }
-
-    .summary-row {
-        display: flex;
-        gap: 0.75rem;
-        align-items: flex-start;
-        margin-bottom: 0.85rem;
-    }
-
-    .summary-row small {
-        color: var(--secondary);
-    }
-
-    /* --- Sidebar Info --- */
+    /* Sidebar */
+    .sidebar { position: sticky; top: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+    
     .info-card {
-        background: var(--surface);
-        border-radius: 16px;
+        background: white;
+        border-radius: 20px;
         padding: 1.5rem;
-        border: 1px solid var(--border);
-        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        border: 1px solid #F3F4F6;
     }
 
-    .info-header {
+    .info-title {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
         font-weight: 700;
-        font-size: 1.1rem;
+        color: #6B7280;
         margin-bottom: 1rem;
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        color: var(--primary);
     }
 
-    .info-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    } 
-
-        <div class="d-none d-md-block opacity-50" style="font-size: 4rem;">
-            <i class="fas fa-file-medical-alt"></i>
-        </div>
-    </div>
-
-    <!-- Alert Messages -->
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger shadow-sm border-0 rounded-4 mb-4 d-flex align-items-center">
-            <i class="fas fa-exclamation-circle me-3 fs-4"></i>
-            <div>@TempData["ErrorMessage"]</div>
-            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+    .live-preview-item { margin-bottom: 1rem; }
+    .live-label { font-size: 0.8rem; color: #9CA3AF; font-weight: 600; margin-bottom: 0.2rem; }
+    .live-value { font-weight: 600; color: #1F2937; font-size: 0.95rem; word-wrap: break-word; }
+    
+    /* Buttons */
+    .actions-bar {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #E5E7EB;
     }
+    
+    .btn-save {
+        background-color: @colorPrimary;
+        color: white;
+        padding: 0.8rem 2rem;
+        border-radius: 12px;
+        font-weight: 700;
+        border: none;
+        transition: all 0.2s;
+        box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+    }
+    .btn-save:hover { transform: translateY(-2px); background-color: #4338CA; color: white; }
 
-    <div class="layout-grid">
-        
-        <!-- Main Form Column -->
-        <div class="main-column">
-            <form asp-action="Create" method="post" asp-area="Medical">
-                <div class="form-card">
-                    <div class="form-section">
-                        <div asp-validation-summary="All" class="alert alert-danger rounded-3 mb-4" style="display:none;"></div>
-                        <input type="hidden" asp-for="DossierMedicalId" value="@dossierId" />
+    .btn-cancel {
+        color: #6B7280;
+        padding: 0.8rem 1.5rem;
+        text-decoration: none;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: all 0.2s;
+        background: #F3F4F6;
+    }
+    .btn-cancel:hover { background: #E5E7EB; color: #1F2937; }
 
-                        <div class="section-title"><i class="fas fa-clipboard-list"></i> Consultation details</div>
-                        <div class="row">
-                            <!-- Date Field -->
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label asp-for="Date" class="form-label">
-                                        <i class="fas fa-calendar-alt"></i> Date & Time
-                                    </label>
-                                    <input asp-for="Date" class="form-control" type="datetime-local" />
-                                    <span asp-validation-for="Date" class="text-danger small"></span>
-                                </div>
+    @@media (max-width: 992px) {
+        .page-wrapper { grid-template-columns: 1fr; }
+        .sidebar { position: static; }
+    }
+</style>
+
+<div class="page-wrapper">
+    
+    <!-- LEFT: FORM -->
+    <div class="form-column animate-in">
+        <form asp-action="Create" method="post">
+            <div class="form-card">
+                
+                <!-- Header -->
+                <div class="form-header">
+                    <div class="form-header-content">
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <div class="bg-white bg-opacity-20 rounded-circle p-2 d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
+                                <i class="fas fa-stethoscope fa-lg"></i>
                             </div>
-
-                            <!-- Motif Field -->
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label asp-for="Motif" class="form-label">
-                                        <i class="fas fa-tag"></i> Reason for Visit
-                                    </label>
-                                    <input asp-for="Motif" class="form-control" placeholder="e.g. Routine Checkup, Severe Headache..." />
-                                    <div class="chip-list">
-                                        <span class="chip" data-fill="Motif">Annual check-up</span>
-                                        <span class="chip" data-fill="Motif">Follow-up visit</span>
-                                        <span class="chip" data-fill="Motif">Post-surgery review</span>
-                                        <span class="chip" data-fill="Motif">Acute symptoms</span>
-                                    </div>
-                                    <span asp-validation-for="Motif" class="text-danger small"></span>
-                                </div>
-                            </div>
+                            <span class="badge bg-white bg-opacity-25 border border-white border-opacity-25 rounded-pill px-3">Dossier #@dossierId</span>
                         </div>
+                        <h2>Nouvelle Consultation</h2>
+                        <p>Patient : <strong>@patientName</strong></p>
+                    </div>
+                </div>
 
-                        <!-- Notes Field -->
-                        <div class="form-group mb-0">
-                            <label asp-for="Notes" class="form-label">
-                                <i class="fas fa-notes-medical"></i> Clinical Notes & Diagnosis
-                            </label>
-                            <textarea asp-for="Notes" class="form-control" rows="15"
-                                      placeholder="Record examination findings, diagnosis, patient history, and treatment plan here..."></textarea>
-                            <div class="d-flex justify-content-between align-items-center mt-2 small text-muted">
-                                <span><i class="fas fa-lightbulb me-1"></i>Use a template to start faster</span>
-                                <span id="notes-counter">0 characters</span>
+                <div class="form-body">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4"></div>
+                    <input type="hidden" asp-for="DossierMedicalId" value="@dossierId" />
+
+                    <!-- Date & Motif Row -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-5">
+                            <div class="form-floating">
+                                <input asp-for="Date" class="form-control" type="datetime-local" />
+                                <label asp-for="Date">Date et Heure</label>
                             </div>
-                            <div class="chip-list">
-                                <span class="chip" data-append="Notes">• Vitals stable, no acute distress.</span>
-                                <span class="chip" data-append="Notes">• Patient education provided about warning signs.</span>
-                                <span class="chip" data-append="Notes">• Prescribed medication as per protocol.</span>
+                            <span asp-validation-for="Date" class="text-danger small ms-1"></span>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="form-floating">
+                                <input asp-for="Motif" class="form-control" placeholder="Motif" />
+                                <label asp-for="Motif">Motif de la visite</label>
                             </div>
-                            <span asp-validation-for="Notes" class="text-danger small"></span>
+                            <div class="chip-container">
+                                <span class="chip" data-target="Motif" data-val="Consultation de routine"><i class="fas fa-plus"></i> Routine</span>
+                                <span class="chip" data-target="Motif" data-val="Urgence douleur"><i class="fas fa-plus"></i> Urgence</span>
+                                <span class="chip" data-target="Motif" data-val="Suivi traitement"><i class="fas fa-plus"></i> Suivi</span>
+                                <span class="chip" data-target="Motif" data-val="Contrôle annuel"><i class="fas fa-plus"></i> Contrôle</span>
+                            </div>
+                            <span asp-validation-for="Motif" class="text-danger small ms-1"></span>
                         </div>
                     </div>
 
-                    <!-- Actions Footer -->
-                    <div class="form-actions">
+                    <!-- Notes -->
+                    <div class="mb-2">
+                        <div class="form-floating">
+                            <textarea asp-for="Notes" class="form-control" placeholder="Observations"></textarea>
+                            <label asp-for="Notes">Observations cliniques & Diagnostic</label>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-start mt-2">
+                            <div class="chip-container mt-0">
+                                <span class="chip" data-target="Notes" data-val="Patient conscient et orienté." data-append="true"><i class="fas fa-plus"></i> Constantes OK</span>
+                                <span class="chip" data-target="Notes" data-val="Douleur localisée quadrant supérieur." data-append="true"><i class="fas fa-plus"></i> Douleur Q1</span>
+                                <span class="chip" data-target="Notes" data-val="Aucune anomalie détectée." data-append="true"><i class="fas fa-plus"></i> RAS</span>
+                            </div>
+                            <small class="text-muted" id="char-count">0 chars</small>
+                        </div>
+                        <span asp-validation-for="Notes" class="text-danger small ms-1"></span>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="actions-bar">
                         <a asp-controller="DossierMedicals" asp-action="Details" asp-route-id="@dossierId" class="btn-cancel">
-                            Cancel
+                            Annuler
                         </a>
-                        <button type="submit" class="btn-submit">
-                            <i class="fas fa-save"></i> Save Consultation Record
+                        <button type="submit" class="btn-save">
+                            <i class="fas fa-check-circle me-2"></i>Enregistrer
                         </button>
                     </div>
                 </div>
-            </form>
+            </div>
+        </form>
+    </div>
+
+    <!-- RIGHT: SIDEBAR PREVIEW -->
+    <div class="sidebar animate-in delay-1">
+        
+        <!-- Live Preview -->
+        <div class="info-card">
+            <div class="info-title text-primary">
+                <i class="fas fa-eye"></i> Aperçu en direct
+            </div>
+            
+            <div class="live-preview-item">
+                <div class="live-label">Date</div>
+                <div class="live-value" id="preview-date">-</div>
+            </div>
+            <div class="live-preview-item">
+                <div class="live-label">Motif</div>
+                <div class="live-value" id="preview-motif"><span class="text-muted fst-italic">À définir</span></div>
+            </div>
+            <div class="live-preview-item mb-0">
+                <div class="live-label">Extrait des Notes</div>
+                <div class="live-value small text-muted" id="preview-notes">...</div>
+            </div>
         </div>
 
-        <!-- Sidebar Column (Context) -->
-        <div class="sidebar-column">
-
-            <!-- Live Summary Card -->
-            <div class="summary-card">
-                <div class="summary-header"><i class="fas fa-eye"></i> Live Summary</div>
-                <div class="summary-row">
-                    <i class="far fa-clock text-primary"></i>
-                    <div>
-                        <div class="fw-semibold">Date & Time</div>
-                        <small id="summary-date">Not set</small>
-                    </div>
-                </div>
-                <div class="summary-row">
-                    <i class="fas fa-tag text-primary"></i>
-                    <div>
-                        <div class="fw-semibold">Reason</div>
-                        <small id="summary-motif">Awaiting input</small>
-                    </div>
-                </div>
-                <div class="summary-row mb-0">
-                    <i class="fas fa-align-left text-primary"></i>
-                    <div>
-                        <div class="fw-semibold">Notes</div>
-                        <small id="summary-notes">Add clinical notes to generate preview.</small>
-                    </div>
-                </div>
+        <!-- Tips -->
+        <div class="info-card" style="background: #F0FDFA; border-color: #CCFBF1;">
+            <div class="info-title" style="color: #0F766E;">
+                <i class="fas fa-lightbulb"></i> Astuces Pro
             </div>
-
-            <!-- Patient Context Card -->
-            <div class="info-card">
-                <div class="info-header">
-                    <i class="fas fa-info-circle"></i> Quick Guide
-                </div>
-                <ul class="info-list">
-                    <li class="info-item">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Verify the <strong>Date & Time</strong> match the actual appointment.</span>
-                    </li>
-                    <li class="info-item">
-                        <i class="fas fa-check-circle"></i>
-                        <span><strong>Motif</strong> should be concise (e.g., "Flu Symptoms").</span>
-                    </li>
-                    <li class="info-item">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Use the <strong>Notes</strong> section for detailed observations and diagnosis.</span>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Helper Card -->
-            <div class="info-card bg-light border-0">
-                <div class="text-center py-3">
-                    <i class="fas fa-keyboard fa-2x text-muted mb-3"></i>
-                    <h6 class="fw-bold text-dark">Pro Tip</h6>
-                    <p class="small text-muted mb-0">
-                        Detailed notes improve long-term patient care tracking. You can resize the text area if you need more space.
-                    </p>
-                </div>
-            </div>
-
+            <ul class="list-unstyled mb-0 small text-secondary d-flex flex-column gap-2">
+                <li><i class="fas fa-check text-success me-2"></i>Utilisez les <strong>tags</strong> pour remplir rapidement.</li>
+                <li><i class="fas fa-check text-success me-2"></i>Détaillez bien le diagnostic pour l'historique.</li>
+                <li><i class="fas fa-check text-success me-2"></i>La sauvegarde mettra à jour le dossier immédiatement.</li>
+            </ul>
         </div>
+
     </div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Auto-set current date/time if empty
-            const dateInput = document.querySelector('input[type="datetime-local"]');
-            if (dateInput && !dateInput.value) {
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- 1. Init Date ---
+            const dateInput = document.getElementById('Date');
+            if(dateInput && !dateInput.value) {
                 const now = new Date();
                 now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
                 dateInput.value = now.toISOString().slice(0, 16);
             }
 
-            // Chips for quick filling
-            const chips = document.querySelectorAll('.chip[data-fill]');
-            chips.forEach(chip => {
-                chip.addEventListener('click', () => {
-                    const targetName = chip.getAttribute('data-fill');
-                    const input = document.querySelector(`[name="${targetName}"]`);
-                    if (input) {
-                        input.value = chip.textContent.trim();
-                        input.dispatchEvent(new Event('input'));
-                    }
-                });
-            });
-
-            // Chips to append to textarea
-            const appendChips = document.querySelectorAll('.chip[data-append]');
-            appendChips.forEach(chip => {
-                chip.addEventListener('click', () => {
-                    const targetName = chip.getAttribute('data-append');
-                    const input = document.querySelector(`[name="${targetName}"]`);
-                    if (input) {
-                        const prefix = input.value && !input.value.endsWith('\n') ? '\n' : '';
-                        input.value = `${input.value}${prefix}${chip.textContent.trim()}`.trimStart();
-                        input.dispatchEvent(new Event('input'));
-                    }
-                });
-            });
-
-            // Live summary update
-            const summaryDate = document.getElementById('summary-date');
-            const summaryMotif = document.getElementById('summary-motif');
-            const summaryNotes = document.getElementById('summary-notes');
-            const notesCounter = document.getElementById('notes-counter');
-
-            const updateSummary = () => {
-                if (dateInput) {
-                    summaryDate.textContent = dateInput.value ? new Date(dateInput.value).toLocaleString() : 'Not set';
-                }
-
-                const motifInput = document.querySelector('[name="Motif"]');
-                if (motifInput) {
-                    summaryMotif.textContent = motifInput.value || 'Awaiting input';
-                }
-
-                const notesInput = document.querySelector('[name="Notes"]');
-                if (notesInput) {
-                    const note = notesInput.value.trim();
-                    summaryNotes.textContent = note ? note.slice(0, 140) + (note.length > 140 ? '…' : '') : 'Add clinical notes to generate preview.';
-                    notesCounter.textContent = `${note.length} characters`;
-                }
+            // --- 2. Live Preview & Char Count ---
+            const inputs = {
+                date: document.getElementById('Date'),
+                motif: document.getElementById('Motif'),
+                notes: document.getElementById('Notes')
+            };
+            const displays = {
+                date: document.getElementById('preview-date'),
+                motif: document.getElementById('preview-motif'),
+                notes: document.getElementById('preview-notes'),
+                count: document.getElementById('char-count')
             };
 
-            document.querySelectorAll('[name="Date"], [name="Motif"], [name="Notes"]').forEach(el => {
-                el.addEventListener('input', updateSummary);
-                el.addEventListener('change', updateSummary);
+            function updatePreview() {
+                // Date
+                if(inputs.date.value) {
+                    const d = new Date(inputs.date.value);
+                    displays.date.innerText = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                }
+                
+                // Motif
+                displays.motif.innerText = inputs.motif.value || 'À définir';
+                
+                // Notes
+                const n = inputs.notes.value;
+                displays.notes.innerText = n ? (n.substring(0, 80) + (n.length > 80 ? '...' : '')) : '...';
+                displays.count.innerText = n.length + ' chars';
+            }
+
+            Object.values(inputs).forEach(el => el.addEventListener('input', updatePreview));
+            updatePreview(); // Run once
+
+            // --- 3. Chips Logic ---
+            document.querySelectorAll('.chip').forEach(chip => {
+                chip.addEventListener('click', function() {
+                    const targetId = this.dataset.target; // 'Motif' or 'Notes'
+                    const val = this.dataset.val;
+                    const append = this.dataset.append === 'true';
+                    
+                    const input = document.getElementById(targetId);
+                    if(input) {
+                        if(append) {
+                            // Add new line if not empty
+                            input.value += (input.value ? '\n' : '') + val;
+                        } else {
+                            input.value = val;
+                        }
+                        updatePreview(); // Update visuals
+                    }
+                });
             });
 
-            updateSummary();
         });
     </script>
 }
