@@ -659,6 +659,19 @@ section {
     background: linear-gradient(180deg, rgba(233, 239, 247, 0.6) 0%, rgba(167, 203, 237, 0.25) 100%);
 }
 
+/* --- CHATBOT POSITIONING --- */
+#chatbase-bubble,
+#chatbase-bubble-button,
+#chatbase-bubble-window {
+    left: var(--space-lg);
+    right: auto !important;
+}
+
+#chatbase-bubble-window {
+    margin-left: 10px;
+}
+
+
 .space-wrapper {
     max-width: 1200px;
     margin: 0 auto;

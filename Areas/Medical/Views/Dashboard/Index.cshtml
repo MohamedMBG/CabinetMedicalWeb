@@ -6,14 +6,15 @@
     ViewData["Title"] = "Mon Planning";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    // Modern Palette (Indigo/Blue for Doctors)
     var primaryColor = "#4F46E5";
 
     var todayCount = Model.AppointmentsToday.Count;
     var weekCount = Model.WeekCalendar.Values.Sum(l => l.Count);
+
     var nextAppointment = Model.AppointmentsToday
         .OrderBy(r => r.DateHeure)
         .FirstOrDefault();
+
     var upcomingWeek = Model.WeekCalendar.Values
         .SelectMany(l => l)
         .Where(r => r.DateHeure >= DateTime.Now)
@@ -25,482 +26,848 @@
         .SelectMany(c => Enumerable.Range(0, (c.DateFin.Date - c.DateDebut.Date).Days + 1)
             .Select(offset => c.DateDebut.Date.AddDays(offset)))
         .ToHashSet();
+
+    var cultureFr = CultureInfo.GetCultureInfo("fr-FR");
 }
 
 <style>
-    :root {
-        --primary: #4F46E5;
-        --primary-dark: #4338ca;
-        --secondary: #64748b;
-        --success: #10b981;
-        --warning: #f59e0b;
-        --danger: #ef4444;
-        --dark: #1e293b;
-        --light: #f8fafc;
-        --surface: #ffffff;
-        --border: rgba(226, 232, 240, 0.8);
+    :root{
+        --primary:#4F46E5;
+        --primary2:#4338ca;
+        --cyan:#38bdf8;
+        --ink:#0f172a;
+        --text:#475569;
+        --muted:#64748b;
+
+        --surface: rgba(255,255,255,.95);
+        --surface2: rgba(248,250,252,.95);
+        --border: rgba(226,232,240,.85);
+        --shadow: 0 18px 40px -30px rgba(15,23,42,.45);
+        --shadow2: 0 28px 70px -55px rgba(15,23,42,.55);
+
+        --success:#10b981;
+        --warning:#f59e0b;
+        --danger:#ef4444;
     }
 
-    body {
-        background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.06), transparent 30%),
-            radial-gradient(circle at 80% 0%, rgba(56, 189, 248, 0.05), transparent 30%),
-            #f5f7fb;
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    body{
+        background:
+            radial-gradient(circle at 12% 12%, rgba(99,102,241,.08), transparent 38%),
+            radial-gradient(circle at 86% 0%, rgba(56,189,248,.06), transparent 40%),
+            linear-gradient(180deg, #f6f8ff, #eef2ff 55%, #f6f8ff);
+        font-family:'Inter', system-ui, -apple-system, sans-serif;
+        color: var(--text);
     }
 
     /* Animations */
-    @@keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+    @@keyframes fadeInUp{ from{opacity:0; transform: translateY(14px);} to{opacity:1; transform: translateY(0);} }
+    .animate-entry{ opacity:0; animation: fadeInUp .6s cubic-bezier(.16,1,.3,1) forwards; }
+    .delay-100{ animation-delay:.1s; }
+    .delay-200{ animation-delay:.2s; }
+
+    /* Container shell */
+    .doc-shell{
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1.25rem 1rem 2rem;
     }
 
-    .animate-entry {
-        opacity: 0;
-        animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    .delay-100 { animation-delay: 0.1s; }
-    .delay-200 { animation-delay: 0.2s; }
-
-    /* Cards */
-    .glass-card {
+    /* Generic card */
+    .cardx{
         background: var(--surface);
-        border-radius: 20px;
         border: 1px solid var(--border);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
         overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-
-    .glass-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+    .cardx-soft{
+        background: linear-gradient(180deg, rgba(248,250,252,.96), rgba(255,255,255,.96));
     }
+    .cardx:hover{ box-shadow: var(--shadow2); }
 
-    /* Hero Header */
-    .doctor-hero {
-        background: linear-gradient(135deg, var(--primary) 0%, #818CF8 100%);
-        border-radius: 20px;
-        padding: 2.5rem;
-        color: white;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.3);
+    /* Hero */
+    .doctor-hero{
+        background: linear-gradient(135deg, var(--primary) 0%, #818cf8 60%, rgba(56,189,248,.65) 120%);
+        border-radius: 26px;
+        padding: 2.2rem 2.2rem;
+        color:#fff;
+        box-shadow: 0 26px 60px -40px rgba(79,70,229,.55);
+        border: 1px solid rgba(255,255,255,.18);
         position: relative;
         overflow: hidden;
     }
+    .doctor-hero::before{
+        content:"";
+        position:absolute;
+        inset:-1px;
+        background:
+            radial-gradient(circle at 18% 15%, rgba(255,255,255,.18), transparent 45%),
+            radial-gradient(circle at 88% 0%, rgba(255,255,255,.12), transparent 50%);
+        pointer-events:none;
+        opacity:.95;
+    }
+    .doctor-hero > *{ position: relative; z-index: 1; }
 
-    .doctor-hero::after {
-        content: '';
-        position: absolute;
-        right: -10%; top: -50%;
-        width: 300px; height: 300px;
-        background: rgba(255,255,255,0.1);
-        border-radius: 50%;
-        pointer-events: none;
+    .hero-badges .badge{
+        border-radius: 999px;
+        padding: .45rem .75rem;
+        font-weight: 900;
+        letter-spacing: .02em;
     }
 
-    /* Stats Row */
-    .stat-card {
-        background: var(--surface);
+    .hero-title{
+        font-weight: 950;
+        letter-spacing: -0.03em;
+        margin: .25rem 0 .35rem;
+    }
+
+    .hero-sub{
+        opacity:.92;
+        max-width: 760px;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .hero-next{
+        margin-top: 1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: .85rem;
+        padding: .85rem 1rem;
         border-radius: 16px;
-        padding: 1.5rem;
-        border: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        height: 100%;
-        position: relative;
-        overflow: hidden;
+        background: rgba(255,255,255,.14);
+        border: 1px solid rgba(255,255,255,.18);
+        backdrop-filter: blur(6px);
     }
-
-    .stat-card::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(120deg, transparent 40%, rgba(79, 70, 229, 0.07));
-        pointer-events: none;
-    }
-
-    .stat-icon {
-        width: 52px; height: 52px;
-        border-radius: 14px;
-        display: grid;
-        place-items: center;
-        font-size: 1.5rem;
-        color: white;
-        box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.5);
-    }
-    .bg-indigo { background: linear-gradient(135deg, #6366F1, #4338CA); }
-    .bg-green { background: linear-gradient(135deg, #34D399, #10B981); }
-    .bg-amber { background: linear-gradient(135deg, #FBBF24, #F59E0B); }
-
-    .progress-bar-soft {
-        height: 8px;
+    .hero-next .chip{
+        background: rgba(255,255,255,.85);
+        color: var(--primary2);
+        font-weight: 950;
         border-radius: 999px;
-        background: #e0e7ff;
-        position: relative;
-        overflow: hidden;
+        padding: .25rem .65rem;
+        font-size: .82rem;
     }
+    .hero-next small{ opacity:.85; }
 
-    .progress-bar-soft > span {
-        position: absolute;
-        inset: 0;
-        border-radius: inherit;
-        background: linear-gradient(90deg, #6366F1, #4338CA);
-        box-shadow: 0 6px 18px -8px rgba(79, 70, 229, 0.7);
-    }
-
-    /* Action Pills */
-    .action-pill {
-        background: rgba(255, 255, 255, 0.22);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        padding: 0.55rem 1.1rem;
+    /* Action pills */
+    .action-pill{
+        background: rgba(255,255,255,.16);
+        color:#fff;
+        border:1px solid rgba(255,255,255,.22);
+        padding: .62rem 1.05rem;
         border-radius: 999px;
         text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        backdrop-filter: blur(4px);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display:inline-flex;
+        align-items:center;
+        gap:.55rem;
+        backdrop-filter: blur(6px);
+        transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+    .action-pill:hover{
+        transform: translateY(-2px);
+        box-shadow: 0 18px 30px -20px rgba(15,23,42,.45);
+        color:#fff;
+        background: rgba(255,255,255,.22);
     }
 
-    .action-pill:hover { transform: translateY(-2px); box-shadow: 0 10px 18px -8px rgba(0,0,0,0.25); }
+    /* Stats */
+    .stats-grid{
+        display:grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+    }
+    @@media (max-width: 992px){
+        .stats-grid{ grid-template-columns: 1fr; }
+    }
 
-    .nav-chip {
+    .stat-card{
         background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 0.65rem 0.9rem;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        color: var(--dark);
-        text-decoration: none;
-        transition: all 0.2s ease;
+        border-radius: 20px;
+        padding: 1.25rem;
+        display:flex;
+        align-items:center;
+        gap: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .stat-card::after{
+        content:"";
+        position:absolute;
+        inset:0;
+        background: linear-gradient(120deg, transparent 40%, rgba(79,70,229,.06));
+        pointer-events:none;
+    }
+    .stat-card > *{ position: relative; z-index: 1; }
+
+    .stat-ico{
+        width: 56px; height: 56px;
+        border-radius: 16px;
+        display:grid; place-items:center;
+        color:#fff;
+        font-size: 1.35rem;
+        box-shadow: 0 14px 26px -18px rgba(79,70,229,.65);
+        flex-shrink:0;
+    }
+    .ico-indigo{ background: linear-gradient(135deg, #6366f1, #4338ca); }
+    .ico-green{ background: linear-gradient(135deg, #34d399, #10b981); }
+    .ico-amber{ background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+
+    .stat-card h2{
+        margin:0;
+        font-weight: 950;
+        letter-spacing:-0.03em;
+        color: var(--ink);
+        line-height: 1.1;
+    }
+    .stat-card small{ color: var(--muted); font-weight: 800; }
+
+    .progress-soft{
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(224,231,255,.95);
+        overflow:hidden;
+        border: 1px solid rgba(226,232,240,.9);
+        margin-top: .6rem;
+    }
+    .progress-soft > span{
+        display:block;
+        height:100%;
+        width: 0;
+        background: linear-gradient(90deg, #6366f1, #4338ca);
+        box-shadow: 0 12px 20px -14px rgba(79,70,229,.8);
     }
 
-    .nav-chip:hover { border-color: var(--primary); color: var(--primary); box-shadow: 0 8px 16px -8px rgba(79,70,229,0.2); }
-
-    /* Appointment List */
-    .app-item {
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid var(--border);
-        display: flex;
+    /* Grid below */
+    .grid-main{
+        display:grid;
+        grid-template-columns: 420px 1fr;
         gap: 1rem;
-        align-items: center;
-        transition: background 0.2s;
+        align-items: start;
+    }
+    @@media (max-width: 1200px){
+        .grid-main{ grid-template-columns: 1fr; }
+    }
+
+    /* Section header inside cards */
+    .card-head{
+        padding: 1rem 1.1rem;
+        border-bottom: 1px solid var(--border);
+        display:flex;
+        align-items:center;
+        justify-content: space-between;
+        gap: .75rem;
+        background: rgba(255,255,255,.9);
+    }
+    .card-head h5{
+        margin:0;
+        font-weight: 950;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+        display:flex;
+        align-items:center;
+        gap:.55rem;
+    }
+    .chip-date{
+        border: 1px solid rgba(226,232,240,.95);
+        background: rgba(248,250,252,.95);
+        color: var(--ink);
+        font-weight: 900;
+        border-radius: 999px;
+        padding:.35rem .7rem;
+    }
+
+    /* Today list */
+    .app-item{
+        padding: .95rem 1.1rem;
+        border-bottom: 1px solid var(--border);
+        display:flex;
+        align-items:center;
+        gap: .9rem;
         text-decoration: none;
         color: inherit;
+        transition: background .15s ease;
     }
-    .app-item:hover { background-color: #F8FAFC; }
-    .app-item:last-child { border-bottom: none; }
+    .app-item:hover{ background: rgba(248,250,252,.95); }
+    .app-item:last-child{ border-bottom: none; }
 
-    .time-badge {
-        background: #EEF2FF;
+    .time-badge{
+        background: rgba(238,242,255,.95);
         color: var(--primary);
-        font-weight: 700;
-        padding: 0.5rem 0.8rem;
-        border-radius: 10px;
-        min-width: 75px;
-        text-align: center;
+        font-weight: 950;
+        padding: .55rem .75rem;
+        border-radius: 14px;
+        min-width: 80px;
+        text-align:center;
+        border: 1px solid rgba(99,102,241,.18);
     }
-
-    /* Calendar Grid */
-    .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 1rem;
+    .app-main{
+        min-width:0;
+        flex: 1;
     }
-
-    .day-col {
-        background: var(--surface);
-        border-radius: 12px;
-        border: 1px solid var(--border);
+    .app-main .name{
+        font-weight: 950;
+        color: var(--ink);
+        white-space: nowrap;
         overflow: hidden;
+        text-overflow: ellipsis;
     }
-
-    .day-header {
-        padding: 0.75rem;
-        text-align: center;
-        border-bottom: 1px solid var(--border);
-        background: #F8FAFC;
-    }
-
-    .day-col.is-today {
-        border: 2px solid var(--primary);
-        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-    }
-    .day-col.is-today .day-header {
-        background: #EEF2FF;
-        color: var(--primary);
-        font-weight: 700;
-    }
-
-    .mini-event {
-        background: #EFF6FF;
-        border-left: 3px solid var(--primary);
-        padding: 0.5rem;
-        margin: 0.5rem;
-        border-radius: 6px;
-        font-size: 0.8rem;
+    .app-main .motif{
+        color: var(--muted);
+        font-size: .9rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
-    .conge-badge {
-        background: linear-gradient(120deg, #fee2e2, #fecdd3);
-        color: #b91c1c;
-        padding: 0.35rem 0.75rem;
-        border-radius: 10px;
-        font-weight: 700;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        font-size: 0.85rem;
+    .btn-round{
+        width: 40px;
+        height: 40px;
+        border-radius: 999px;
+        display:grid;
+        place-items:center;
+        border: 1px solid rgba(99,102,241,.25);
+        background: #fff;
+        color: var(--primary);
+        transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+        flex-shrink:0;
+        text-decoration:none;
+    }
+    .btn-round:hover{
+        transform: translateY(-1px);
+        box-shadow: 0 16px 26px -22px rgba(15,23,42,.45);
+        background: rgba(238,242,255,.65);
+        color: var(--primary);
     }
 
-    .conge-pill {
-        border: 1px dashed #fca5a5;
-        padding: 0.75rem 1rem;
+    /* Weekly calendar */
+    .week-wrap{
+        padding: 1.1rem;
+    }
+    .week-top{
+        display:flex;
+        align-items:flex-end;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .week-top .subtitle{
+        margin:0;
+        color: var(--muted);
+        font-weight: 800;
+        font-size: .9rem;
+    }
+    .week-top h4{
+        margin: .1rem 0 0;
+        font-weight: 950;
+        color: var(--ink);
+        letter-spacing:-0.02em;
+    }
+
+    .nav-chip{
+        background: rgba(255,255,255,.95);
+        border:1px solid rgba(226,232,240,.95);
+        border-radius: 14px;
+        padding: .65rem .9rem;
+        display:inline-flex;
+        align-items:center;
+        gap:.45rem;
+        color: var(--ink);
+        text-decoration:none;
+        font-weight: 900;
+        transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, color .16s ease;
+    }
+    .nav-chip:hover{
+        transform: translateY(-1px);
+        border-color: rgba(99,102,241,.35);
+        color: var(--primary);
+        box-shadow: 0 16px 26px -22px rgba(15,23,42,.45);
+    }
+
+    .legend{
+        display:flex;
+        gap: .9rem;
+        flex-wrap: wrap;
+        font-size: .9rem;
+        color: var(--muted);
+        font-weight: 800;
+    }
+    .dot{ width:10px; height:10px; border-radius: 999px; display:inline-block; }
+    .dot-rdv{ background: var(--primary); }
+    .dot-conge{ background: #fca5a5; }
+
+    .calendar-grid{
+        display:grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: .75rem;
+    }
+    @@media (max-width: 1200px){
+        .calendar-grid{ grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+    }
+
+    .day-col{
+        background: rgba(255,255,255,.96);
+        border-radius: 18px;
+        border: 1px solid rgba(226,232,240,.95);
+        overflow:hidden;
+        box-shadow: 0 12px 24px -22px rgba(15,23,42,.25);
+        transition: transform .16s ease, border-color .16s ease;
+    }
+    .day-col:hover{
+        transform: translateY(-2px);
+        border-color: rgba(99,102,241,.25);
+    }
+
+    .day-header{
+        padding: .75rem .75rem .7rem;
+        text-align:center;
+        border-bottom: 1px solid rgba(226,232,240,.95);
+        background: rgba(248,250,252,.95);
+    }
+    .day-name{
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        font-size: .75rem;
+        color: var(--muted);
+        font-weight: 900;
+    }
+    .day-num{
+        font-size: 1.45rem;
+        font-weight: 950;
+        color: var(--ink);
+        line-height: 1.1;
+    }
+
+    .day-col.is-today{
+        border: 2px solid rgba(99,102,241,.75);
+        box-shadow: 0 0 0 5px rgba(99,102,241,.10), 0 16px 30px -22px rgba(15,23,42,.35);
+    }
+    .day-col.is-today .day-header{
+        background: rgba(238,242,255,.95);
+        color: var(--primary);
+    }
+
+    .mini-event{
+        background: rgba(239,246,255,.92);
+        border-left: 4px solid rgba(99,102,241,.85);
+        padding: .55rem .6rem;
+        margin: .55rem .55rem 0;
         border-radius: 12px;
-        background: #fff5f5;
+        font-size: .83rem;
+        color: var(--ink);
+        overflow:hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        box-shadow: 0 14px 24px -22px rgba(15,23,42,.35);
+    }
+    .mini-event .t{ font-weight: 950; margin-right: .35rem; color: var(--primary2); }
+
+    .conge-badge{
+        display:inline-flex;
+        align-items:center;
+        gap:.35rem;
+        padding:.3rem .6rem;
+        border-radius: 999px;
+        font-weight: 950;
+        font-size: .78rem;
+        color:#b91c1c;
+        background: linear-gradient(120deg, #fee2e2, #fecdd3);
+        border: 1px solid rgba(252,165,165,.6);
+        margin-left: .45rem;
     }
 
-    .conge-timeline {
+    .empty-day{
+        text-align:center;
+        color: rgba(100,116,139,.35);
+        padding: 2.2rem 0 1.2rem;
+        font-weight: 900;
+    }
+
+    /* Reminders */
+    .reminders{
+        margin-top: 1rem;
+        background: linear-gradient(180deg, rgba(248,250,255,.96), rgba(255,255,255,.96));
+        border: 1px solid rgba(226,232,240,.95);
+        border-radius: 20px;
+        overflow:hidden;
+        box-shadow: 0 18px 40px -30px rgba(15,23,42,.45);
+    }
+    .rem-head{
+        padding: .95rem 1.1rem;
+        border-bottom: 1px solid rgba(226,232,240,.95);
+        display:flex;
+        align-items:center;
+        gap:.6rem;
+        font-weight: 950;
+        color: var(--ink);
+    }
+    .rem-body{ padding: 1rem 1.1rem; }
+    .rem-grid{
+        display:flex;
+        gap: .75rem;
+        flex-wrap: wrap;
+    }
+    .rem-card{
+        min-width: 230px;
+        background: rgba(255,255,255,.96);
+        border: 1px solid rgba(226,232,240,.95);
+        border-radius: 18px;
+        padding: .85rem .95rem;
+        box-shadow: 0 16px 30px -26px rgba(15,23,42,.35);
+    }
+    .rem-top{
+        display:flex;
+        justify-content: space-between;
+        align-items:center;
+        gap:.65rem;
+        margin-bottom:.35rem;
+    }
+    .rem-day{
+        font-weight: 950;
+        color: var(--primary2);
+        background: rgba(99,102,241,.10);
+        border: 1px solid rgba(99,102,241,.18);
+        padding:.2rem .6rem;
+        border-radius: 999px;
+        font-size:.8rem;
+    }
+    .rem-time{
+        font-weight: 950;
+        color: var(--ink);
+    }
+    .rem-name{
+        font-weight: 950;
+        color: var(--ink);
+        overflow:hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .rem-motif{
+        color: var(--muted);
+        font-size: .9rem;
+        overflow:hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Bottom two cards */
+    .two-cols{
+        display:grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    @@media (max-width: 992px){
+        .two-cols{ grid-template-columns: 1fr; }
+    }
+
+    .section-top{
+        display:flex;
+        align-items:center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: .85rem;
+    }
+    .section-top p{
+        margin:0;
+        color: var(--muted);
+        font-weight: 800;
+        font-size: .9rem;
+    }
+    .section-top h4{
+        margin:.1rem 0 0;
+        color: var(--ink);
+        font-weight: 950;
+        letter-spacing:-0.02em;
+    }
+
+    /* Conges timeline */
+    .conge-timeline{
         position: relative;
         padding-left: 1.5rem;
+        display:flex;
+        flex-direction:column;
+        gap: .75rem;
     }
-
-    .conge-timeline::before {
-        content: '';
-        position: absolute;
-        left: 8px;
-        top: 0;
-        bottom: 0;
+    .conge-timeline::before{
+        content:"";
+        position:absolute;
+        left: 10px;
+        top: 4px;
+        bottom: 4px;
         width: 2px;
         background: linear-gradient(var(--primary), transparent);
-        opacity: 0.3;
+        opacity:.25;
     }
 
-    .conge-node {
+    .conge-node{
         position: relative;
-        padding: 0.75rem 1rem;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        box-shadow: 0 4px 10px -6px rgba(0,0,0,0.15);
+        padding: .9rem 1rem;
+        background: rgba(255,255,255,.96);
+        border: 1px solid rgba(226,232,240,.95);
+        border-radius: 18px;
+        box-shadow: 0 16px 30px -26px rgba(15,23,42,.35);
     }
-
-    .conge-node::before {
-        content: '';
-        position: absolute;
-        left: -1.1rem;
-        top: 1rem;
+    .conge-node::before{
+        content:"";
+        position:absolute;
+        left:-1.12rem;
+        top: 1.1rem;
         width: 12px;
         height: 12px;
         background: var(--primary);
         border-radius: 50%;
-        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+        box-shadow: 0 0 0 5px rgba(79,70,229,.12);
+    }
+
+    /* Form tweaks */
+    .form-control{
+        border-radius: 14px !important;
+        border-color: rgba(226,232,240,.95) !important;
+        background: rgba(248,250,252,.95) !important;
+        padding: .78rem .9rem !important;
+    }
+    .form-control:focus{
+        border-color: rgba(99,102,241,.65) !important;
+        box-shadow: 0 0 0 5px rgba(99,102,241,.14) !important;
+        background: #fff !important;
+    }
+    .btn-primary{
+        border-radius: 14px !important;
+        font-weight: 950 !important;
+        padding: .75rem 1.1rem !important;
+        box-shadow: 0 18px 28px -22px rgba(79,70,229,.55);
+    }
+
+    @@media (prefers-reduced-motion: reduce){
+        .animate-entry{ animation:none; opacity:1; }
+        .cardx, .day-col, .nav-chip, .action-pill, .btn-round{ transition:none !important; }
     }
 </style>
 
-<div class="container-fluid py-4" style="max-width: 1400px;">
+<div class="doc-shell">
 
-    <!-- 1. Hero Header -->
+    <!-- 1) Hero -->
     <div class="doctor-hero animate-entry">
-        <div class="d-flex flex-wrap align-items-center justify-content-between position-relative gap-3" style="z-index: 2;">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
-                <div class="d-flex align-items-center gap-2 mb-2">
-                    <span class="badge bg-white text-primary fw-bold">Espace médecin</span>
-                    <span class="badge bg-light text-dark">Semaine du @Model.WeekStartDate.ToString("dd MMM")</span>
+                <div class="hero-badges d-flex flex-wrap gap-2 mb-2">
+                    <span class="badge bg-white text-primary">Espace médecin</span>
+                    <span class="badge bg-light text-dark">Semaine du @Model.WeekStartDate.ToString("dd MMM", cultureFr)</span>
                 </div>
-                <h1 class="fw-bold mb-2">Bonjour, Dr. @Model.DoctorProfile.Nom</h1>
-                <p class="mb-0 opacity-90">Visualisez vos consultations, préparez vos dossiers et restez informé(e) d'un coup d'œil.</p>
+
+                <h1 class="hero-title">Bonjour, Dr. @Model.DoctorProfile.Nom</h1>
+                <p class="hero-sub">Visualisez vos consultations, préparez vos dossiers et restez informé(e) d'un coup d'œil.</p>
 
                 @if (nextAppointment != null)
                 {
-                    <div class="mt-3 d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 bg-white bg-opacity-15" style="backdrop-filter: blur(2px);">
-                        <span class="badge bg-white text-primary fw-bold">Prochain RDV</span>
+                    <div class="hero-next">
+                        <span class="chip">Prochain RDV</span>
                         <div>
                             <div class="fw-bold">@nextAppointment.Patient.Nom @nextAppointment.Patient.Prenom</div>
-                            <small class="opacity-75">@nextAppointment.DateHeure.ToString("HH:mm") • @nextAppointment.Motif</small>
+                            <small>@nextAppointment.DateHeure.ToString("HH:mm") • @nextAppointment.Motif</small>
                         </div>
                     </div>
                 }
             </div>
+
             <div class="text-end">
-                <div class="bg-white bg-opacity-25 p-3 rounded-circle d-inline-flex align-items-center justify-content-center" style="width:64px;height:64px;">
+                <div class="bg-white bg-opacity-25 p-3 rounded-circle d-inline-flex align-items-center justify-content-center"
+                     style="width:64px;height:64px;">
                     <i class="fas fa-user-md fa-2x"></i>
                 </div>
+
                 <div class="mt-3 d-flex flex-wrap justify-content-end gap-2">
-                    <a href="@Url.Action("Create", "Consultation", new { area = "Medical" })" class="action-pill"><i class="fas fa-stethoscope"></i> Nouvelle consultation</a>
-                    <a href="@Url.Action("Create", "Prescription", new { area = "Medical" })" class="action-pill"><i class="fas fa-prescription"></i> Nouvelle ordonnance</a>
-                    <a href="@Url.Action("Create", "DossierMedicals", new { area = "Medical" })" class="action-pill"><i class="fas fa-folder-plus"></i> Nouveau dossier</a>
+                    <a href="@Url.Action("Create", "Consultation", new { area = "Medical" })" class="action-pill">
+                        <i class="fas fa-stethoscope"></i> Nouvelle consultation
+                    </a>
+                    <a href="@Url.Action("Create", "Prescription", new { area = "Medical" })" class="action-pill">
+                        <i class="fas fa-prescription"></i> Nouvelle ordonnance
+                    </a>
+                    <a href="@Url.Action("Create", "DossierMedicals", new { area = "Medical" })" class="action-pill">
+                        <i class="fas fa-folder-plus"></i> Nouveau dossier
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 2. Stats Row -->
-    <div class="row g-4 mb-4 animate-entry delay-100">
-        <div class="col-md-4">
-            <div class="stat-card">
-                <div class="stat-icon bg-indigo"><i class="fas fa-calendar-day"></i></div>
-                <div>
-                    <h2 class="fw-bold mb-0 text-dark">@todayCount</h2>
-                    <small class="text-muted fw-bold">Rendez-vous Aujourd'hui</small>
-                    <div class="progress-bar-soft mt-2"><span style="width: @(weekCount == 0 ? 0 : Math.Min(100, Math.Round(((double)todayCount / weekCount) * 100)))%;"></span></div>
-                    <small class="text-muted">@((weekCount == 0 ? 0 : Math.Round(((double)todayCount / weekCount) * 100)))% de la semaine</small>
+    <!-- 2) Stats -->
+    <div class="stats-grid mt-3 animate-entry delay-100">
+        <div class="stat-card">
+            <div class="stat-ico ico-indigo"><i class="fas fa-calendar-day"></i></div>
+            <div class="w-100">
+                <h2>@todayCount</h2>
+                <small>Rendez-vous aujourd'hui</small>
+
+                @{
+                    var pct = (weekCount == 0) ? 0 : (int)Math.Round(((double)todayCount / weekCount) * 100);
+                    pct = Math.Min(100, Math.Max(0, pct));
+                }
+                <div class="progress-soft"><span style="width:@pct%;"></span></div>
+                <div class="d-flex justify-content-between mt-1 small">
+                    <span class="text-muted fw-bold">@pct% de la semaine</span>
+                    <span class="text-muted fw-bold">@weekCount total</span>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="stat-card">
-                <div class="stat-icon bg-green"><i class="fas fa-calendar-week"></i></div>
-                <div>
-                    <h2 class="fw-bold mb-0 text-dark">@weekCount</h2>
-                    <small class="text-muted fw-bold">Total Semaine</small>
-                    <div class="d-flex align-items-center gap-2 text-muted mt-1">
-                        <i class="fas fa-chart-line text-success"></i>
-                        <small>Planning équilibré</small>
-                    </div>
+
+        <div class="stat-card">
+            <div class="stat-ico ico-green"><i class="fas fa-calendar-week"></i></div>
+            <div>
+                <h2>@weekCount</h2>
+                <small>Total semaine</small>
+                <div class="d-flex align-items-center gap-2 text-muted mt-2">
+                    <i class="fas fa-chart-line text-success"></i>
+                    <span class="fw-bold">Planning équilibré</span>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-             <div class="stat-card justify-content-center bg-white">
-                 <div class="text-center">
-                     <p class="mb-0 text-muted small fw-bold text-uppercase">Date du jour</p>
-                     <h4 class="fw-bold text-primary mb-1">@DateTime.Now.ToString("dddd dd MMMM")</h4>
-                     <span class="badge bg-light text-dark">@DateTime.Now.ToString("HH:mm")</span>
-                 </div>
-             </div>
+
+        <div class="stat-card justify-content-center">
+            <div class="text-center w-100">
+                <div class="text-muted small fw-bold text-uppercase">Date du jour</div>
+                <div class="fw-bold" style="color:var(--primary); font-size:1.1rem;">
+                    @DateTime.Now.ToString("dddd dd MMMM", cultureFr)
+                </div>
+                <span class="chip-date mt-2 d-inline-block">@DateTime.Now.ToString("HH:mm")</span>
+            </div>
         </div>
     </div>
 
-    <div class="row g-4 animate-entry delay-200">
+    <!-- 3) Today + Week -->
+    <div class="grid-main mt-3 animate-entry delay-200">
 
-        <!-- 3. Today's Agenda (Left) -->
-        <div class="col-lg-4">
-            <div class="glass-card h-100">
-                <div class="p-3 border-bottom bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-clock me-2 text-primary"></i>Aujourd'hui</h5>
-                    <span class="badge bg-light text-dark border">@DateTime.Now.ToString("dd/MM")</span>
-                </div>
+        <!-- Today -->
+        <div class="cardx h-100">
+            <div class="card-head">
+                <h5><i class="fas fa-clock text-primary"></i> Aujourd'hui</h5>
+                <span class="chip-date">@DateTime.Now.ToString("dd/MM")</span>
+            </div>
 
-                @if (Model.AppointmentsToday.Any())
-                {
-                    <div class="list-group list-group-flush">
-                        @foreach (var rdv in Model.AppointmentsToday)
-                        {
-                            <div class="app-item">
-                                <div class="time-badge">@rdv.DateHeure.ToString("HH:mm")</div>
-                                <div class="flex-grow-1 overflow-hidden">
-                                    <div class="fw-bold text-dark text-truncate">@rdv.Patient.Nom @rdv.Patient.Prenom</div>
-                                    <div class="small text-muted text-truncate">@rdv.Motif</div>
-                                </div>
-                                <a href="@Url.Action("Index", "DossierMedicals", new { area = "Medical", searchTerm = rdv.Patient.Nom })"
-                                   class="btn btn-sm btn-outline-primary rounded-circle" title="Ouvrir Dossier">
-                                    <i class="fas fa-folder-open"></i>
-                                </a>
+            @if (Model.AppointmentsToday.Any())
+            {
+                <div>
+                    @foreach (var rdv in Model.AppointmentsToday.OrderBy(r => r.DateHeure))
+                    {
+                        <div class="app-item">
+                            <div class="time-badge">@rdv.DateHeure.ToString("HH:mm")</div>
+
+                            <div class="app-main">
+                                <div class="name">@rdv.Patient.Nom @rdv.Patient.Prenom</div>
+                                <div class="motif">@rdv.Motif</div>
                             </div>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <div class="text-center py-5">
-                        <div class="mb-3 text-muted opacity-25">
-                            <i class="fas fa-mug-hot fa-3x"></i>
+
+                            <a href="@Url.Action("Index", "DossierMedicals", new { area = "Medical", searchTerm = rdv.Patient.Nom })"
+                               class="btn-round" title="Ouvrir dossier">
+                                <i class="fas fa-folder-open"></i>
+                            </a>
                         </div>
-                        <h6 class="text-muted">Aucun rendez-vous aujourd'hui.</h6>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <div class="mb-3" style="opacity:.22; color: var(--muted);">
+                        <i class="fas fa-mug-hot fa-3x"></i>
                     </div>
-                }
-            </div>
+                    <h6 class="text-muted fw-bold mb-0">Aucun rendez-vous aujourd'hui.</h6>
+                </div>
+            }
         </div>
 
-        <!-- 4. Weekly Calendar (Right) -->
-        <div class="col-lg-8">
-            <div class="glass-card p-4 h-100">
-                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <!-- Weekly calendar -->
+        <div class="cardx cardx-soft">
+            <div class="week-wrap">
+                <div class="week-top">
                     <div>
-                        <p class="text-muted small mb-1">Vue Hebdomadaire</p>
-                        <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <a class="nav-chip" href="@Url.Action("Index", new { area = "Medical", weekStart = Model.PreviousWeekStart.ToString("yyyy-MM-dd") })"><i class="fas fa-chevron-left"></i> Semaine précédente</a>
-                            <h4 class="fw-bold text-dark mb-0">@Model.WeekStartDate.ToString("dd MMM") - @Model.WeekEndDate.ToString("dd MMM")</h4>
-                            <a class="nav-chip" href="@Url.Action("Index", new { area = "Medical", weekStart = Model.NextWeekStart.ToString("yyyy-MM-dd") })">Semaine suivante <i class="fas fa-chevron-right"></i></a>
+                        <p class="subtitle mb-1">Vue hebdomadaire</p>
+                        <h4>@Model.WeekStartDate.ToString("dd MMM", cultureFr) - @Model.WeekEndDate.ToString("dd MMM", cultureFr)</h4>
+
+                        <div class="d-flex align-items-center gap-2 flex-wrap mt-2">
+                            <a class="nav-chip" href="@Url.Action("Index", new { area = "Medical", weekStart = Model.PreviousWeekStart.ToString("yyyy-MM-dd") })">
+                                <i class="fas fa-chevron-left"></i> Semaine précédente
+                            </a>
+                            <a class="nav-chip" href="@Url.Action("Index", new { area = "Medical", weekStart = Model.NextWeekStart.ToString("yyyy-MM-dd") })">
+                                Semaine suivante <i class="fas fa-chevron-right"></i>
+                            </a>
                         </div>
                     </div>
-                    <!-- Legend -->
-                    <div class="d-flex flex-wrap gap-3 small text-muted">
-                        <div class="d-flex align-items-center gap-1"><div class="rounded-circle bg-primary" style="width:8px;height:8px;"></div> RDV Confirmé</div>
-                        <div class="d-flex align-items-center gap-1"><div class="rounded-circle" style="width:8px;height:8px;background:#fca5a5;"></div> Congé</div>
+
+                    <div class="legend">
+                        <div class="d-flex align-items-center gap-2"><span class="dot dot-rdv"></span> RDV</div>
+                        <div class="d-flex align-items-center gap-2"><span class="dot dot-conge"></span> Congé</div>
                     </div>
                 </div>
 
-                <div class="calendar-grid mb-4">
+                <div class="calendar-grid">
                     @foreach (var day in Model.WeekCalendar)
                     {
                         var isToday = day.Key.Date == DateTime.Today;
 
                         <div class="day-col @(isToday ? "is-today" : "")">
                             <div class="day-header">
-                                <div class="small text-uppercase opacity-75">@day.Key.ToString("ddd", new CultureInfo("fr-FR"))</div>
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-                                    <div class="fs-4 fw-bold mb-0">@day.Key.Day</div>
+                                <div class="day-name">@day.Key.ToString("ddd", cultureFr)</div>
+                                <div class="d-flex align-items-center justify-content-center gap-1">
+                                    <div class="day-num">@day.Key.Day</div>
                                     @if (congeDays.Contains(day.Key.Date))
                                     {
                                         <span class="conge-badge"><i class="fas fa-umbrella-beach"></i> Congé</span>
                                     }
                                 </div>
                             </div>
-                            <div class="p-2" style="min-height: 120px;">
+
+                            <div style="min-height: 132px; padding-bottom:.55rem;">
                                 @if (day.Value.Any())
                                 {
-                                    @foreach (var rdv in day.Value)
+                                    @foreach (var rdv in day.Value.OrderBy(r => r.DateHeure))
                                     {
                                         <div class="mini-event" title="@rdv.DateHeure.ToString("HH:mm") - @rdv.Patient.Nom">
-                                            <span class="fw-bold">@rdv.DateHeure.ToString("HH:mm")</span>
+                                            <span class="t">@rdv.DateHeure.ToString("HH:mm")</span>
                                             @rdv.Patient.Nom
                                         </div>
                                     }
                                 }
                                 else
                                 {
-                                    <div class="text-center text-muted small opacity-25 mt-4">-</div>
+                                    <div class="empty-day">—</div>
                                 }
                             </div>
                         </div>
                     }
                 </div>
 
-                <div class="glass-card border-0" style="background: #F8FAFF;">
-                    <div class="p-3 border-bottom d-flex align-items-center gap-2">
-                        <i class="fas fa-bell text-primary"></i>
-                        <span class="fw-bold">Rappels rapides</span>
+                <!-- Reminders -->
+                <div class="reminders">
+                    <div class="rem-head">
+                        <i class="fas fa-bell text-primary"></i> Rappels rapides
                     </div>
-                    <div class="p-3">
+                    <div class="rem-body">
                         @if (upcomingWeek.Any())
                         {
-                            <div class="d-flex flex-wrap gap-3">
+                            <div class="rem-grid">
                                 @foreach (var rdv in upcomingWeek)
                                 {
-                                    <div class="border rounded-4 px-3 py-2 bg-white shadow-sm" style="min-width: 220px;">
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <span class="badge bg-primary bg-opacity-10 text-primary">@rdv.DateHeure.ToString("ddd", new CultureInfo("fr-FR"))</span>
-                                            <span class="fw-bold text-dark">@rdv.DateHeure.ToString("HH:mm")</span>
+                                    <div class="rem-card">
+                                        <div class="rem-top">
+                                            <span class="rem-day">@rdv.DateHeure.ToString("ddd", cultureFr)</span>
+                                            <span class="rem-time">@rdv.DateHeure.ToString("HH:mm")</span>
                                         </div>
-                                        <div class="fw-bold text-dark text-truncate">@rdv.Patient.Nom @rdv.Patient.Prenom</div>
-                                        <small class="text-muted text-truncate d-block">@rdv.Motif</small>
+                                        <div class="rem-name">@rdv.Patient.Nom @rdv.Patient.Prenom</div>
+                                        <div class="rem-motif">@rdv.Motif</div>
                                     </div>
                                 }
                             </div>
                         }
                         else
                         {
-                            <p class="text-muted mb-0">Aucun rappel pour le moment. Bonne journée !</p>
+                            <p class="text-muted fw-bold mb-0">Aucun rappel pour le moment. Bonne journée !</p>
                         }
                     </div>
                 </div>
@@ -508,90 +875,104 @@
         </div>
     </div>
 
-    <div class="row g-4 mt-1 animate-entry delay-200">
-        <div class="col-lg-6">
-            <div class="glass-card p-4 h-100">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <p class="text-muted small mb-1">Visibilité</p>
-                        <h4 class="fw-bold text-dark mb-0">Mes congés</h4>
-                    </div>
-                    <span class="badge bg-light text-dark">Synchronisé</span>
-                </div>
+    <!-- 4) Congés + Request -->
+    <div class="two-cols animate-entry delay-200">
 
-                @if (Model.UpcomingConges.Any())
-                {
-                    <div class="conge-timeline d-flex flex-column gap-3">
-                        @foreach (var conge in Model.UpcomingConges)
-                        {
-                            <div class="conge-node">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <div class="fw-bold text-dark"><i class="fas fa-umbrella-beach text-primary me-2"></i>@conge.DateDebut.ToString("dd MMM", new CultureInfo("fr-FR")) - @conge.DateFin.ToString("dd MMM", new CultureInfo("fr-FR"))</div>
-                                    <span class="badge bg-primary bg-opacity-10 text-primary">@((conge.DateFin - conge.DateDebut).Days + 1) j</span>
-                                </div>
-                                <div class="text-muted small">@(!string.IsNullOrWhiteSpace(conge.Motif) ? conge.Motif : "Congé planifié")</div>
-                            </div>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <div class="text-center py-4 text-muted">
-                        <i class="fas fa-umbrella-beach fa-2x mb-2 opacity-50"></i>
-                        <p class="mb-0">Aucun congé prévu. Vous pouvez en demander un ci-dessous.</p>
-                    </div>
-                }
+        <!-- My congés -->
+        <div class="cardx p-4">
+            <div class="section-top">
+                <div>
+                    <p class="mb-1">Visibilité</p>
+                    <h4>Mes congés</h4>
+                </div>
+                <span class="chip-date">Synchronisé</span>
             </div>
-        </div>
 
-        <div class="col-lg-6">
-            <div class="glass-card p-4 h-100">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <p class="text-muted small mb-1">Demande</p>
-                        <h4 class="fw-bold text-dark mb-0">Demander un congé</h4>
-                    </div>
-                    <i class="fas fa-paper-plane text-primary"></i>
-                </div>
-
-                @if (TempData["CongeSuccess"] != null)
-                {
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fas fa-check-circle me-2"></i>@TempData["CongeSuccess"]
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                }
-
-                <form asp-area="Medical" asp-controller="Dashboard" asp-action="RequestConge" method="post" class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Date de début</label>
-                        <input type="date" name="dateDebut" class="form-control" value="@Model.NewCongeRequest.DateDebut.ToString("yyyy-MM-dd")" required />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Date de fin</label>
-                        <input type="date" name="dateFin" class="form-control" value="@Model.NewCongeRequest.DateFin.ToString("yyyy-MM-dd")" required />
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label fw-bold">Motif (optionnel)</label>
-                        <textarea name="motif" class="form-control" rows="2" placeholder="Ex: Congé annuel, formation, repos ...">@Model.NewCongeRequest.Motif</textarea>
-                    </div>
-                    @if (ViewData.ModelState.ContainsKey("CongeDate") && ViewData.ModelState["CongeDate"].Errors.Any())
+            @if (Model.UpcomingConges.Any())
+            {
+                <div class="conge-timeline">
+                    @foreach (var conge in Model.UpcomingConges)
                     {
-                        <div class="col-12">
-                            <div class="alert alert-danger py-2">
-                                @ViewData.ModelState["CongeDate"].Errors.First().ErrorMessage
+                        <div class="conge-node">
+                            <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+                                <div class="fw-bold text-dark">
+                                    <i class="fas fa-umbrella-beach text-primary me-2"></i>
+                                    @conge.DateDebut.ToString("dd MMM", cultureFr) - @conge.DateFin.ToString("dd MMM", cultureFr)
+                                </div>
+                                <span class="rem-day">@((conge.DateFin - conge.DateDebut).Days + 1) j</span>
+                            </div>
+                            <div class="text-muted small mt-1">
+                                @(!string.IsNullOrWhiteSpace(conge.Motif) ? conge.Motif : "Congé planifié")
                             </div>
                         </div>
                     }
-                    <div class="col-12 d-flex justify-content-between align-items-center">
-                        <div class="text-muted small">
-                            <i class="fas fa-info-circle me-1"></i>Les congés ne sont pris en compte qu'après validation par l'administrateur.
-                        </div>
-                    <div class="col-12 d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary px-4"><i class="fas fa-paper-plane me-2"></i>Envoyer à l'admin</button>
-                    </div>
-                </form>
-            </div>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-4 text-muted">
+                    <i class="fas fa-umbrella-beach fa-2x mb-2 opacity-50"></i>
+                    <p class="mb-0 fw-bold">Aucun congé prévu.</p>
+                    <small>Vous pouvez en demander un juste à droite.</small>
+                </div>
+            }
         </div>
+
+        <!-- Request conge -->
+        <div class="cardx p-4">
+            <div class="section-top">
+                <div>
+                    <p class="mb-1">Demande</p>
+                    <h4>Demander un congé</h4>
+                </div>
+                <i class="fas fa-paper-plane text-primary"></i>
+            </div>
+
+            @if (TempData["CongeSuccess"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>@TempData["CongeSuccess"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <form asp-area="Medical" asp-controller="Dashboard" asp-action="RequestConge" method="post" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Date de début</label>
+                    <input type="date" name="dateDebut" class="form-control" value="@Model.NewCongeRequest.DateDebut.ToString("yyyy-MM-dd")" required />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Date de fin</label>
+                    <input type="date" name="dateFin" class="form-control" value="@Model.NewCongeRequest.DateFin.ToString("yyyy-MM-dd")" required />
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-bold">Motif (optionnel)</label>
+                    <textarea name="motif" class="form-control" rows="2" placeholder="Ex: Congé annuel, formation, repos ...">@Model.NewCongeRequest.Motif</textarea>
+                </div>
+
+                @if (ViewData.ModelState.ContainsKey("CongeDate") && ViewData.ModelState["CongeDate"].Errors.Any())
+                {
+                    <div class="col-12">
+                        <div class="alert alert-danger py-2 mb-0">
+                            @ViewData.ModelState["CongeDate"].Errors.First().ErrorMessage
+                        </div>
+                    </div>
+                }
+
+                <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="text-muted small fw-bold">
+                        <i class="fas fa-info-circle me-1"></i>Pris en compte après validation admin.
+                    </div>
+
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-paper-plane me-2"></i>Envoyer à l'admin
+                    </button>
+                </div>
+            </form>
+        </div>
+
     </div>
+
 </div>

@@ -2,9 +2,8 @@
 
 @{
     ViewData["Title"] = "Medical Records Directory";
-    // FIX: Explicitly point to the main layout file
     Layout = "~/Views/Shared/_Layout.cshtml";
-    
+
     // Theme colors matching the layout
     var primaryColor = "#7AA3D1";
     var textDark = "#666B72";
@@ -13,435 +12,575 @@
 <style>
     :root {
         --primary: #7AA3D1;
+        --primary-hover: #91B3D9;
         --primary-light: #A7CBED;
-        --secondary: #666B72;
-        --surface: #FFFFFF;
+
+        --ink: #0f172a;
+        --text: #475569;
+        --muted: #64748b;
+
+        --surface: rgba(255,255,255,.96);
+        --surface2: rgba(248,250,252,.96);
         --bg: #E9EFF7;
-        --border: #D4DEEC;
-        --text-main: #666B72;
+        --border: rgba(212, 222, 236, .9);
+        --shadow: 0 18px 44px rgba(122, 163, 209, 0.12);
+        --shadow2: 0 28px 70px -50px rgba(15,23,42,.5);
+
+        --danger: #ef4444;
+        --danger-soft: #FEF2F2;
     }
 
-    /* Animation Keyframes */
     @@keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(14px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .dir-shell{
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 1rem 1.25rem 2.25rem;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        color: var(--text);
     }
 
     .page-container {
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        padding: 0 1.5rem 3rem 1.5rem;
-        color: var(--text-main);
-        background: linear-gradient(180deg, rgba(231, 240, 249, 0.65) 0%, rgba(233, 239, 247, 0.8) 30%, #E9EFF7 100%);
-        border-radius: 18px;
-        box-shadow: 0 18px 42px rgba(122, 163, 209, 0.12);
-        margin-top: 0.5rem;
-        opacity: 0; /* Start hidden for animation */
-        animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        background:
+            radial-gradient(circle at 12% 12%, rgba(122,163,209,.20), transparent 40%),
+            radial-gradient(circle at 92% 0%, rgba(167,203,237,.22), transparent 46%),
+            linear-gradient(180deg, rgba(231, 240, 249, 0.78) 0%, rgba(233, 239, 247, 0.92) 35%, #E9EFF7 100%);
+        border: 1px solid rgba(212,222,236,.75);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        padding: 1.25rem;
+        opacity: 0;
+        animation: fadeInUp .7s cubic-bezier(.16, 1, .3, 1) forwards;
     }
 
-    /* --- Header & Actions --- */
-    .page-header {
-        display: flex;
+    /* ---------- Header ---------- */
+    .page-header{
+        display:flex;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        flex-wrap: wrap;
+        align-items:flex-end;
         gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
     }
 
-    .header-title h1 {
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: var(--text-main);
-        margin: 0;
-        letter-spacing: -0.02em;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
+    .title-wrap h1{
+        margin:0;
+        font-size: 1.85rem;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        color: var(--ink);
+        display:flex;
+        align-items:center;
+        gap:.7rem;
     }
 
-    .header-subtitle {
-        color: var(--secondary);
-        font-size: 0.95rem;
-        margin-top: 0.25rem;
-    }
-
-    .btn-add-record {
-        background: linear-gradient(135deg, var(--primary), var(--primary-light));
-        color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 12px;
+    .title-wrap .sub{
+        margin:.35rem 0 0;
+        color: var(--muted);
         font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.2s;
-        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
-        text-decoration: none;
+        line-height: 1.5;
     }
 
-    .btn-add-record:hover {
-        background: #91B3D9;
+    .btn-add-record{
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: #fff;
+        border: 1px solid rgba(255,255,255,.25);
+        padding: .78rem 1.15rem;
+        border-radius: 14px;
+        font-weight: 900;
+        display:inline-flex;
+        align-items:center;
+        gap: .55rem;
+        text-decoration:none;
+        box-shadow: 0 18px 28px -22px rgba(122,163,209,.9);
+        transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+        white-space: nowrap;
+    }
+
+    .btn-add-record:hover{
+        color:#fff;
         transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(145, 179, 217, 0.35);
-        color: white;
+        filter: saturate(1.05);
+        box-shadow: 0 28px 42px -28px rgba(122,163,209,1);
     }
 
-    /* --- Search Section --- */
-    .search-wrapper {
+    /* ---------- Toolbar ---------- */
+    .toolbar{
+        display:flex;
+        gap: .85rem;
+        align-items:center;
+        flex-wrap: wrap;
+        margin: 1rem 0 1.25rem;
+    }
+
+    .search-wrapper{
+        flex: 1;
+        min-width: 280px;
+        max-width: 720px;
         background: var(--surface);
-        border: 1px solid var(--border);
+        border: 1px solid rgba(212,222,236,.95);
         border-radius: 16px;
-        padding: 0.5rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        max-width: 600px;
-        width: 100%;
-        display: flex;
-        gap: 0.5rem;
-        margin-bottom: 2rem;
+        padding: .55rem;
+        box-shadow: 0 8px 20px -18px rgba(15,23,42,.35);
+        display:flex;
+        gap: .55rem;
+        align-items:center;
     }
 
-    .search-input-group {
+    .search-input-group{
         position: relative;
         flex: 1;
+        min-width: 220px;
     }
 
-    .search-icon {
-        position: absolute;
+    .search-icon{
+        position:absolute;
         left: 1rem;
         top: 50%;
         transform: translateY(-50%);
-        color: #94A3B8;
+        color: rgba(100,116,139,.75);
+        pointer-events:none;
     }
 
-    .form-control-search {
-        border: none;
+    .form-control-search{
+        width:100%;
+        border:none;
+        outline:none;
         background: transparent;
-        padding: 0.75rem 1rem 0.75rem 2.5rem;
-        width: 100%;
-        font-size: 0.95rem;
-        color: var(--text-main);
+        padding: .8rem 1rem .8rem 2.6rem;
+        font-size: .98rem;
+        color: var(--ink);
+        font-weight: 650;
     }
 
-    .form-control-search:focus {
-        outline: none;
+    .btn-search{
+        border:none;
+        background: rgba(241,245,249,.95);
+        color: var(--ink);
+        padding: .7rem 1rem;
+        border-radius: 12px;
+        font-weight: 900;
+        transition: transform .14s ease, background .14s ease;
+        white-space: nowrap;
+    }
+    .btn-search:hover{ background: rgba(226,232,240,.95); transform: translateY(-1px); }
+
+    .btn-clear{
+        border: 1px solid rgba(239,68,68,.25);
+        background: rgba(254,242,242,.95);
+        color: var(--danger);
+        padding: .7rem .9rem;
+        border-radius: 12px;
+        font-weight: 950;
+        text-decoration:none;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        transition: transform .14s ease, box-shadow .14s ease;
+    }
+    .btn-clear:hover{
+        color: var(--danger);
+        transform: translateY(-1px);
+        box-shadow: 0 16px 26px -22px rgba(239,68,68,.45);
     }
 
-    .btn-search {
-        background: #F1F5F9;
-        color: var(--text-main);
-        border: none;
-        padding: 0.5rem 1.25rem;
-        border-radius: 10px;
-        font-weight: 600;
-        transition: all 0.2s;
+    .meta-chips{
+        display:flex;
+        gap:.5rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
     }
-
-    .btn-search:hover {
-        background: #E2E8F0;
+    .meta-chip{
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(212,222,236,.95);
+        border-radius: 999px;
+        padding: .45rem .75rem;
+        color: var(--ink);
+        font-weight: 900;
+        font-size: .85rem;
+        display:inline-flex;
+        align-items:center;
+        gap:.4rem;
     }
+    .meta-chip i{ color: rgba(100,116,139,.85); }
 
-    /* --- Data Card & Table --- */
-    .data-card {
+    /* ---------- Data card / table ---------- */
+    .data-card{
         background: var(--surface);
-        border-radius: 20px;
-        border: 1px solid var(--border);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
+        border: 1px solid rgba(212,222,236,.95);
+        border-radius: 22px;
+        overflow:hidden;
+        box-shadow: 0 18px 44px -34px rgba(15,23,42,.55);
     }
 
-    .table-custom {
-        width: 100%;
+    .table-custom{
+        width:100%;
         border-collapse: collapse;
     }
 
-    .table-custom thead {
-        background: #F8FAFC;
-        border-bottom: 1px solid var(--border);
+    .table-custom thead{
+        background: rgba(248,250,252,.95);
+        border-bottom: 1px solid rgba(212,222,236,.95);
     }
 
-    .table-custom th {
-        padding: 1rem 1.5rem;
-        text-align: left;
-        font-size: 0.75rem;
-        font-weight: 700;
+    .table-custom th{
+        padding: 1rem 1.25rem;
+        text-align:left;
+        font-size: .75rem;
+        font-weight: 950;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--secondary);
+        letter-spacing: .08em;
+        color: rgba(100,116,139,.95);
+        white-space: nowrap;
     }
 
-    .table-custom td {
-        padding: 1.25rem 1.5rem;
+    .table-custom td{
+        padding: 1.15rem 1.25rem;
         vertical-align: middle;
-        border-bottom: 1px solid #F1F5F9;
-        color: var(--text-main);
-        font-size: 0.95rem;
+        border-bottom: 1px solid rgba(241,245,249,.95);
+        color: var(--text);
+        font-size: .97rem;
     }
 
-    .table-custom tr:last-child td {
-        border-bottom: none;
+    .table-custom tr:last-child td{ border-bottom:none; }
+
+    .table-custom tbody tr{
+        cursor:pointer;
+        transition: background .14s ease, transform .14s ease;
+        opacity: 0;
+        animation: fadeInUp .45s ease-out forwards;
     }
 
-    .table-custom tbody tr {
-        transition: background 0.2s, transform 0.2s;
-        cursor: pointer;
-        opacity: 0; /* Hidden initially for staggered animation */
-        animation: fadeInUp 0.5s ease-out forwards;
+    .table-custom tbody tr:hover{
+        background: rgba(248,250,252,.95);
+        transform: translateY(-1px);
     }
 
-    .table-custom tbody tr:hover {
-        background: #F8FAFC;
-        transform: scale(1.002);
+    /* Patient cell */
+    .patient-cell{
+        display:flex;
+        align-items:center;
+        gap: .9rem;
+        min-width: 260px;
     }
 
-    /* --- Avatars & Badges --- */
-    .patient-cell {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
+    .avatar-circle{
+        width: 44px; height: 44px;
+        border-radius: 14px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:#fff;
+        font-weight: 950;
+        letter-spacing: .02em;
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        box-shadow: 0 18px 26px -20px rgba(122,163,209,.95);
+        flex-shrink:0;
     }
 
-    .avatar-circle {
-        width: 42px;
-        height: 42px;
-        background: linear-gradient(135deg, #6366F1, #818CF8);
-        color: white;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 1rem;
-        box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
+    .patient-name{
+        font-weight: 950;
+        color: var(--ink);
+        line-height: 1.15;
+    }
+    .info-sub{
+        display:block;
+        font-size: .85rem;
+        color: var(--muted);
+        margin-top: .18rem;
+        font-weight: 650;
     }
 
-    .info-sub {
-        font-size: 0.8rem;
-        color: var(--secondary);
-        display: block;
-        margin-top: 0.1rem;
+    .contact-info{
+        display:flex;
+        flex-direction:column;
+        gap: .35rem;
+        font-size: .9rem;
+        color: var(--muted);
+        min-width: 230px;
     }
-
-    .contact-info {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-        font-size: 0.85rem;
-        color: var(--secondary);
+    .contact-line{
+        display:flex;
+        gap: .55rem;
+        align-items:center;
+        overflow:hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
-
-    .contact-info i {
+    .contact-line i{
         width: 16px;
-        color: #94A3B8;
+        color: rgba(100,116,139,.7);
+        flex-shrink:0;
     }
 
-    .date-badge {
-        background: #F1F5F9;
-        color: var(--text-main);
-        padding: 0.35rem 0.75rem;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        font-weight: 500;
-        display: inline-block;
+    .date-badge{
+        display:inline-flex;
+        align-items:center;
+        gap:.45rem;
+        background: rgba(241,245,249,.95);
+        border: 1px solid rgba(226,232,240,.95);
+        color: var(--ink);
+        padding: .4rem .7rem;
+        border-radius: 999px;
+        font-weight: 900;
+        font-size: .85rem;
+        white-space: nowrap;
     }
 
-    /* --- Actions --- */
-    .action-group {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.5rem;
+    /* Actions */
+    .action-group{
+        display:flex;
+        justify-content:flex-end;
+        gap:.45rem;
+        white-space: nowrap;
+    }
+    .btn-action{
+        width: 38px; height: 38px;
+        border-radius: 12px;
+        border: 1px solid rgba(212,222,236,.95);
+        background: rgba(255,255,255,.96);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color: rgba(100,116,139,.95);
+        transition: transform .14s ease, box-shadow .14s ease, background .14s ease, border-color .14s ease, color .14s ease;
+        text-decoration:none;
+    }
+    .btn-action:hover{
+        transform: translateY(-1px);
+        border-color: rgba(122,163,209,.55);
+        color: var(--primary-hover);
+        background: rgba(231,240,249,.9);
+        box-shadow: 0 18px 26px -22px rgba(15,23,42,.45);
+    }
+    .btn-action.delete:hover{
+        border-color: rgba(239,68,68,.45);
+        color: var(--danger);
+        background: var(--danger-soft);
+        box-shadow: 0 18px 26px -22px rgba(239,68,68,.55);
     }
 
-    .btn-action {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-        border: 1px solid var(--border);
-        background: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--secondary);
-        transition: all 0.2s;
-    }
-
-    .btn-action:hover {
-        border-color: var(--primary);
-        color: var(--primary);
-        background: var(--primary-light);
-    }
-
-    .btn-action.delete:hover {
-        border-color: #EF4444;
-        color: #EF4444;
-        background: #FEF2F2;
-    }
-
-    /* --- Empty State --- */
-    .empty-state {
-        text-align: center;
+    /* Empty */
+    .empty-state{
+        text-align:center;
         padding: 4rem 2rem;
+        background: linear-gradient(180deg, rgba(248,250,252,.96), rgba(255,255,255,.96));
+    }
+    .empty-icon{
+        width: 84px; height: 84px;
+        border-radius: 22px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        margin: 0 auto 1.25rem;
+        background: rgba(241,245,249,.95);
+        border: 1px solid rgba(226,232,240,.95);
+        color: rgba(100,116,139,.8);
+        font-size: 2rem;
+        box-shadow: 0 18px 32px -28px rgba(15,23,42,.45);
     }
 
-    .empty-icon {
-        width: 80px;
-        height: 80px;
-        background: #F1F5F9;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-        color: #94A3B8;
-        font-size: 2rem;
+    @@media (max-width: 992px){
+        .table-custom thead{ display:none; }
+        .table-custom, .table-custom tbody, .table-custom tr, .table-custom td{ display:block; width:100%; }
+        .table-custom tr{
+            margin: .85rem;
+            border: 1px solid rgba(212,222,236,.95);
+            border-radius: 18px;
+            overflow:hidden;
+            background: rgba(255,255,255,.96);
+        }
+        .table-custom td{
+            border-bottom: 1px solid rgba(241,245,249,.95);
+            padding: .95rem 1rem;
+        }
+        .table-custom td:last-child{ border-bottom:none; }
+        .action-group{ justify-content:flex-start; }
+        .contact-info{ min-width: 0; }
+    }
+
+    @@media (prefers-reduced-motion: reduce){
+        .page-container, .table-custom tbody tr{ animation: none; opacity:1; }
+        .btn-add-record, .btn-search, .btn-action{ transition:none; }
     }
 </style>
 
-<div class="container-fluid page-container px-4" style="max-width: 1600px;">
+<div class="dir-shell">
+    <div class="page-container">
 
-    <!-- Header -->
-    <div class="page-header">
-        <div class="header-text">
-            <div class="header-title">
-                <h1><i class="fas fa-folder-medical text-primary"></i> Medical Records</h1>
+        <!-- Header -->
+        <div class="page-header">
+            <div class="title-wrap">
+                <h1><i class="fas fa-folder-medical" style="color:var(--primary)"></i> Medical Records</h1>
+                <p class="sub">Access and manage patient dossiers securely — fast search, quick actions, clean overview.</p>
             </div>
-            <div class="header-subtitle">
-                Access and manage patient dossiers securely.
+
+            <a href="@Url.Action("Create", "DossierMedicals", new { area = "Medical" })" class="btn-add-record">
+                <i class="fas fa-plus"></i>
+                <span>New Record</span>
+            </a>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+
+            <form method="get" action="@Url.Action("Index", "DossierMedicals", new { area = "Medical" })" class="search-wrapper">
+                <div class="search-input-group">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text"
+                           name="searchTerm"
+                           value="@ViewBag.SearchTerm"
+                           class="form-control-search"
+                           placeholder="Search by name, phone, or email..."
+                           autocomplete="off" />
+                </div>
+
+                <button type="submit" class="btn-search">
+                    <i class="fas fa-search me-1"></i> Search
+                </button>
+
+                @if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string))
+                {
+                    <a href="@Url.Action("Index", "DossierMedicals", new { area = "Medical" })" class="btn-clear" title="Clear search">
+                        <i class="fas fa-times"></i>
+                    </a>
+                }
+            </form>
+
+            <div class="meta-chips ms-auto">
+                <span class="meta-chip">
+                    <i class="fas fa-database"></i>
+                    @(Model?.Count() ?? 0) dossiers
+                </span>
+                @if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string))
+                {
+                    <span class="meta-chip">
+                        <i class="fas fa-filter"></i>
+                        Filtré
+                    </span>
+                }
             </div>
         </div>
-        <a href="@Url.Action("Create", "DossierMedicals", new { area = "Medical" })" class="btn-add-record">
-            <i class="fas fa-plus"></i>
-            <span>New Record</span>
-        </a>
-    </div>
 
-    <!-- Search Toolbar -->
-    <form method="get" action="@Url.Action("Index", "DossierMedicals", new { area = "Medical" })">
-        <div class="search-wrapper">
-            <div class="search-input-group">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" name="searchTerm" value="@ViewBag.SearchTerm" 
-                       class="form-control-search" 
-                       placeholder="Search by name, phone, or email..." 
-                       autocomplete="off">
+        <!-- Success Message -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success d-flex align-items-center shadow-sm border-0 rounded-3 mb-4 p-3 bg-white border-start border-success border-4">
+                <i class="fas fa-check-circle text-success me-3 fs-5"></i>
+                <div class="text-success fw-medium">@TempData["SuccessMessage"]</div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-            <button type="submit" class="btn-search">Search</button>
-            @if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string))
+        }
+
+        <!-- Content -->
+        <div class="data-card">
+            @if (Model == null || !Model.Any())
             {
-                <a href="@Url.Action("Index", "DossierMedicals", new { area = "Medical" })" class="btn-search text-danger" title="Clear">
-                    <i class="fas fa-times"></i>
-                </a>
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-folder-open"></i></div>
+                    <h4 class="fw-bold text-dark mb-2">No records found</h4>
+                    <p class="text-muted mb-4">Start by creating a dossier for a patient.</p>
+                    <a href="@Url.Action("Create", "DossierMedicals", new { area = "Medical" })" class="btn-add-record d-inline-flex">
+                        <i class="fas fa-plus"></i> Create First Record
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>Patient Identity</th>
+                                <th>Contact Details</th>
+                                <th>Last Activity</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ var delayIndex = 0; }
+                            @foreach (var item in Model)
+                            {
+                                var nom = item.Patient?.Nom ?? "Unknown";
+                                var prenom = item.Patient?.Prenom ?? "";
+                                var fullName = $"{nom} {prenom}".Trim();
+                                var initial =
+                                    (nom.Length > 0 ? nom[0].ToString() : "U") +
+                                    (prenom.Length > 0 ? prenom[0].ToString() : "");
+
+                                var lastConsult = item.Consultations?.OrderByDescending(c => c.Date).FirstOrDefault()?.Date;
+
+                                var delayStyle = $"animation-delay: {delayIndex * 0.04}s;";
+                                delayIndex++;
+
+                                <tr style="@delayStyle"
+                                    onclick="window.location='@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = item.Id })'">
+                                    <td>
+                                        <div class="patient-cell">
+                                            <div class="avatar-circle">@initial</div>
+                                            <div>
+                                                <div class="patient-name">@fullName</div>
+                                                <span class="info-sub">
+                                                    Born: @(item.Patient?.DateNaissance.ToShortDateString() ?? "N/A")
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <div class="contact-info">
+                                            <span class="contact-line">
+                                                <i class="fas fa-phone-alt"></i>
+                                                <span>@(item.Patient?.Telephone ?? "N/A")</span>
+                                            </span>
+
+                                            @if (!string.IsNullOrEmpty(item.Patient?.Email))
+                                            {
+                                                <span class="contact-line" title="@item.Patient.Email">
+                                                    <i class="fas fa-envelope"></i>
+                                                    <span style="overflow:hidden;text-overflow:ellipsis;">@item.Patient.Email</span>
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        @if (lastConsult.HasValue)
+                                        {
+                                            <span class="date-badge">
+                                                <i class="far fa-calendar-alt" style="color:rgba(100,116,139,.8)"></i>
+                                                @lastConsult.Value.ToString("dd MMM yyyy")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small fst-italic">No visits yet</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <div class="action-group" onclick="event.stopPropagation();">
+                                            <a href="@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = item.Id })"
+                                               class="btn-action" title="Open dossier">
+                                                <i class="fas fa-chevron-right"></i>
+                                            </a>
+
+                                            <a href="@Url.Action("Delete", "DossierMedicals", new { area = "Medical", id = item.Id })"
+                                               class="btn-action delete" title="Delete dossier">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
         </div>
-    </form>
 
-    <!-- Success Message -->
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success d-flex align-items-center shadow-sm border-0 rounded-3 mb-4 p-3 bg-white border-start border-success border-4 animate__animated animate__fadeIn">
-            <i class="fas fa-check-circle text-success me-3 fs-5"></i>
-            <div class="text-success fw-medium">@TempData["SuccessMessage"]</div>
-            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
-    <!-- Content -->
-    <div class="data-card">
-        @if (!Model.Any())
-        {
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fas fa-folder-open"></i>
-                </div>
-                <h4 class="fw-bold text-dark mb-2">No records found</h4>
-                <p class="text-muted mb-4">Start by creating a dossier for a patient.</p>
-                <a href="@Url.Action("Create", "DossierMedicals", new { area = "Medical" })" class="btn-add-record d-inline-flex">
-                    Create First Record
-                </a>
-            </div>
-        }
-        else
-        {
-            <div class="table-responsive">
-                <table class="table-custom">
-                    <thead>
-                        <tr>
-                            <th>Patient Identity</th>
-                            <th>Contact Details</th>
-                            <th>Last Activity</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @{ var delayIndex = 0; }
-                        @foreach (var item in Model)
-                        {
-                            var nom = item.Patient?.Nom ?? "Unknown";
-                            var prenom = item.Patient?.Prenom ?? "";
-                            var fullName = $"{nom} {prenom}";
-                            var initial = (nom.Length > 0 ? nom[0].ToString() : "") + (prenom.Length > 0 ? prenom[0].ToString() : "");
-                            var lastConsult = item.Consultations?.OrderByDescending(c => c.Date).FirstOrDefault()?.Date;
-                            
-                            // Staggered animation delay
-                            var delayStyle = $"animation-delay: {delayIndex * 0.05}s;";
-                            delayIndex++;
-
-                            <tr style="@delayStyle" onclick="window.location='@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = item.Id })'">
-                                <td>
-                                    <div class="patient-cell">
-                                        <div class="avatar-circle">@initial</div>
-                                        <div>
-                                            <div class="fw-bold text-dark">@fullName</div>
-                                            <span class="info-sub">Born: @(item.Patient?.DateNaissance.ToShortDateString() ?? "N/A")</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="contact-info">
-                                        <span><i class="fas fa-phone-alt"></i> @(item.Patient?.Telephone ?? "N/A")</span>
-                                        @if (!string.IsNullOrEmpty(item.Patient?.Email))
-                                        {
-                                            <span><i class="fas fa-envelope"></i> @item.Patient.Email</span>
-                                        }
-                                    </div>
-                                </td>
-                                <td>
-                                    @if (lastConsult.HasValue)
-                                    {
-                                        <span class="date-badge">
-                                            <i class="far fa-calendar-alt me-1 text-muted"></i> 
-                                            @lastConsult.Value.ToString("dd MMM yyyy")
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted small fst-italic">No visits yet</span>
-                                    }
-                                </td>
-                                <td>
-                                    <div class="action-group" onclick="event.stopPropagation();">
-                                        <a href="@Url.Action("Details", "DossierMedicals", new { area = "Medical", id = item.Id })" 
-                                           class="btn-action" title="View Dashboard">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </a>
-                                        <a href="@Url.Action("Delete", "DossierMedicals", new { area = "Medical", id = item.Id })" 
-                                           class="btn-action delete" title="Delete Record">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
     </div>
 </div>
