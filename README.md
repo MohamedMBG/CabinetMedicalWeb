@@ -1,16 +1,4 @@
-Parfait.
-Voici **LE FICHIER COMPLET `README.md`**, **clé en main**, **à télécharger / copier-coller tel quel**, **sans rien modifier**.
 
-👉 **Comment l’utiliser**
-
-1. Crée un fichier nommé **`README.md`**
-2. Copie **exactement** le contenu ci-dessous
-3. Colle-le dans le fichier
-4. Commit & push
-
----
-
-```md
 # 🏥 CabinetMedicalWeb
 
 **CabinetMedicalWeb** est une application web de **gestion de cabinet médical** développée avec **ASP.NET Core MVC (.NET 8)**.  
