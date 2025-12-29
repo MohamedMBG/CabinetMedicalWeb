@@ -4,10 +4,12 @@ using System.Threading.Tasks;
 using CabinetMedicalWeb.Areas.FrontDesk.Models;
 using CabinetMedicalWeb.Data;
 using CabinetMedicalWeb.Models;
+using CabinetMedicalWeb.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
 {
@@ -16,10 +18,14 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
     public class ReservationRequestsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IEmailService _emailService;
+        private readonly ILogger<ReservationRequestsController> _logger;
 
-        public ReservationRequestsController(ApplicationDbContext context)
+        public ReservationRequestsController(ApplicationDbContext context, IEmailService emailService, ILogger<ReservationRequestsController> logger)
         {
             _context = context;
+            _emailService = emailService;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index(string? statut)
@@ -141,7 +147,38 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["ReservationApprouvee"] = "La demande a été validée et le rendez-vous a été créé.";
+            // Send Confirmation Email
+            if (!string.IsNullOrWhiteSpace(reservation.Email))
+            {
+                try
+                {
+                    var doctor = await _context.Users.FindAsync(model.DoctorId);
+                    var doctorName = doctor != null ? $"Dr. {doctor.Nom}" : "un médecin du cabinet";
+                    
+                    var subject = "Confirmation de votre rendez-vous - Cabinet Médical Aurora";
+                    var body = $@"
+                        <div style='font-family: Arial, sans-serif; color: #333;'>
+                            <h2 style='color: #10B981;'>Rendez-vous Confirmé</h2>
+                            <p>Bonjour {reservation.Prenom} {reservation.Nom},</p>
+                            <p>Nous avons le plaisir de confirmer votre demande de rendez-vous.</p>
+                            <div style='background-color: #f9f9f9; padding: 15px; border-radius: 8px; border-left: 4px solid #10B981; margin: 15px 0;'>
+                                <p><strong>Date et Heure :</strong> {model.DateHeure:dddd dd MMMM yyyy à HH:mm}</p>
+                                <p><strong>Médecin :</strong> {doctorName}</p>
+                                <p><strong>Motif :</strong> {reservation.Motif}</p>
+                            </div>
+                            <p>Merci de vous présenter 10 minutes avant l'heure du rendez-vous.</p>
+                            <p>Cordialement,<br>L'équipe du Cabinet Médical Aurora</p>
+                        </div>";
+
+                    await _emailService.SendEmailAsync(reservation.Email, subject, body);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Erreur lors de l'envoi de l'email de confirmation pour la réservation {Id}", reservation.Id);
+                }
+            }
+
+            TempData["ReservationApprouvee"] = "La demande a été validée, le rendez-vous créé et l'email de confirmation envoyé.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -164,7 +201,33 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
             reservation.Statut = ReservationStatus.Rejected;
             await _context.SaveChangesAsync();
 
-            TempData["ReservationRefusee"] = "La demande a été refusée.";
+            // Send Rejection Email
+            if (!string.IsNullOrWhiteSpace(reservation.Email))
+            {
+                try
+                {
+                    var subject = "Concernant votre demande de rendez-vous - Cabinet Médical Aurora";
+                    var body = $@"
+                        <div style='font-family: Arial, sans-serif; color: #333;'>
+                            <h2 style='color: #EF4444;'>Demande de Rendez-vous</h2>
+                            <p>Bonjour {reservation.Prenom} {reservation.Nom},</p>
+                            <p>Nous ne sommes malheureusement pas en mesure de donner une suite favorable à votre demande de rendez-vous pour le motif suivant :</p>
+                            <div style='background-color: #fff5f5; padding: 15px; border-radius: 8px; border-left: 4px solid #EF4444; margin: 15px 0;'>
+                                <p>Le créneau demandé n'est plus disponible ou le médecin n'est pas disponible.</p>
+                            </div>
+                            <p>Nous vous invitons à nous contacter par téléphone ou à effectuer une nouvelle demande pour une autre date.</p>
+                            <p>Cordialement,<br>L'équipe du Cabinet Médical Aurora</p>
+                        </div>";
+
+                    await _emailService.SendEmailAsync(reservation.Email, subject, body);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Erreur lors de l'envoi de l'email de refus pour la réservation {Id}", reservation.Id);
+                }
+            }
+
+            TempData["ReservationRefusee"] = "La demande a été refusée et l'email de notification envoyé.";
             return RedirectToAction(nameof(Index));
         }
 

@@ -44,15 +44,18 @@ namespace CabinetMedicalWeb.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Submit([Bind(Prefix = "Form", Include = "Nom,Prenom,Adresse,Telephone,Email,DateNaissance,DateSouhaitee,Motif")] ReservationRequest form)
-        {
+        public async Task<IActionResult> Submit(ReservationRequest form)
+        { 
+            
+            // Re-validate logic manually if needed or rely on Data Annotations
             if (form.DateSouhaitee < DateTime.Now)
             {
-                ModelState.AddModelError(nameof(form.DateSouhaitee), "Veuillez choisir une date future pour la consultation.");
+                ModelState.AddModelError("DateSouhaitee", "Veuillez choisir une date future pour la consultation.");
             }
 
             if (!ModelState.IsValid)
             {
+                // If invalid, we need to reload the dashboard data (history) to redisplay the page correctly
                 var invalidModel = new ReservationDashboardViewModel
                 {
                     Form = form
@@ -70,11 +73,15 @@ namespace CabinetMedicalWeb.Controllers
                 return View("Dashboard", invalidModel);
             }
 
+            // Set default status
             form.Statut = ReservationStatus.Pending;
+            
             _context.ReservationRequests.Add(form);
             await _context.SaveChangesAsync();
 
             TempData["ReservationSuccess"] = "Votre demande a été envoyée à la secrétaire pour validation.";
+            
+            // Redirect back to dashboard with email to show the new request in the list
             return RedirectToAction(nameof(Dashboard), new { email = form.Email });
         }
     }
