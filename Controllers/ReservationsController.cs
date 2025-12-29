@@ -44,7 +44,7 @@ namespace CabinetMedicalWeb.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Submit([Bind("Nom,Prenom,Adresse,Telephone,Email,DateNaissance,DateSouhaitee,Motif")] ReservationRequest form)
+        public async Task<IActionResult> Submit([Bind(Prefix = "Form", Include = "Nom,Prenom,Adresse,Telephone,Email,DateNaissance,DateSouhaitee,Motif")] ReservationRequest form)
         {
             if (form.DateSouhaitee < DateTime.Now)
             {
