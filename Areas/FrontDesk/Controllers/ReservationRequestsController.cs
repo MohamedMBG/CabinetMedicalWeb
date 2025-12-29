@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CabinetMedicalWeb.Areas.FrontDesk.Models;
 using CabinetMedicalWeb.Data;
 using CabinetMedicalWeb.Models;
+using CabinetMedicalWeb.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -16,10 +17,12 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
     public class ReservationRequestsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IReservationNotificationService _notificationService;
 
-        public ReservationRequestsController(ApplicationDbContext context)
+        public ReservationRequestsController(ApplicationDbContext context, IReservationNotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
         public async Task<IActionResult> Index(string? statut)
@@ -83,6 +86,9 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
                 return NotFound();
             }
 
+            var previousStatus = reservation.Statut;
+            var previousConfirmedDate = reservation.DateHeureConfirmee;
+
             if (!string.Equals(reservation.Statut, ReservationStatus.Pending, StringComparison.OrdinalIgnoreCase))
             {
                 TempData["ReservationApprouvee"] = "Cette demande a déjà été traitée.";
@@ -141,6 +147,8 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
 
             await _context.SaveChangesAsync();
 
+            await _notificationService.NotifyStatusChangeAsync(reservation, previousStatus, previousConfirmedDate);
+
             TempData["ReservationApprouvee"] = "La demande a été validée et le rendez-vous a été créé.";
             return RedirectToAction(nameof(Index));
         }
@@ -155,6 +163,9 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
                 return NotFound();
             }
 
+            var previousStatus = reservation.Statut;
+            var previousConfirmedDate = reservation.DateHeureConfirmee;
+
             if (!string.Equals(reservation.Statut, ReservationStatus.Pending, StringComparison.OrdinalIgnoreCase))
             {
                 TempData["ReservationRefusee"] = "Cette demande a déjà été traitée.";
@@ -163,6 +174,8 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
 
             reservation.Statut = ReservationStatus.Rejected;
             await _context.SaveChangesAsync();
+
+            await _notificationService.NotifyStatusChangeAsync(reservation, previousStatus, previousConfirmedDate);
 
             TempData["ReservationRefusee"] = "La demande a été refusée.";
             return RedirectToAction(nameof(Index));

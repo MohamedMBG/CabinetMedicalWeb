@@ -1,0 +1,39 @@
+@model CabinetMedicalWeb.Models.ReservationNotificationModel
+@{
+    var reservation = Model.Reservation;
+    string confirmedDate = reservation.DateHeureConfirmee?.ToString("dddd d MMMM yyyy 'à' HH:mm") ?? "Non confirmé";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Mise à jour de votre réservation</title>
+</head>
+<body style="font-family: Arial, sans-serif; color: #333;">
+    <h2 style="color: #2c5282;">Bonjour @reservation.Prenom @reservation.Nom,</h2>
+    <p>Votre demande de réservation a été mise à jour.</p>
+
+    <table style="border-collapse: collapse; width: 100%; margin-top: 16px;">
+        <tr>
+            <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Statut précédent</td>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">@Model.PreviousStatus</td>
+        </tr>
+        <tr>
+            <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Nouveau statut</td>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">@reservation.Statut</td>
+        </tr>
+        <tr>
+            <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Créneau confirmé</td>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">@confirmedDate</td>
+        </tr>
+        <tr>
+            <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Motif</td>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">@reservation.Motif</td>
+        </tr>
+    </table>
+
+    <p style="margin-top: 16px;">Si vous avez des questions, vous pouvez répondre directement à cet email ou appeler notre secrétariat.</p>
+    <p>Merci,<br />L'équipe du cabinet médical</p>
+</body>
+</html>

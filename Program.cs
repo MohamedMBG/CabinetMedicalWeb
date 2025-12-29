@@ -1,6 +1,7 @@
 using CabinetMedicalWeb.Data;
 using CabinetMedicalWeb.Models;
 using CabinetMedicalWeb.Services; // Namespace for Email and Cloudinary services
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,6 +37,10 @@ namespace CabinetMedicalWeb
             // --- EMAIL CONFIGURATION ---
             builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp")); 
             builder.Services.AddTransient<IEmailService, SmtpEmailService>();
+            builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<IViewRenderService, RazorViewRenderService>();
+            builder.Services.AddScoped<IReservationNotificationService, ReservationNotificationService>();
 
             // --- CLOUDINARY CONFIGURATION (New) ---
             // Registers the Cloudinary service so it can be injected into LaboController
