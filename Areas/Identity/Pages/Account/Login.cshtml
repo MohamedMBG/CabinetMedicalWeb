@@ -1,119 +1,430 @@
 @page
-@model CabinetMedicalWeb.Areas.Identity.Pages.Account.LoginModel 
+@model CabinetMedicalWeb.Areas.Identity.Pages.Account.LoginModel
 @{
     ViewData["Title"] = "Sign In";
 }
 
+<style>
+    :root{
+        --primary:#7AA3D1;
+        --primary2:#A7CBED;
+        --ink:#0f172a;
+        --muted:#64748b;
+        --surface:rgba(255,255,255,.92);
+        --border:rgba(226,232,240,.9);
+        --shadow:0 22px 60px -40px rgba(15,23,42,.55);
+        --shadow2:0 16px 40px -26px rgba(122,163,209,.55);
+    }
+
+    /* ✅ Smooth scrolling (anchors) */
+    html{ scroll-behavior:smooth; }
+
+    /* ✅ Better motion defaults */
+    *{
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    @@keyframes fadeInUp{
+        from{opacity:0;transform:translateY(18px)}
+        to{opacity:1;transform:translateY(0)}
+    }
+    @@keyframes floaty{
+        0%,100%{transform:translateY(0)}
+        50%{transform:translateY(-10px)}
+    }
+    @@keyframes shimmer{
+        0%{transform:translateX(-120%)}
+        100%{transform:translateX(220%)}
+    }
+
+    .auth-hero{
+        min-height: calc(100vh - 72px);
+        background:
+            radial-gradient(circle at 12% 12%, rgba(122,163,209,.22), transparent 40%),
+            radial-gradient(circle at 90% 0%, rgba(167,203,237,.26), transparent 46%),
+            linear-gradient(180deg, rgba(248,250,252,.98), rgba(233,239,247,.92));
+        font-family:'Inter', system-ui, -apple-system, sans-serif;
+        overflow:hidden;
+        position:relative;
+
+        /* ✅ smoother scrolling on touchpads / iOS */
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Soft animated blobs */
+    .auth-hero::before{
+        content:"";
+        position:absolute;
+        inset:-200px -200px auto auto;
+        width:520px;height:520px;
+        background: radial-gradient(circle, rgba(122,163,209,.20), transparent 60%);
+        border-radius:50%;
+        pointer-events:none;
+        animation: floaty 10s ease-in-out infinite;
+        opacity:.9;
+    }
+    .auth-hero::after{
+        content:"";
+        position:absolute;
+        inset:auto auto -220px -180px;
+        width:520px;height:520px;
+        background: radial-gradient(circle, rgba(167,203,237,.22), transparent 62%);
+        border-radius:50%;
+        pointer-events:none;
+        animation: floaty 12s ease-in-out infinite;
+        opacity:.85;
+    }
+
+    .auth-grid{ position:relative; z-index:2; }
+
+    /* ✅ reveal on load */
+    .reveal{
+        opacity:0;
+        transform: translateY(18px);
+        animation: fadeInUp .65s cubic-bezier(.16,1,.3,1) forwards;
+        will-change: transform, opacity;
+    }
+    .reveal.delay-1{ animation-delay:.08s; }
+    .reveal.delay-2{ animation-delay:.16s; }
+    .reveal.delay-3{ animation-delay:.24s; }
+
+    /* Cards */
+    .auth-card{
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        box-shadow: var(--shadow2);
+        padding: 2rem 2.1rem;
+        backdrop-filter: blur(10px);
+        position:relative;
+        overflow:hidden;
+    }
+
+    /* ✅ subtle shimmer highlight */
+    .auth-card::after{
+        content:"";
+        position:absolute;
+        top:0; left:-40%;
+        width:40%; height:100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,.28), transparent);
+        transform: skewX(-16deg);
+        opacity:.35;
+        animation: shimmer 3.8s ease-in-out infinite;
+        pointer-events:none;
+    }
+
+    .badge-soft{
+        display:inline-flex;
+        align-items:center;
+        gap:.55rem;
+        padding:.5rem .9rem;
+        border-radius:999px;
+        font-weight:900;
+        font-size:.78rem;
+        letter-spacing:.06em;
+        text-transform:uppercase;
+        color:#0b3a52;
+        background: rgba(122,163,209,.18);
+        border:1px solid rgba(122,163,209,.22);
+    }
+
+    .auth-headline{
+        font-size: 2.3rem;
+        font-weight: 950;
+        letter-spacing: -0.04em;
+        color: var(--ink);
+        margin: .85rem 0 .6rem;
+        line-height: 1.08;
+    }
+
+    .auth-sub{
+        color: var(--muted);
+        font-size: 1.03rem;
+        line-height: 1.65;
+        margin-bottom: 1.35rem;
+    }
+
+    .feature-tile{
+        background: rgba(255,255,255,.92);
+        border: 1px solid rgba(226,232,240,.95);
+        border-radius: 16px;
+        padding: .95rem 1rem;
+        display:flex;
+        gap:.85rem;
+        align-items:flex-start;
+        height: 100%;
+        transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+        will-change: transform;
+    }
+    .feature-tile:hover{
+        transform: translateY(-2px);
+        border-color: rgba(122,163,209,.45);
+        box-shadow: 0 18px 34px -30px rgba(15,23,42,.45);
+    }
+
+    .icon-chip{
+        width: 44px; height: 44px;
+        border-radius: 14px;
+        display:grid;
+        place-items:center;
+        color:#fff;
+        background: linear-gradient(135deg, var(--primary), var(--primary2));
+        box-shadow: 0 18px 26px -20px rgba(122,163,209,.9);
+        flex-shrink:0;
+    }
+    .icon-chip.is-info{ background: linear-gradient(135deg, #60a5fa, #38bdf8); }
+    .icon-chip.is-success{ background: linear-gradient(135deg, #34d399, #10b981); }
+    .icon-chip.is-warn{ background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+
+    /* Right panel */
+    .auth-panel{
+        background: rgba(255,255,255,.96);
+        border: 1px solid rgba(226,232,240,.95);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        padding: 2rem 2.1rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .icon-circle-lg{
+        width: 64px; height: 64px;
+        border-radius: 20px;
+        display:grid;
+        place-items:center;
+        background: linear-gradient(135deg, var(--primary), var(--primary2));
+        box-shadow: 0 22px 36px -26px rgba(122,163,209,1);
+        margin: 0 auto;
+    }
+
+    .panel-title{
+        font-weight: 950;
+        letter-spacing: -0.03em;
+        color: var(--ink);
+        margin-bottom: .35rem;
+    }
+    .panel-sub{ color: var(--muted); font-weight: 650; }
+
+    /* Inputs */
+    .form-label{ color: var(--ink); font-weight: 900; }
+    .input-group-lg .input-group-text{
+        background: rgba(248,250,252,.95);
+        border: 1px solid rgba(226,232,240,.95);
+        color: rgba(100,116,139,.9);
+        border-right: none;
+        border-radius: 14px 0 0 14px;
+        padding: .85rem 1rem;
+    }
+    .input-group-lg .form-control{
+        border: 1px solid rgba(226,232,240,.95);
+        border-left: none;
+        border-radius: 0 14px 14px 0;
+        padding: .85rem 1rem;
+        font-weight: 750;
+        color: var(--ink);
+        background: rgba(248,250,252,.72);
+        transition: box-shadow .16s ease, border-color .16s ease, background .16s ease, transform .16s ease;
+        will-change: transform;
+    }
+    .input-group-lg .form-control:focus{
+        background:#fff;
+        border-color: rgba(122,163,209,.65);
+        box-shadow: 0 0 0 .25rem rgba(167,203,237,.55);
+        outline:none;
+        transform: translateY(-1px);
+    }
+
+    /* Password toggle */
+    .btn-eye{
+        border: 1px solid rgba(226,232,240,.95);
+        border-left:none;
+        background: rgba(248,250,252,.95);
+        color: rgba(100,116,139,.9);
+        border-radius: 0 14px 14px 0;
+        padding: .85rem .95rem;
+        transition: background .14s ease, color .14s ease;
+    }
+    .btn-eye:hover{ background: rgba(231,240,249,.9); color: var(--ink); }
+
+    .remember-row{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-hero-primary{
+        background: linear-gradient(135deg, var(--primary), var(--primary2));
+        border: 1px solid rgba(255,255,255,.25);
+        color:#fff;
+        border-radius: 16px;
+        font-weight: 950;
+        letter-spacing: -0.01em;
+        box-shadow: 0 22px 36px -28px rgba(122,163,209,1);
+        transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+        will-change: transform;
+    }
+    .btn-hero-primary:hover{
+        color:#fff;
+        transform: translateY(-2px);
+        filter: saturate(1.05);
+        box-shadow: 0 30px 46px -34px rgba(122,163,209,1);
+    }
+
+    .link-primary-soft{
+        color: var(--primary);
+        font-weight: 950;
+        text-decoration: none;
+    }
+    .link-primary-soft:hover{
+        color: #5e98c4;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    @@media (max-width: 992px){
+        .auth-hero{ padding-top: 2rem; }
+        .auth-headline{ font-size: 2.05rem; }
+    }
+
+    /* ✅ Accessibility: respect reduced motion */
+    @@media (prefers-reduced-motion: reduce){
+        html{ scroll-behavior:auto; }
+        .reveal{ animation:none !important; opacity:1 !important; transform:none !important; }
+        .auth-hero::before, .auth-hero::after{ animation:none !important; }
+        .auth-card::after{ animation:none !important; }
+        .feature-tile, .btn-hero-primary, .form-control{ transition:none !important; }
+    }
+</style>
+
 <section class="auth-hero py-5">
-    <div class="container py-4">
+    <div class="container py-4 auth-grid">
         <div class="row g-4 align-items-center">
+
+            <!-- LEFT -->
             <div class="col-lg-6">
-                <div class="auth-card shadow-lg">
+                <div class="auth-card reveal">
                     <div class="badge-soft mb-3">
-                        <i class="fas fa-tooth me-2"></i>
-                        Welcome back to our medical cabinet
+                        <i class="fas fa-tooth"></i>
+                        Welcome back
                     </div>
-                    <h1 class="display-5 fw-bold mb-3">Reconnect with your care team</h1>
-                    <p class="lead text-muted mb-4">
-                        Manage appointments, access patient records, and collaborate seamlessly with your colleagues.
-                        Your personalized dashboard keeps everything organized.
+
+                    <h1 class="auth-headline">Reconnect with your care team</h1>
+                    <p class="auth-sub">
+                        Manage appointments, access patient records, and collaborate smoothly.
+                        Your dashboard keeps the clinic organized — without the mess.
                     </p>
+
                     <div class="row g-3">
-                        <div class="col-md-6">
+                        <div class="col-md-6 reveal delay-1">
                             <div class="feature-tile">
-                                <div class="icon-circle bg-primary-subtle text-primary">
-                                    <i class="fas fa-calendar-alt"></i>
-                                </div>
+                                <div class="icon-chip"><i class="fas fa-calendar-alt"></i></div>
                                 <div>
-                                    <div class="fw-semibold">Smart scheduling</div>
-                                    <small class="text-muted">Keep track of upcoming visits effortlessly.</small>
+                                    <div class="fw-bold" style="color:var(--ink)">Smart scheduling</div>
+                                    <small class="text-muted">Stay on top of upcoming visits.</small>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+
+                        <div class="col-md-6 reveal delay-1">
                             <div class="feature-tile">
-                                <div class="icon-circle bg-info-subtle text-info">
-                                    <i class="fas fa-user-md"></i>
-                                </div>
+                                <div class="icon-chip is-info"><i class="fas fa-user-md"></i></div>
                                 <div>
-                                    <div class="fw-semibold">Patient-first design</div>
-                                    <small class="text-muted">Clear access to records and prescriptions.</small>
+                                    <div class="fw-bold" style="color:var(--ink)">Patient-first</div>
+                                    <small class="text-muted">Clear access to records & prescriptions.</small>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+
+                        <div class="col-md-6 reveal delay-2">
                             <div class="feature-tile">
-                                <div class="icon-circle bg-success-subtle text-success">
-                                    <i class="fas fa-shield-alt"></i>
-                                </div>
+                                <div class="icon-chip is-success"><i class="fas fa-shield-alt"></i></div>
                                 <div>
-                                    <div class="fw-semibold">Secure by default</div>
-                                    <small class="text-muted">Your data is protected with modern safeguards.</small>
+                                    <div class="fw-bold" style="color:var(--ink)">Secure by default</div>
+                                    <small class="text-muted">Modern safeguards for sensitive data.</small>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+
+                        <div class="col-md-6 reveal delay-2">
                             <div class="feature-tile">
-                                <div class="icon-circle bg-warning-subtle text-warning">
-                                    <i class="fas fa-bell"></i>
-                                </div>
+                                <div class="icon-chip is-warn"><i class="fas fa-bell"></i></div>
                                 <div>
-                                    <div class="fw-semibold">Instant alerts</div>
-                                    <small class="text-muted">Stay informed about updates in real time.</small>
+                                    <div class="fw-bold" style="color:var(--ink)">Instant alerts</div>
+                                    <small class="text-muted">Get updates in real time.</small>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center gap-3 mt-4 text-muted small">
-                        <div class="avatar-stack">
-                            <div class="avatar-circle bg-primary text-white">M</div>
-                            <div class="avatar-circle bg-info text-white">S</div>
-                            <div class="avatar-circle bg-success text-white">D</div>
+
+                    <div class="d-flex align-items-center gap-3 mt-4 text-muted small reveal delay-3">
+                        <div class="d-flex">
+                            <div class="avatar-circle" style="background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;">M</div>
+                            <div class="avatar-circle" style="background:linear-gradient(135deg,#60a5fa,#38bdf8);color:#fff;">S</div>
+                            <div class="avatar-circle" style="background:linear-gradient(135deg,#34d399,#10b981);color:#fff;">D</div>
                         </div>
                         <div>
-                            <div class="fw-semibold text-secondary">Trusted by teams across our clinic</div>
-                            <div>Role-tailored experiences for doctors, secretaries, and admins.</div>
+                            <div class="fw-bold" style="color:var(--ink)">Trusted by clinic teams</div>
+                            <div class="text-muted">Role-tailored access for doctors, secretaries, and admins.</div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- RIGHT -->
             <div class="col-lg-6 col-xl-5 ms-lg-auto">
-                <div class="auth-panel shadow-lg">
+                <div class="auth-panel reveal delay-1">
                     <div class="text-center mb-4">
                         <div class="icon-circle-lg text-white mb-3">
                             <i class="fas fa-lock"></i>
                         </div>
-                        <h2 class="fw-bold mb-1">Sign in to continue</h2>
-                        <p class="text-muted mb-0">Access your workspace with your account credentials.</p>
+                        <h2 class="panel-title">Sign in to continue</h2>
+                        <p class="panel-sub mb-0">Use your account credentials to access your workspace.</p>
                     </div>
 
-                    <form id="account" method="post">
-                        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                    <form id="account" method="post" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
 
                         <div class="mb-3">
-                            <label asp-for="Input.Email" class="form-label fw-semibold"></label>
+                            <label asp-for="Input.Email" class="form-label"></label>
                             <div class="input-group input-group-lg">
                                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                                <input asp-for="Input.Email"
+                                       class="form-control"
+                                       autocomplete="username"
+                                       aria-required="true"
+                                       placeholder="name@example.com" />
                             </div>
-                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                            <span asp-validation-for="Input.Email" class="text-danger small"></span>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Input.Password" class="form-label fw-semibold"></label>
+                        <div class="mb-2">
+                            <label asp-for="Input.Password" class="form-label"></label>
                             <div class="input-group input-group-lg">
                                 <span class="input-group-text"><i class="fas fa-key"></i></span>
-                                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Enter your password" />
+
+                                <input asp-for="Input.Password"
+                                       class="form-control"
+                                       id="passwordInput"
+                                       type="password"
+                                       autocomplete="current-password"
+                                       aria-required="true"
+                                       placeholder="Enter your password" />
+
+                                <button type="button" class="btn-eye" id="togglePassword" aria-label="Show password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
                             </div>
-                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                            <span asp-validation-for="Input.Password" class="text-danger small"></span>
                         </div>
 
-                        <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div class="remember-row mt-3 mb-4">
                             <div class="form-check">
                                 <input class="form-check-input" asp-for="Input.RememberMe" />
-                                <label class="form-check-label" asp-for="Input.RememberMe"></label>
+                                <label class="form-check-label fw-semibold text-muted" asp-for="Input.RememberMe"></label>
                             </div>
-                            <a asp-page="./ForgotPassword" class="text-decoration-none fw-semibold text-primary">Forgot password?</a>
+                            <a asp-page="./ForgotPassword" class="link-primary-soft">Forgot password?</a>
                         </div>
 
                         <button id="login-submit" type="submit" class="btn btn-hero-primary w-100 py-3">
@@ -122,15 +433,59 @@
                         </button>
 
                         <div class="text-center mt-4 text-muted">
-                            New to the platform? <a asp-page="./Register" class="fw-semibold text-primary">Create an account</a>
+                            New here? <a asp-page="./Register" class="link-primary-soft">Create an account</a>
                         </div>
                     </form>
                 </div>
             </div>
+
         </div>
     </div>
 </section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // ✅ Password show/hide
+        (function () {
+            const btn = document.getElementById("togglePassword");
+            const input = document.getElementById("passwordInput");
+            if (!btn || !input) return;
+
+            btn.addEventListener("click", function () {
+                const isPassword = input.getAttribute("type") === "password";
+                input.setAttribute("type", isPassword ? "text" : "password");
+                btn.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
+                btn.innerHTML = isPassword ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+            });
+        })();
+
+        // ✅ Smooth reveal on scroll (IntersectionObserver)
+        (function () {
+            const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            if (reduceMotion) return;
+
+            const els = document.querySelectorAll(".reveal");
+            if (!("IntersectionObserver" in window) || !els.length) {
+                els.forEach(e => { e.style.opacity = 1; e.style.transform = "none"; });
+                return;
+            }
+
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // keep CSS animation (already set) but ensure it starts when visible
+                        entry.target.style.animationPlayState = "running";
+                        io.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.12 });
+
+            els.forEach(el => {
+                // Pause animations until element becomes visible
+                el.style.animationPlayState = "paused";
+                io.observe(el);
+            });
+        })();
+    </script>
 }
