@@ -24,15 +24,23 @@
 
     html { scroll-behavior: smooth; }
 
-    body {
+    body{
         background:
             radial-gradient(circle at 12% 12%, rgba(122,163,209,.18), transparent 35%),
             radial-gradient(circle at 90% 0%, rgba(145,179,217,.16), transparent 35%),
             var(--bg);
         font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
 
-    /* ---- Smooth + performant entry animation (NEVER hide the whole page) ---- */
+    /* ===== PERF: avoid “blocking” =====
+       - keep blur minimal
+       - animate only transform/opacity
+       - avoid huge shadows changing on hover
+       - table area uses its own scrolling with sticky header
+    */
+
     @@keyframes fadeInUp {
         from { opacity: 0; transform: translateY(12px); }
         to   { opacity: 1; transform: translateY(0); }
@@ -43,45 +51,42 @@
         margin: 1.25rem auto 3rem;
         padding: 0 1rem;
 
-        /* IMPORTANT: visible even if animations are disabled */
         opacity: 1;
-
         animation: fadeInUp .55s cubic-bezier(.16,1,.3,1) both;
 
-        /* helps scrolling/perf on long tables */
         content-visibility: auto;
         contain-intrinsic-size: 1px 900px;
     }
 
-    /* Reduce motion: keep visible */
     @@media (prefers-reduced-motion: reduce){
         html { scroll-behavior: auto; }
         .patients-shell{ animation: none !important; }
         *{ transition:none !important; }
     }
 
-    /* --- Glass Container --- */
-    .page-container {
+    /* Container (lighter blur to reduce jank) */
+    .page-container{
         padding: 1.25rem;
-        background: rgba(255,255,255,0.86);
-        backdrop-filter: blur(12px);
+        background: rgba(255,255,255,0.90);
         border-radius: 24px;
+        border: 1px solid rgba(212,222,236,.95);
         box-shadow: 0 18px 42px rgba(31,41,55,0.06);
-        border: 1px solid rgba(255,255,255,0.7);
+        /* keep blur tiny; heavy blur causes lag on some PCs */
+        backdrop-filter: blur(6px);
     }
 
-    /* --- Header --- */
-    .header-section {
+    /* Header */
+    .header-section{
         display:flex;
         justify-content:space-between;
         align-items:flex-end;
         gap: 1rem;
         flex-wrap:wrap;
-        padding: .5rem .25rem 1.25rem;
+        padding: .25rem .25rem 1.25rem;
     }
 
     .title-wrap h1{
-        font-size: 1.9rem;
+        font-size: 1.95rem;
         font-weight: 900;
         color: var(--dark);
         margin: 0;
@@ -90,7 +95,6 @@
         align-items:center;
         gap:.75rem;
     }
-
     .title-wrap h1 i{ color: var(--primary); }
 
     .title-wrap p{
@@ -99,20 +103,21 @@
         font-size: 1rem;
     }
 
-    /* --- Toolbar --- */
-    .toolbar {
+    /* Toolbar */
+    .toolbar{
         display:flex;
         gap:.75rem;
         align-items:center;
         flex-wrap:wrap;
         justify-content:flex-end;
+        flex: 1 1 auto;
     }
 
-    .search-wrapper {
+    .search-wrapper{
         position: relative;
         min-width: 260px;
-        flex: 1 1 320px;
-        max-width: 440px;
+        flex: 1 1 340px;
+        max-width: 520px;
     }
 
     .search-wrapper i{
@@ -120,20 +125,19 @@
         left: 1rem;
         top: 50%;
         transform: translateY(-50%);
-        color: var(--muted);
-        opacity: .85;
+        color: rgba(107,114,128,.9);
         pointer-events:none;
     }
 
     .search-input{
         width: 100%;
-        padding: .9rem 1rem .9rem 2.75rem;
+        padding: .92rem 1rem .92rem 2.75rem;
         border-radius: 16px;
-        border: 1px solid rgba(212,222,236,.9);
-        background: rgba(243,244,246,.9);
+        border: 1px solid rgba(212,222,236,.95);
+        background: rgba(243,244,246,.92);
         font-size: .95rem;
-        transition: box-shadow .2s ease, border-color .2s ease, background .2s ease;
         outline: none;
+        transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
     }
 
     .search-input:focus{
@@ -145,27 +149,49 @@
     .btn-primary-custom{
         background: linear-gradient(135deg, var(--primary) 0%, #6C8CFF 100%);
         color:#fff;
-        padding: .9rem 1.25rem;
+        padding: .92rem 1.25rem;
         border-radius: 16px;
-        font-weight: 700;
+        font-weight: 800;
         display:inline-flex;
         align-items:center;
         gap:.55rem;
         text-decoration:none;
         border: none;
         box-shadow: 0 10px 22px rgba(122,163,209,.28);
-        transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+        transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
         white-space: nowrap;
     }
 
     .btn-primary-custom:hover{
         transform: translateY(-2px);
-        box-shadow: 0 16px 28px rgba(122,163,209,.34);
         filter: brightness(1.02);
+        box-shadow: 0 14px 26px rgba(122,163,209,.32);
         color:#fff;
     }
 
-    /* --- Table Container --- */
+    /* Optional quick stats (light + fast) */
+    .chips-row{
+        display:flex;
+        flex-wrap:wrap;
+        gap:.5rem;
+        margin: 0 0 1rem .25rem;
+    }
+    .chip{
+        display:inline-flex;
+        align-items:center;
+        gap:.45rem;
+        padding: .45rem .8rem;
+        border-radius: 999px;
+        background: rgba(238,244,251,.95);
+        border: 1px solid rgba(212,222,236,.95);
+        color: rgba(31,41,55,.78);
+        font-size: .88rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+    .chip i{ color: var(--primary); }
+
+    /* Table container */
     .table-container{
         background: var(--surface);
         border-radius: 20px;
@@ -173,6 +199,20 @@
         border: 1px solid rgba(212,222,236,.95);
         box-shadow: 0 10px 18px rgba(31,41,55,0.04);
     }
+
+    /* The scroll area is inside (smoother than full page on huge tables) */
+    .table-scroll{
+        max-height: 70vh;
+        overflow: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-gutter: stable;
+    }
+
+    /* Nice scrollbar (optional) */
+    .table-scroll::-webkit-scrollbar{ height: 10px; width: 10px; }
+    .table-scroll::-webkit-scrollbar-thumb{ background: rgba(122,163,209,.35); border-radius: 999px; }
+    .table-scroll::-webkit-scrollbar-track{ background: rgba(241,245,249,.8); }
 
     .custom-table{
         width:100%;
@@ -185,18 +225,20 @@
         padding: 1.05rem 1.25rem;
         text-align:left;
         font-size: .75rem;
-        font-weight: 800;
+        font-weight: 900;
         text-transform: uppercase;
         letter-spacing: .08em;
         color: var(--muted);
         border-bottom: 1px solid rgba(212,222,236,.95);
+
         position: sticky;
         top: 0;
         z-index: 2;
     }
 
     .custom-table tbody tr{
-        transition: background-color .15s ease, transform .15s ease;
+        transition: background-color .12s ease;
+        will-change: background-color;
     }
 
     .custom-table tbody tr:hover{
@@ -213,12 +255,12 @@
 
     .custom-table tbody tr:last-child td{ border-bottom:none; }
 
-    /* --- Patient cell --- */
+    /* Patient cell */
     .patient-info{
         display:flex;
         align-items:center;
         gap: .9rem;
-        min-width: 240px;
+        min-width: 260px;
     }
 
     .avatar-circle{
@@ -233,13 +275,18 @@
         font-size: 1.05rem;
         box-shadow: 0 10px 18px rgba(122,163,209,.22);
         flex: 0 0 auto;
+        transform: translateZ(0);
     }
 
     .patient-name{
-        font-weight: 800;
+        font-weight: 900;
         color: var(--dark);
         display:block;
         line-height: 1.1;
+        max-width: 320px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .patient-email{
@@ -249,19 +296,19 @@
         margin-top: .15rem;
     }
 
-    /* --- Contact --- */
+    /* Contact lines */
     .contact-line{
         display:flex;
         align-items:center;
         gap:.5rem;
         color: var(--muted);
-        font-size:.9rem;
+        font-size:.92rem;
         margin-bottom:.2rem;
         white-space: nowrap;
     }
     .contact-line i{ width:16px; color: rgba(107,114,128,.85); }
 
-    /* --- DOB chip --- */
+    /* DOB chip */
     .date-chip{
         display:inline-flex;
         align-items:center;
@@ -269,13 +316,13 @@
         background: #F1F5F9;
         padding: .4rem .75rem;
         border-radius: 10px;
-        font-weight: 600;
+        font-weight: 700;
         color: #4B5563;
         font-size: .9rem;
         white-space: nowrap;
     }
 
-    /* --- Actions --- */
+    /* Actions */
     .action-group{
         display:flex;
         gap:.45rem;
@@ -290,10 +337,11 @@
         display:grid;
         place-items:center;
         color: var(--muted);
-        background: rgba(243,244,246,.75);
-        border: 1px solid rgba(212,222,236,.7);
+        background: rgba(243,244,246,.78);
+        border: 1px solid rgba(212,222,236,.75);
         text-decoration:none;
-        transition: transform .15s ease, background .15s ease, color .15s ease, border-color .15s ease;
+        transition: transform .14s ease, background .14s ease, color .14s ease, border-color .14s ease;
+        transform: translateZ(0);
     }
 
     .btn-icon:hover{
@@ -301,17 +349,17 @@
         background: #fff;
         color: var(--primary);
         border-color: rgba(122,163,209,.55);
-        box-shadow: 0 10px 18px rgba(31,41,55,.06);
+        box-shadow: 0 10px 16px rgba(31,41,55,.06);
     }
 
     .btn-icon.delete:hover{
         color:#EF4444;
         border-color:#FECACA;
         background:#FEF2F2;
-        box-shadow: 0 10px 18px rgba(239,68,68,.12);
+        box-shadow: 0 10px 16px rgba(239,68,68,.12);
     }
 
-    /* --- Empty state --- */
+    /* Empty state */
     .empty-state{
         text-align:center;
         padding: 4.5rem 1.5rem;
@@ -324,9 +372,13 @@
         opacity: .55;
         color: var(--primary);
     }
+    .empty-state .btn-link{ font-weight: 800; }
 
-    .empty-state .btn-link{
-        font-weight: 700;
+    /* Small responsive tweaks */
+    @@media (max-width: 576px){
+        .page-container{ padding: 1rem; }
+        .patient-info{ min-width: 200px; }
+        .patient-name{ max-width: 200px; }
     }
 </style>
 
@@ -345,7 +397,7 @@
                     <i class="fas fa-search"></i>
                     <input type="text"
                            name="searchString"
-                           value="@ViewData["CurrentFilter"]"
+                           value="@(ViewData["CurrentFilter"] ?? "")"
                            class="search-input"
                            placeholder="Rechercher par nom, prénom, téléphone..."
                            autocomplete="off" />
@@ -357,11 +409,17 @@
             </div>
         </div>
 
+        <!-- Quick chips -->
+        <div class="chips-row">
+            <span class="chip"><i class="fas fa-database"></i> Total: @(Model?.Count() ?? 0)</span>
+            <span class="chip"><i class="fas fa-bolt"></i> Vue optimisée</span>
+        </div>
+
         <!-- Table Content -->
         <div class="table-container">
             @if (Model != null && Model.Any())
             {
-                <div class="table-responsive" style="max-height: 70vh; overflow:auto;">
+                <div class="table-scroll" id="patientsTableScroll">
                     <table class="custom-table">
                         <thead>
                             <tr>
@@ -377,14 +435,14 @@
                                 var nom = item?.Nom ?? "";
                                 var prenom = item?.Prenom ?? "";
                                 var initial =
-                                    (!string.IsNullOrEmpty(nom) ? nom[0].ToString() : "") +
+                                    (!string.IsNullOrEmpty(nom) ? nom[0].ToString() : "•") +
                                     (!string.IsNullOrEmpty(prenom) ? prenom[0].ToString() : "");
 
                                 <tr>
                                     <td>
                                         <div class="patient-info">
                                             <div class="avatar-circle">@initial</div>
-                                            <div>
+                                            <div class="overflow-hidden">
                                                 <span class="patient-name">@nom.ToUpper() @prenom</span>
                                                 <span class="patient-email">ID: #@item.Id</span>
                                             </div>
@@ -401,7 +459,7 @@
                                             {
                                                 <div class="contact-line">
                                                     <i class="fas fa-envelope"></i>
-                                                    <span>@item.Email</span>
+                                                    <span class="text-truncate" style="max-width: 320px;">@item.Email</span>
                                                 </div>
                                             }
                                         </div>
@@ -414,7 +472,7 @@
                                         </span>
                                     </td>
 
-                                    <td>
+                                    <td class="text-end">
                                         <div class="action-group">
                                             <a asp-action="Details" asp-route-id="@item.Id" class="btn-icon" title="Voir les détails" aria-label="Voir">
                                                 <i class="fas fa-eye"></i>
@@ -449,3 +507,25 @@
 
     </div>
 </div>
+
+@section Scripts{
+<script>
+    // Smoothest scroll on heavy pages: keep scroll work inside the table container
+    // and avoid layout thrash (no timers/intervals).
+    document.addEventListener("DOMContentLoaded", () => {
+        const scroller = document.getElementById("patientsTableScroll");
+        if (!scroller) return;
+
+        // Optional: smoother trackpad/wheel feel inside table when user scrolls the page
+        // by capturing wheel only when the container can scroll.
+        scroller.addEventListener("wheel", (e) => {
+            const canScrollDown = scroller.scrollTop + scroller.clientHeight < scroller.scrollHeight;
+            const canScrollUp = scroller.scrollTop > 0;
+            if ((e.deltaY > 0 && canScrollDown) || (e.deltaY < 0 && canScrollUp)) {
+                // Let the container handle it; prevent the body from "fighting" (jank)
+                e.stopPropagation();
+            }
+        }, { passive: true });
+    });
+</script>
+}
