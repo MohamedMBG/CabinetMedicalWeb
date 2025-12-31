@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CabinetMedicalWeb.Models
 {
-    public class RendezVous
+    public class RendezVous : TenantEntity
     {
         public int Id { get; set; }
         public DateTime DateHeure { get; set; }

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CabinetMedicalWeb.Models
 {
-    public class ResultatExamen
+    public class ResultatExamen : TenantEntity
     {
         [Key]
         public int IdResultat { get; set; }

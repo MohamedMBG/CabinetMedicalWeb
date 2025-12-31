@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using CabinetMedicalWeb.Data;
 using CabinetMedicalWeb.Models;
 using CabinetMedicalWeb.Areas.FrontDesk.Models;
+using CabinetMedicalWeb.Services;
 
 namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
 {
@@ -15,32 +16,43 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
     public class PatientsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ICurrentTenantService _currentTenantService;
 
-        public PatientsController(ApplicationDbContext context)
+        public PatientsController(ApplicationDbContext context, ICurrentTenantService currentTenantService)
         {
             _context = context;
+            _currentTenantService = currentTenantService;
         }
 
         // GET: FrontDesk/Patients
         // Ajout du paramètre de recherche
-        public async Task<IActionResult> Index(string searchString)
+        public async Task<IActionResult> Index(string searchString, int page = 1)
         {
-            // Récupérer tous les patients
-            var patients = from p in _context.Patients
-                          select p;
+            const int pageSize = 20;
+            var patients = _context.Patients
+                .AsNoTracking();
 
             // Filtrer si une recherche est effectuée
             if (!String.IsNullOrEmpty(searchString))
             {
-                patients = patients.Where(p => p.Nom.Contains(searchString) 
+                patients = patients.Where(p => p.Nom.Contains(searchString)
                                             || p.Prenom.Contains(searchString)
                                             || p.Telephone.Contains(searchString));
             }
 
+            var totalCount = await patients.CountAsync();
+            var results = await patients
+                .OrderBy(p => p.Nom)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
             // Passer la recherche à la vue pour la conserver dans le champ
             ViewData["CurrentFilter"] = searchString;
+            ViewData["Page"] = page;
+            ViewData["TotalPages"] = (int)Math.Ceiling(totalCount / (double)pageSize);
 
-            return View(await patients.ToListAsync());
+            return View(results);
         }
 
         // GET: FrontDesk/Patients/Details/5
@@ -52,6 +64,7 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
             }
 
             var patient = await _context.Patients
+                .AsNoTracking()
                 .Include(p => p.Dossier)
                     .ThenInclude(d => d.Consultations)
                 .Include(p => p.Dossier)
@@ -65,6 +78,7 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
             }
 
             var nextRendezVous = await _context.RendezVous
+                .AsNoTracking()
                 .Include(r => r.Doctor)
                 .Where(r => r.PatientId == patient.Id && r.DateHeure >= DateTime.Now)
                 .OrderBy(r => r.DateHeure)
@@ -83,6 +97,11 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
         // GET: FrontDesk/Patients/Create
         public IActionResult Create()
         {
+            if (!_currentTenantService.HasTenant)
+            {
+                return NotFound();
+            }
+
             return View();
         }
 
@@ -158,6 +177,7 @@ namespace CabinetMedicalWeb.Areas.FrontDesk.Controllers
             }
 
             var patient = await _context.Patients
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (patient == null)
             {

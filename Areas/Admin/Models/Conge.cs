@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CabinetMedicalWeb.Models
 {
-    public class Conge
+    public class Conge : TenantEntity
     {
         public int Id { get; set; }
 

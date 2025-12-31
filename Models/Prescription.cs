@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CabinetMedicalWeb.Models
 {
-    public class Prescription
+    public class Prescription : TenantEntity
     {
         [Key]
         public int IdPrescription { get; set; } // Correspond à "idPrescription" du diagramme

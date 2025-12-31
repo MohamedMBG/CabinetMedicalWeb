@@ -78,6 +78,9 @@ namespace CabinetMedicalWeb.Data.Migrations
                     b.Property<string>("Specialite")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -94,6 +97,8 @@ namespace CabinetMedicalWeb.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -124,9 +129,14 @@ namespace CabinetMedicalWeb.Data.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PersonnelId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Conges");
                 });
@@ -156,11 +166,16 @@ namespace CabinetMedicalWeb.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DoctorId");
 
                     b.HasIndex("DossierMedicalId");
+
+                    b.HasIndex("TenantId", "Date");
 
                     b.ToTable("Consultation");
                 });
@@ -176,10 +191,15 @@ namespace CabinetMedicalWeb.Data.Migrations
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PatientId")
                         .IsUnique();
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Dossiers");
                 });
@@ -204,9 +224,14 @@ namespace CabinetMedicalWeb.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("IdHoraire");
 
                     b.HasIndex("DoctorId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Horaires");
                 });
@@ -250,7 +275,12 @@ namespace CabinetMedicalWeb.Data.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Patients");
                 });
@@ -277,11 +307,16 @@ namespace CabinetMedicalWeb.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("IdPrescription");
 
                     b.HasIndex("DoctorId");
 
                     b.HasIndex("DossierMedicalId");
+
+                    b.HasIndex("TenantId", "DatePrescription");
 
                     b.ToTable("Prescriptions");
                 });
@@ -312,11 +347,16 @@ namespace CabinetMedicalWeb.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DoctorId");
 
                     b.HasIndex("PatientId");
+
+                    b.HasIndex("TenantId", "DateHeure");
 
                     b.ToTable("RendezVous");
                 });
@@ -378,11 +418,16 @@ namespace CabinetMedicalWeb.Data.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DoctorId");
 
                     b.HasIndex("PatientId");
+
+                    b.HasIndex("TenantId", "DateSouhaitee");
 
                     b.ToTable("ReservationRequests");
                 });
@@ -411,6 +456,9 @@ namespace CabinetMedicalWeb.Data.Migrations
                     b.Property<string>("ScanUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("TypeExamen")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -419,7 +467,39 @@ namespace CabinetMedicalWeb.Data.Migrations
 
                     b.HasIndex("DossierMedicalId");
 
+                    b.HasIndex("TenantId", "DateExamen");
+
                     b.ToTable("ResultatExamens");
+                });
+
+            modelBuilder.Entity("CabinetMedicalWeb.Models.Tenant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Tenants");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -559,6 +639,17 @@ namespace CabinetMedicalWeb.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("CabinetMedicalWeb.Models.ApplicationUser", b =>
+                {
+                    b.HasOne("CabinetMedicalWeb.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
             modelBuilder.Entity("CabinetMedicalWeb.Models.Conge", b =>
                 {
                     b.HasOne("CabinetMedicalWeb.Models.ApplicationUser", "Personnel")
@@ -567,7 +658,15 @@ namespace CabinetMedicalWeb.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CabinetMedicalWeb.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Personnel");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("CabinetMedicalWeb.Models.Consultation", b =>
@@ -582,9 +681,17 @@ namespace CabinetMedicalWeb.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CabinetMedicalWeb.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Doctor");
 
                     b.Navigation("DossierMedical");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("CabinetMedicalWeb.Models.DossierMedical", b =>
@@ -595,7 +702,15 @@ namespace CabinetMedicalWeb.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CabinetMedicalWeb.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Patient");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("CabinetMedicalWeb.Models.Horaire", b =>
@@ -606,7 +721,26 @@ namespace CabinetMedicalWeb.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CabinetMedicalWeb.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Doctor");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("CabinetMedicalWeb.Models.Patient", b =>
+                {
+                    b.HasOne("CabinetMedicalWeb.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("CabinetMedicalWeb.Models.Prescription", b =>
@@ -623,9 +757,17 @@ namespace CabinetMedicalWeb.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CabinetMedicalWeb.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Doctor");
 
                     b.Navigation("DossierMedical");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("CabinetMedicalWeb.Models.RendezVous", b =>
@@ -642,9 +784,17 @@ namespace CabinetMedicalWeb.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CabinetMedicalWeb.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Doctor");
 
                     b.Navigation("Patient");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("CabinetMedicalWeb.Models.ReservationRequest", b =>
@@ -657,9 +807,17 @@ namespace CabinetMedicalWeb.Data.Migrations
                         .WithMany()
                         .HasForeignKey("PatientId");
 
+                    b.HasOne("CabinetMedicalWeb.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Doctor");
 
                     b.Navigation("Patient");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("CabinetMedicalWeb.Models.ResultatExamen", b =>
@@ -670,7 +828,15 @@ namespace CabinetMedicalWeb.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CabinetMedicalWeb.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("DossierMedical");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
