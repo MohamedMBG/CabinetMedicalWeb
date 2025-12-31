@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CabinetMedicalWeb.Models
 {
-    public class Patient
+    public class Patient : TenantEntity
     {
         public int Id { get; set; }
 

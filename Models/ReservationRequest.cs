@@ -10,7 +10,7 @@ namespace CabinetMedicalWeb.Models
         public const string Rejected = "REJECTED";
     }
 
-    public class ReservationRequest
+    public class ReservationRequest : TenantEntity
     {
         public int Id { get; set; }
 

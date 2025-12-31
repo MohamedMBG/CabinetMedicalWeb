@@ -1,4 +1,6 @@
 using CabinetMedicalWeb.Data;
+using CabinetMedicalWeb.Filters;
+using CabinetMedicalWeb.Middleware;
 using CabinetMedicalWeb.Models;
 using CabinetMedicalWeb.Services; // Namespace for Email and Cloudinary services
 using Microsoft.AspNetCore.Identity;
@@ -19,11 +21,14 @@ namespace CabinetMedicalWeb
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
+            builder.Services.AddScoped<ICurrentTenantService, CurrentTenantService>();
+            builder.Services.AddScoped<RequireTenantFilter>();
+
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder.Services.AddDefaultIdentity<ApplicationUser>(options => 
+            builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
             {
-                options.SignIn.RequireConfirmedAccount = false; 
+                options.SignIn.RequireConfirmedAccount = false;
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
                 options.Password.RequireUppercase = true;
@@ -41,7 +46,10 @@ namespace CabinetMedicalWeb
             // Registers the Cloudinary service so it can be injected into LaboController
             builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
-            builder.Services.AddControllersWithViews();
+            builder.Services.AddControllersWithViews(options =>
+            {
+                options.Filters.AddService<RequireTenantFilter>();
+            });
 
             var app = builder.Build();
 
@@ -59,10 +67,17 @@ namespace CabinetMedicalWeb
             app.UseHttpsRedirection();
             app.UseRouting();
 
+            app.UseMiddleware<TenantResolverMiddleware>();
+
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();
+
+            app.MapControllerRoute(
+                name: "tenant",
+                pattern: "clinic/{tenant}/{controller=Home}/{action=Index}/{id?}")
+                .WithStaticAssets();
 
             app.MapControllerRoute(
                 name: "areas",
